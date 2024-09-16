@@ -1,0 +1,21 @@
+const express = require('express');
+const { check } = require('express-validator');
+const authController = require('../controllers/authController'); // Chemin correct vers le contrôleur
+
+const router = express.Router();
+
+// Route pour l'inscription
+router.post('/signup', [
+  check('nom', 'Le nom est requis').not().isEmpty(),
+  check('email', 'Un email valide est requis').isEmail(),
+  check('password', 'Le mot de passe doit contenir au moins 6 caractères').isLength({ min: 6 }),
+  check('username', 'Le nom d\'utilisateur est requis').not().isEmpty()
+], authController.signup);
+
+// Route pour la connexion
+router.post('/login', [
+  check('username', 'Le nom d\'utilisateur est requis').not().isEmpty(),
+  check('password', 'Le mot de passe est requis').not().isEmpty()
+], authController.login);
+
+module.exports = router;

@@ -25,14 +25,6 @@ const Etudiants = sequelize.define('Etudiants', {
           key: 'id',
         },
     },
-    candidat_id: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'Candidats',
-        key: 'id',
-      },
-    },
     photo: {
       type: DataTypes.STRING,
       allowNull: true,
