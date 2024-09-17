@@ -1,4 +1,5 @@
-const validPassword = await bcrypt.compare(password, etudiant.password);
-if (!validPassword) {
-    return res.status(401).json({ message: 'Mot de passe incorrect' });
-}
+// routes/etudiantRoutes.js
+const express = require('express');
+const etudiantController = require('../controllers/etudiantController');
+const router = express.Router();
+

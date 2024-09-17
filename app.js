@@ -1,4 +1,5 @@
 const express = require('express');
+const cors = require('cors');
 const sequelize = require('./config/database');
 const etudiantRoutes = require('./app/routes/etudiantRoutes');
 const mentionRoutes = require('./app/routes/mentionRoutes');
@@ -6,6 +7,8 @@ const loginRoute = require('./app/routes/login');
 const profilRoute = require('./app/routes/profil');
 
 const app = express();
+
+app.use(cors());
 
 // Middleware pour parser les requêtes JSON
 app.use(express.json());
@@ -81,5 +84,5 @@ app.post('/mentions/create', async (req, res) => {
 
 
 
-app.use('/api', loginRoute);
+app.use('/', loginRoute);
 app.use('/api', profilRoute);
