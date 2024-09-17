@@ -3,7 +3,7 @@ const cors = require('cors');
 const sequelize = require('./config/database');
 const etudiantRoutes = require('./app/routes/etudiantRoutes');
 const mentionRoutes = require('./app/routes/mentionRoutes');
-const loginRoute = require('./app/routes/login');
+const loginRoute = require('./app/routes/loginRoutes');
 const profilRoute = require('./app/routes/profil');
 
 const app = express();
