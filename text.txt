@@ -1,21 +1,22 @@
 const express = require('express');
-const { check } = require('express-validator');
-const authController = require('../controllers/authController'); // Chemin correct vers le contrôleur
+const sequelize = require('./config/database');
+const Etudiants = require('./models/Etudiants'); // Assure-toi que ce chemin est correct
 
-const router = express.Router();
+const app = express();
+app.use(express.json());
 
-// Route pour l'inscription
-router.post('/signup', [
-  check('nom', 'Le nom est requis').not().isEmpty(),
-  check('email', 'Un email valide est requis').isEmail(),
-  check('password', 'Le mot de passe doit contenir au moins 6 caractères').isLength({ min: 6 }),
-  check('username', 'Le nom d\'utilisateur est requis').not().isEmpty()
-], authController.signup);
+const PORT = process.env.PORT || 3000;
 
-// Route pour la connexion
-router.post('/login', [
-  check('username', 'Le nom d\'utilisateur est requis').not().isEmpty(),
-  check('password', 'Le mot de passe est requis').not().isEmpty()
-], authController.login);
+app.post('/etudiants/create', async (req, res) => {
+  try {
+    const etudiant = await Etudiants.create(req.body);
+    res.status(201).json({ message: 'Utilisateur créé avec succès', etudiant });
+  } catch (error) {
+    console.error('Erreur lors de la création de l\'utilisateur:', error);
+    res.status(500).json({ message: 'Erreur lors de la création de l\'utilisateur', error });
+  }
+});
 
-module.exports = router;
+app.listen(PORT, () => {
+  console.log(`Le serveur tourne sur le port ${PORT}`);
+});
