@@ -12,16 +12,16 @@ const Acceuil: React.FC = () => {
 
       <div className="icon-menu">
         <ul className="nav-items">
-            <li className="nav-item">
+            <li className="nav-iteme">
             <Home size={30} />
             </li>
-            <li className="nav-item">
+            <li className="nav-iteme">
             <Users size={30} />
             </li>
-            <li className="nav-item">
+            <li className="nav-iteme">
             <Shield size={30} />
             </li>
-            <li className="nav-item">
+            <li className="nav-iteme">
             <Lightbulb size={30} />
             </li>
         </ul>
