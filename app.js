@@ -1,7 +1,9 @@
 const express = require('express');
 const sequelize = require('./config/database');
-//const etudiantRoutes = require('./app/routes/etudiantRoutes');
+const etudiantRoutes = require('./app/routes/etudiantRoutes');
 const mentionRoutes = require('./app/routes/mentionRoutes');
+const loginRoute = require('./app/routes/login');
+const profilRoute = require('./app/routes/profil');
 
 const app = express();
 
@@ -76,3 +78,8 @@ app.post('/mentions/create', async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la création de la mention', error });
   }
 });
+
+
+
+app.use('/api', loginRoute);
+app.use('/api', profilRoute);

@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/database');
+const bcrypt = require('bcrypt');
 
 const Etudiants = sequelize.define('etudiants', {
     id: {
@@ -68,6 +69,14 @@ const Etudiants = sequelize.define('etudiants', {
       allowNull: false,
     },
   });
+
+
+  // Avant de créer l'utilisateur, hasher le mot de passe
+Etudiants.beforeCreate(async (etudiant) => {
+  const salt = await bcrypt.genSalt(10);
+  etudiant.password = await bcrypt.hash(etudiant.password, salt);
+});
+
   
   module.exports = Etudiants;
   

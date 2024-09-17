@@ -1,22 +1,4 @@
-const express = require('express');
-const sequelize = require('./config/database');
-const Etudiants = require('./models/Etudiants'); // Assure-toi que ce chemin est correct
-
-const app = express();
-app.use(express.json());
-
-const PORT = process.env.PORT || 3000;
-
-app.post('/etudiants/create', async (req, res) => {
-  try {
-    const etudiant = await Etudiants.create(req.body);
-    res.status(201).json({ message: 'Utilisateur créé avec succès', etudiant });
-  } catch (error) {
-    console.error('Erreur lors de la création de l\'utilisateur:', error);
-    res.status(500).json({ message: 'Erreur lors de la création de l\'utilisateur', error });
-  }
-});
-
-app.listen(PORT, () => {
-  console.log(`Le serveur tourne sur le port ${PORT}`);
-});
+const validPassword = await bcrypt.compare(password, etudiant.password);
+if (!validPassword) {
+    return res.status(401).json({ message: 'Mot de passe incorrect' });
+}
