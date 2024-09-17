@@ -7,12 +7,36 @@ import logo from "../assets/Logo ACEEMM.png";
 const Login: React.FC = () => {
   const [username, setUsername] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Login submitted', { username, password });
-    navigate('/home');
+
+    try {
+      const response = await fetch('http://localhost:4000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Stocker le token JWT dans le localStorage ou dans un state manager comme Redux
+        localStorage.setItem('token', data.token);
+
+        // Redirection après succès
+        navigate('/home');
+      } else {
+        setError(data.message || 'Erreur lors de la connexion');
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Erreur serveur');
+    }
   };
 
   return (
@@ -58,6 +82,7 @@ const Login: React.FC = () => {
               Connexion
             </button>
           </form>
+          {error && <p className="error">{error}</p>}
         </div>
       </div>
     </div>
