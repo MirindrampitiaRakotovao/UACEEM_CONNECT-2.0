@@ -1,7 +1,6 @@
 // Login.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import '../styles/login.css'; // Import du fichier CSS
 import logo from "../assets/Logo ACEEMM.png";
 
 const Login: React.FC = () => {
@@ -40,50 +39,49 @@ const Login: React.FC = () => {
   };
 
   return (
-    <div className="container">
-      <div className="card">
+    <div className="flex justify-center items-center min-h-screen bg-gray-100">
+      <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
         <img
           src={logo}
           alt="logo"
-          className="logo"
+          className="mx-auto w-24 h-auto mb-4"
         />
-        <h2 className="title">UACEEM-CONNECT</h2>
-        <p className="subtitle">Connectez-vous pour recevoir des informations</p>
+        <h2 className="text-2xl font-bold text-center mb-2">UACEEM-CONNECT</h2>
+        <p className="text-gray-600 text-center mb-6">
+          Connectez-vous pour recevoir des informations
+        </p>
         
-        <div className="form-content">
-          <form onSubmit={handleSubmit} className="form">
-            <div className="label-group">
-              <label htmlFor="">Nom d'utilisateur</label>
-            </div>
-            <div className="input-group">
-              <input
-                type="text"
-                placeholder="Entrez votre nom d'utilisateur"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                className="input"
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block font-semibold mb-1">Nom d'utilisateur</label>
+            <input
+              type="text"
+              placeholder="Entrez votre nom d'utilisateur"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-            <div className="label-group">
-              <label htmlFor="">Mot de passe</label>
-            </div>
-            <div className="input-group">
-              <input
-                type="password"
-                placeholder="Entrez votre mot de passe"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="input"
-              />
-            </div>
+          <div>
+            <label className="block font-semibold mb-1">Mot de passe</label>
+            <input
+              type="password"
+              placeholder="Entrez votre mot de passe"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
-            <button type="submit" className="button">
-              Connexion
-            </button>
-          </form>
-          {error && <p className="error">{error}</p>}
-        </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition-colors"
+          >
+            Connexion
+          </button>
+        </form>
+        {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
       </div>
     </div>
   );

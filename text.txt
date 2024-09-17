@@ -1,63 +1,49 @@
-import { useState } from 'react';
+import { Home, Users, Shield, Lightbulb, MessageCircle, Bell } from 'lucide-react';
 import logo from './path-to-your-logo'; // Assurez-vous d'importer le logo
 
-const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Logique de gestion de la soumission du formulaire
-  };
-
+const Acceuil = () => {
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-96">
-        <img
-          src={logo}
-          alt="logo"
-          className="mx-auto w-24 h-auto mb-4"
-        />
-        <h2 className="text-2xl font-bold text-center mb-2">UACEEM-CONNECT</h2>
-        <p className="text-gray-600 text-center mb-6">
-          Connectez-vous pour recevoir des informations
-        </p>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block font-semibold mb-1">Nom d'utilisateur</label>
-            <input
-              type="text"
-              placeholder="Entrez votre nom d'utilisateur"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block font-semibold mb-1">Mot de passe</label>
-            <input
-              type="password"
-              placeholder="Entrez votre mot de passe"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition-colors"
-          >
-            Connexion
-          </button>
-        </form>
-        {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+    <nav className="flex justify-between items-center px-5 h-16 bg-white border-b border-gray-200">
+      {/* Logo */}
+      <div className="w-20">
+        <img src={logo} alt="Logo" className="h-auto w-full" /> {/* Utilisez votre logo ici */}
       </div>
-    </div>
+
+      {/* Icones du menu principal */}
+      <div className="flex justify-center flex-1">
+        <ul className="flex space-x-12">
+          <li className="cursor-pointer">
+            <Home size={30} />
+          </li>
+          <li className="cursor-pointer">
+            <Users size={30} />
+          </li>
+          <li className="cursor-pointer">
+            <Shield size={30} />
+          </li>
+          <li className="cursor-pointer">
+            <Lightbulb size={30} />
+          </li>
+        </ul>
+      </div>
+
+      {/* Barre de recherche */}
+      <div className="flex justify-center items-center">
+        <input
+          type="text"
+          placeholder="Rechercher ..."
+          className="w-72 p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      {/* Autres icônes (messages, notifications, avatar) */}
+      <div className="flex items-center space-x-4">
+        <MessageCircle size={30} className="cursor-pointer" />
+        <Bell size={30} className="cursor-pointer" />
+        <img src="/avatar.png" alt="Avatar" className="w-10 h-10 rounded-full object-cover" />
+      </div>
+    </nav>
   );
 };
 
-export default Login;
+export default Acceuil;
