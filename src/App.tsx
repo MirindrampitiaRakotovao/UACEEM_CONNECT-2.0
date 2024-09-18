@@ -1,9 +1,9 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Login from './pages/login';
-import DashBoardAdmin from './pages/dashBoardAdmin';
-import HomeDelegue from './pages/homeDelegue';
-import HomeEtudiant from './pages/homeEtudiant';
+import DashboardAdmin from './pages/dashboardAdmin';
+import DashboardDelegue from './pages/dashboardDelegue';
+import DashboardEtudiant from './pages/dashboardEtudiant';
 
 
 
@@ -12,9 +12,9 @@ const App: React.FC = () => {
     <Router>
       <Routes>
         <Route path="/" element={<Login />} />
-        <Route path="/DashBoardAdmin" element={<DashBoardAdmin />} />
-        <Route path="/homeDelegue" element={<HomeDelegue />} />
-        <Route path="/homeEtudiant" element={<HomeEtudiant />} />
+        <Route path="/DashBoardAdmin" element={<DashboardAdmin />} />
+        <Route path="/homeDelegue" element={<DashboardDelegue />} />
+        <Route path="/homeEtudiant" element={<DashboardEtudiant />} />
       </Routes>
     </Router>
   );

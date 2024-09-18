@@ -1,5 +1,5 @@
-import HomeAdmin from '../components/HomeAdmin';
-import HomePage from '../components/HomePage';
+import HomeAdmin from '../components/Admin/HomeAdmin';
+import HomePage from '../components/content/HomePage';
 
 const Dashboard: React.FC = () => (
   <div>

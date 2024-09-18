@@ -6,14 +6,17 @@ import MainContent from './MainContent';
 const HomePage: React.FC = () => {
   return (
     <div className="flex h-screen">
-      {/* Sidebar gauche */}
-      <SidebarLeft />
+      <div className="flex-none w-1/5 bg-gray-100">
+        <SidebarLeft />
+      </div>
 
-      {/* Contenu principal */}
-      <MainContent />
+      <div className="flex-grow bg-gray-50">
+        <MainContent />
+      </div>
 
-      {/* Sidebar droite */}
-      <SidebarRight />
+      <div className="flex-none w-1/5 bg-gray-100">
+        <SidebarRight />
+      </div>
     </div>
   );
 };

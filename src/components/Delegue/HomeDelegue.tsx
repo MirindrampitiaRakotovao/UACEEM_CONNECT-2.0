@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Home, Users, Shield, Lightbulb, MessageCircle, Bell } from 'lucide-react';
-import logo from "../assets/Logo ACEEMM.png";
+import logo from "../../assets/Logo ACEEMM.png";
 
 const HomeDelegue: React.FC = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -24,16 +24,16 @@ const HomeDelegue: React.FC = () => {
       <div className="flex justify-center flex-1">
         <ul className="flex space-x-20">
           <li className="cursor-pointer">
-            <Home size={30} />
+            <Home size={25} />
           </li>
           <li className="cursor-pointer">
-            <Users size={30} />
+            <Users size={25} />
           </li>
           <li className="cursor-pointer">
-            <Shield size={30} />
+            <Shield size={25} />
           </li>
           <li className="cursor-pointer">
-            <Lightbulb size={30} />
+            <Lightbulb size={25} />
           </li>
         </ul>
       </div>

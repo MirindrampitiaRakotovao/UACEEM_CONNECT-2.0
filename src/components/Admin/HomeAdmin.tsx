@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Home, Users, Shield, Lightbulb, MessageCircle, Bell } from 'lucide-react';
-import logo from "../assets/Logo ACEEMM.png";
+import logo from "../../assets/Logo ACEEMM.png";
 
 const HomeAdmin: React.FC = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -16,8 +16,11 @@ const HomeAdmin: React.FC = () => {
   return (
     <nav className="flex justify-between items-center px-5 h-16 bg-white border-b border-gray-200">
       {/* Logo */}
-      <div className="w-20">
-        <img src={logo} alt="Logo" className="h-auto w-full" /> {/* Utilisez votre logo ici */}
+      <div className="flex items-center space-x-2">
+        <img src={logo} alt="Logo" className="h-10" />
+        <span className="font-bold text-3xl tracking-wide text-[#1c3d6e]">
+          UACEEM-CONNECT
+        </span>
       </div>
 
       {/* Icones du menu principal */}
@@ -49,8 +52,8 @@ const HomeAdmin: React.FC = () => {
 
         {/* Autres icônes (messages, notifications, avatar) */}
         <div className="flex items-center space-x-4">
-          <MessageCircle size={30} className="cursor-pointer" />
-          <Bell size={30} className="cursor-pointer" />
+          <MessageCircle size={25} className="cursor-pointer" />
+          <Bell size={25} className="cursor-pointer" />
           
           {/* Avatar avec gestion du clic pour afficher le dropdown */}
           <div className="relative" onMouseEnter={showDropdown} onMouseLeave={hideDropdown}>

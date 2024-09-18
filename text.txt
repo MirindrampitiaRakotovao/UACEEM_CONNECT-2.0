@@ -1,11 +1,10 @@
-import axios from 'axios';
-import jwtDecode from 'jwt-decode';
-import { useNavigate } from 'react-router-dom';
 
-const navigate = useNavigate();
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-
-  
-};
+<div className="flex">
+        <div className=" w-20">
+          <img src={logo} alt="Logo" className="h-auto w-full" />
+        </div>
+        <div className="font-bold text-3xl tracking-wide text-[#0a192f]">
+          UACEEM-CONNECT
+        </div>
+      </div>
