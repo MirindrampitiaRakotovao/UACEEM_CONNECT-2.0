@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Home, Users, Shield, Lightbulb, MessageCircle, Bell } from 'lucide-react';
 import logo from "../assets/Logo ACEEMM.png";
 
-const Acceuil: React.FC = () => {
+const HomeDelegue: React.FC = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
 
   const showDropdown = () => {
@@ -42,7 +42,7 @@ const Acceuil: React.FC = () => {
         <div className="flex justify-center items-center">
           <input
             type="text"
-            placeholder="Rechercher ..."
+            placeholder="Rechercher Delegue..."
             className="w-72 p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
@@ -92,4 +92,5 @@ const Acceuil: React.FC = () => {
   );
 };
 
-export default Acceuil;
+export default HomeDelegue;
+

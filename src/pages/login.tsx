@@ -1,6 +1,6 @@
-// Login.tsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { jwtDecode } from 'jwt-decode';
 import logo from "../assets/Logo ACEEMM.png";
 
 const Login: React.FC = () => {
@@ -27,8 +27,21 @@ const Login: React.FC = () => {
         // Stocker le token JWT dans le localStorage ou dans un state manager comme Redux
         localStorage.setItem('token', data.token);
 
-        // Redirection après succès
-        navigate('/home');
+        // Décoder le token JWT pour obtenir le rôle
+        const decodedToken = jwtDecode<{ role: string }>(data.token);
+
+        // Rediriger en fonction du rôle de l'utilisateur
+        switch (decodedToken.role) {
+          case 'admin':
+            navigate('/homeAdmin');
+            break;
+          case 'delegue':
+            navigate('/homeDelegue');
+            break;
+          case 'etudiant':
+            navigate('/homeEtudiant');
+            break;
+        }
       } else {
         setError(data.message || 'Erreur lors de la connexion');
       }
