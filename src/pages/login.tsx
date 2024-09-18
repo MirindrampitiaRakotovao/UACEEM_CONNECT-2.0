@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import axios from 'axios';
 import logo from "../assets/Logo ACEEMM.png";
 
 const Login: React.FC = () => {
@@ -13,41 +14,36 @@ const Login: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:4000/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ username, password }),
+      const response = await axios.post('http://localhost:4000/login', {
+        username,
+        password
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        // Stocker le token JWT dans le localStorage ou dans un state manager comme Redux
-        localStorage.setItem('token', data.token);
-
-        // Décoder le token JWT pour obtenir le rôle
-        const decodedToken = jwtDecode<{ role: string }>(data.token);
-
-        // Rediriger en fonction du rôle de l'utilisateur
-        switch (decodedToken.role) {
-          case 'admin':
-            navigate('/homeAdmin');
-            break;
-          case 'delegue':
-            navigate('/homeDelegue');
-            break;
-          case 'etudiant':
-            navigate('/homeEtudiant');
-            break;
-        }
-      } else {
-        setError(data.message || 'Erreur lors de la connexion');
+      
+      const data = response.data;
+  
+      // Stocker le token JWT dans le localStorage ou dans un state manager comme Redux
+      localStorage.setItem('token', data.token);
+  
+      // Décoder le token JWT pour obtenir le rôle
+      const decodedToken = jwtDecode<{ role: string }>(data.token);
+  
+      // Rediriger en fonction du rôle de l'utilisateur
+      switch (decodedToken.role) {
+        case 'admin':
+          navigate('/DashboardAdmin');
+          break;
+        case 'delegue':
+          navigate('/homeDelegue');
+          break;
+        case 'etudiant':
+          navigate('/homeEtudiant');
+          break;
+        default:
+          setError('Rôle utilisateur inconnu');
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('Erreur serveur');
+      setError(err.response?.data?.message || 'Erreur serveur');
     }
   };
 
