@@ -1,5 +1,56 @@
-// routes/etudiantRoutes.js
 const express = require('express');
-const etudiantController = require('../controllers/etudiantController');
-const router = express.Router();
+const session = require('express-session');
+const app = express();
 
+app.use(express.json());
+
+// Configurer la session
+app.use(
+  session({
+    secret: 'monSecret', // Remplace par un secret plus sécurisé
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: false, // Passe à 'true' en production si tu utilises HTTPS
+      maxAge: 1000 * 60 * 60, // 1 heure de validité
+    },
+  })
+);
+
+// Route de login
+app.post('/login', (req, res) => {
+  const { username, password } = req.body;
+
+  // Simuler une vérification de l'utilisateur
+  if (username === 'admin' && password === 'password') {
+    // Stocker les informations de l'utilisateur dans la session
+    req.session.user = { username, role: 'admin' };
+    return res.json({ message: 'Connexion réussie' });
+  } else {
+    return res.status(401).json({ message: 'Échec de la connexion' });
+  }
+});
+
+// Vérification de session sur une route protégée
+app.get('/homeAdmin', (req, res) => {
+  if (req.session.user && req.session.user.role === 'admin') {
+    return res.json({ message: 'Bienvenue Admin' });
+  } else {
+    return res.status(401).json({ message: 'Non autorisé' });
+  }
+});
+
+// Route de déconnexion
+app.post('/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) {
+      return res.status(500).json({ message: 'Erreur lors de la déconnexion' });
+    }
+    res.clearCookie('connect.sid'); // Supprime le cookie de session
+    return res.json({ message: 'Déconnexion réussie' });
+  });
+});
+
+app.listen(4000, () => {
+  console.log('Serveur démarré sur le port 4000');
+});
