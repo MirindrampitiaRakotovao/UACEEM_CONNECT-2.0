@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_key';
 
 const authenticateToken = (req, res, next) => {
-    const token = req.header('Authorization')?.split(' ')[1];
+    const token = req.cookies.token;
     if (!token) return res.status(403).json({ message: 'Accès refusé, aucun token fourni' });
 
     try {

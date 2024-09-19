@@ -1,14 +1,16 @@
 const express = require('express');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 const sequelize = require('./config/database');
 const etudiantRoutes = require('./app/routes/etudiantRoutes');
 const mentionRoutes = require('./app/routes/mentionRoutes');
-const loginRoute = require('./app/routes/loginRoutes');
-const profilRoute = require('./app/routes/profil');
+
 
 const app = express();
 
 app.use(cors());
+
+app.use(cookieParser());
 
 // Middleware pour parser les requêtes JSON
 app.use(express.json());
@@ -29,7 +31,7 @@ async function startServer() {
     await sequelize.authenticate();
     console.log('Connexion à la base de données réussie');
     
-    await sequelize.sync({ alter: true }); // Synchronise les modèles avec la base de données
+    //await sequelize.sync({ alter: true }); // Synchronise les modèles avec la base de données
     console.log('Synchronisation des modèles avec la base de données réussie.');
     
     const PORT = process.env.PORT || 4000;
@@ -83,6 +85,8 @@ app.post('/mentions/create', async (req, res) => {
 });
 
 
+//pour login
+app.use('/', etudiantRoutes);
 
-app.use('/', loginRoute);
-app.use('/api', profilRoute);
+// Ajouter la route pour la consultation du profil
+app.use('/api/profil', etudiantRoutes);
