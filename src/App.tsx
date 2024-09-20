@@ -6,7 +6,7 @@ import Login from './pages/login';
 import DashboardAdmin from './pages/dashboardAdmin';
 import DashboardDelegue from './pages/dashboardDelegue';
 import DashboardEtudiant from './pages/dashboardEtudiant';
-
+import ProfilPage from './components/content/ProfilPage';
 
 
 const App: React.FC = () => {
@@ -17,6 +17,8 @@ const App: React.FC = () => {
         <Route path="/DashBoardAdmin" element={<DashboardAdmin />} />
         <Route path="/homeDelegue" element={<DashboardDelegue />} />
         <Route path="/homeEtudiant" element={<DashboardEtudiant />} />
+        <Route path="/profile/:username" element={<ProfilPage />} />
+
       </Routes>
     </Router>
   );

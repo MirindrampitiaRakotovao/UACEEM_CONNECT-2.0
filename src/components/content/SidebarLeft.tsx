@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import { Link } from 'react-router-dom';
 import Avatar from '../avatar';
 
 interface DecodedToken {
@@ -33,9 +34,11 @@ const SidebarLeft: React.FC = () => {
         {/* Avatar et nom de l'utilisateur */}
         < Avatar />
         <div className="div">
-            <h2 className="text-xl font-bold">
-            {username ? username : 'Utilisateur'}
-            </h2>
+        <h2 className="text-xl font-bold">
+            {username ? (
+              <Link to={`/profile/${username}`}>{username}</Link>
+            ) : 'Utilisateur'}
+          </h2>
             <p className="text-sm text-gray-500">{role ? role : 'Utilisateur'}</p>
         </div>
       </div>
