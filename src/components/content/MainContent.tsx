@@ -1,5 +1,7 @@
 import React from 'react';
 import { CalendarDays , PackageOpen , Image } from 'lucide-react';
+import Avatar from "../avatar";
+
 
 const MainContent: React.FC = () => {
   return (
@@ -29,8 +31,8 @@ const MainContent: React.FC = () => {
 
       {/* Liste des publications */}
       <div className="bg-white p-4 rounded-md shadow mb-6">
-        <div className="flex items-center mb-4">
-          <img src="/avatar2.png" alt="Avatar" className="w-10 h-10 rounded-full object-cover mr-3" />
+        <div className="flex items-center mb-4 space-x-5">
+          < Avatar />
           <div>
             <h3 className="text-lg font-bold">Ambinintsoa</h3>
             <p className="text-sm text-gray-500">Étudiant en L3 Informatique</p>

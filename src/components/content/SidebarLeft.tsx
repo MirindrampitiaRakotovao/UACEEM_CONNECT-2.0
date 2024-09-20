@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
+import Avatar from '../avatar';
 
 interface DecodedToken {
   username: string;
@@ -30,11 +31,7 @@ const SidebarLeft: React.FC = () => {
     <div className="max-w-sm bg-white shadow-lg rounded-lg overflow-hidden mx-auto my-4 p-6">
       <div className="flex space-x-5">
         {/* Avatar et nom de l'utilisateur */}
-        <img
-          src="/avatar.png"
-          alt="Avatar"
-          className="w-24 h-24 rounded-full object-cover mb-4"
-        />
+        < Avatar />
         <div className="div">
             <h2 className="text-xl font-bold">
             {username ? username : 'Utilisateur'}

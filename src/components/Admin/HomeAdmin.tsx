@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Home, Users, ShieldAlert, Lightbulb, MessageCircle, Bell } from 'lucide-react';
+import { Home, Users, ShieldAlert, Lightbulb, MessageCircle, Bell , User } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import logo from "../../assets/Logo ACEEMM.png";
+import Avatar from "../avatar";
 
 const HomeAdmin: React.FC = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -77,11 +78,7 @@ const HomeAdmin: React.FC = () => {
           <div className="relative" 
             onMouseEnter={showDropdown} 
           >
-            <img
-              src="/avatar.png"
-              alt="Avatar"
-              className="w-10 h-10 rounded-full object-cover cursor-pointer"
-            />
+            <Avatar />
             {isDropdownVisible && (
               <div className="absolute right-0 mt-2 w-60 bg-white border border-gray-300 rounded-md shadow-lg"
                 onMouseEnter={showDropdown}
@@ -96,11 +93,7 @@ const HomeAdmin: React.FC = () => {
                 }}
               >
                 <div className="flex p-4 space-x-5 cursor-pointer">
-                  <img
-                    src="/avatar.png"
-                    alt="Avatar"
-                    className="w-10 h-10 rounded-full object-cover mb-2"
-                  />
+                  < Avatar />
                   <p className="text-gray-700">Faniriniaina</p>
                 </div>
                 <ul>
