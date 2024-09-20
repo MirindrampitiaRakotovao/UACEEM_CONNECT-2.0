@@ -67,6 +67,7 @@ const Etudiants = sequelize.define('etudiants', {
     status: {
       type: DataTypes.BOOLEAN,
       allowNull: false,
+      defaultValue: false,
     },
   });
 

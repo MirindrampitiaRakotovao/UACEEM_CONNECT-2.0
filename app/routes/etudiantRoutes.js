@@ -13,3 +13,6 @@ router.post('/create', etudiantController.createEtudiant);
 router.get('/me' , authenticateToken , etudiantController.getProfil);
 
 module.exports = router;
+
+//Route pour logout
+router.post('/logout', authenticateToken, etudiantController.logout);

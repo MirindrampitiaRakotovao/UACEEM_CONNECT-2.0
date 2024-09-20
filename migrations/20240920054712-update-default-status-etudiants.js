@@ -31,8 +31,6 @@ module.exports = {
             model: 'mentions',
             key: 'id',
           },
-          onUpdate: 'CASCADE',
-          onDelete: 'CASCADE',
       },
       photo: {
         type: DataTypes.STRING,
@@ -75,6 +73,7 @@ module.exports = {
       status: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
+        defaultValue: false,
       },
 
       //Autres colonnes 

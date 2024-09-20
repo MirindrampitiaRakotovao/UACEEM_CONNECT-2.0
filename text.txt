@@ -1,5 +1,25 @@
-const express = require('express');
-const cookieParser = require('cookie-parser');
-const app = express();
+exports.logout = async (req, res) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Utilisateur non authentifié' });
+    }
 
-app.use(cookieParser()); // Middleware pour gérer les cookies
+    const etudiantId = req.user.id;
+    const etudiant = await Etudiant.findByPk(etudiantId);
+
+    if (!etudiant) {
+        return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    // Mise à jour du statut à false pour indiquer que l'utilisateur est hors ligne
+    await etudiant.update({ status: false });
+
+    // Effacer le cookie contenant le token
+    res.clearCookie('token');
+
+    res.status(200).json({ message: 'Déconnexion réussie' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur', error });
+  }
+};

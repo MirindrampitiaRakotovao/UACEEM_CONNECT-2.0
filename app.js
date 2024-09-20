@@ -89,4 +89,4 @@ app.post('/mentions/create', async (req, res) => {
 app.use('/', etudiantRoutes);
 
 // Ajouter la route pour la consultation du profil
-app.use('/api/profil', etudiantRoutes);
+app.use('/profil', etudiantRoutes);
