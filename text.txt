@@ -1,25 +1,19 @@
-exports.logout = async (req, res) => {
-  try {
-    if (!req.user) {
-      return res.status(401).json({ message: 'Utilisateur non authentifié' });
-    }
+const multer = require('multer');
 
-    const etudiantId = req.user.id;
-    const etudiant = await Etudiant.findByPk(etudiantId);
-
-    if (!etudiant) {
-        return res.status(404).json({ message: 'Utilisateur non trouvé' });
-    }
-
-    // Mise à jour du statut à false pour indiquer que l'utilisateur est hors ligne
-    await etudiant.update({ status: false });
-
-    // Effacer le cookie contenant le token
-    res.clearCookie('token');
-
-    res.status(200).json({ message: 'Déconnexion réussie' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Erreur serveur', error });
+// Configuration de l'emplacement de stockage des fichiers
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // Répertoire où seront stockés les fichiers
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + '-' + file.originalname); // Nomme le fichier avec un timestamp
   }
-};
+});
+
+// Configuration de Multer, avec une limite de taille de fichier
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 5 * 1024 * 1024 } // Limite de taille fixée à 5MB
+});
+
+module.exports = upload;

@@ -138,3 +138,23 @@ exports.getProfil = async (req, res) => {
         res.status(500).json({ message: 'Erreur serveur', error });
     }
 };
+
+// Fonction pour mettre à jour la photo de profil
+exports.updatePhoto = async (req, res) => {
+  try {
+    const etudiantId = req.user.id;
+    const etudiant = await Etudiant.findByPk(etudiantId);
+    
+    if (!etudiant) {
+      return res.status(404).json({ error: 'Étudiant non trouvé' });
+    }
+
+    // Mettre à jour le chemin de la photo dans la base de données
+    etudiant.photo = `../uploads/${req.file.filename}`;
+    await etudiant.save();
+
+    res.status(200).json({ message: 'Photo mise à jour avec succès', photo: etudiant.photo });
+  } catch (error) {
+    res.status(500).json({ error: 'Une erreur est survenue' });
+  }
+};
