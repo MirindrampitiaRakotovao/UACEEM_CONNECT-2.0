@@ -1,9 +1,27 @@
 import React, { useState } from 'react';
-import { Home, Users, Shield, Lightbulb, MessageCircle, Bell } from 'lucide-react';
+import { Home, Users, ShieldAlert, Lightbulb, MessageCircle, Bell } from 'lucide-react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import logo from "../../assets/Logo ACEEMM.png";
 
 const HomeAdmin: React.FC = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    try {
+      const response = await axios.post('http://localhost:4000/logout');
+
+      if (response.status === 200) {
+        // Si la déconnexion a réussi, rediriger vers la page de login
+        navigate('/login');  // Redirige vers /login
+      } else {
+        console.error('Erreur lors de la déconnexion : ', response.status);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion :", error);
+    }
+  };
 
   const showDropdown = () => {
     setDropdownVisible(true);
@@ -33,7 +51,7 @@ const HomeAdmin: React.FC = () => {
             <Users size={25} />
           </li>
           <li className="cursor-pointer">
-            <Shield size={25} />
+            <ShieldAlert size={25} />
           </li>
           <li className="cursor-pointer">
             <Lightbulb size={25} />
@@ -56,15 +74,28 @@ const HomeAdmin: React.FC = () => {
           <Bell size={25} className="cursor-pointer" />
           
           {/* Avatar avec gestion du clic pour afficher le dropdown */}
-          <div className="relative" onMouseEnter={showDropdown} onMouseLeave={hideDropdown}>
+          <div className="relative" 
+            onMouseEnter={showDropdown} 
+          >
             <img
               src="/avatar.png"
               alt="Avatar"
               className="w-10 h-10 rounded-full object-cover cursor-pointer"
             />
             {isDropdownVisible && (
-              <div className="absolute right-0 mt-2 w-60 bg-white border border-gray-300 rounded-md shadow-lg">
-                <div className="flex p-4 space-x-5">
+              <div className="absolute right-0 mt-2 w-60 bg-white border border-gray-300 rounded-md shadow-lg"
+                onMouseEnter={showDropdown}
+                onMouseLeave={(e) => {
+                  if (e.currentTarget instanceof Node && e.relatedTarget instanceof Node) {
+                    if (e.currentTarget.contains(e.relatedTarget)) {
+                      return;
+                    }
+                  }
+            
+                  hideDropdown();
+                }}
+              >
+                <div className="flex p-4 space-x-5 cursor-pointer">
                   <img
                     src="/avatar.png"
                     alt="Avatar"
@@ -84,7 +115,9 @@ const HomeAdmin: React.FC = () => {
                     </span>
                   </li>
                   <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Aide & Support</li>
-                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Déconnexion</li>
+                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={handleLogout}                  
+                  >Déconnexion</li>
                 </ul>
               </div>
             )}

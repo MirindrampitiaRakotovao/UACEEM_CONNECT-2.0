@@ -1,4 +1,5 @@
 import React from 'react';
+import { CalendarDays , PackageOpen , Image } from 'lucide-react';
 
 const MainContent: React.FC = () => {
   return (
@@ -8,12 +9,21 @@ const MainContent: React.FC = () => {
         <input
           type="text"
           placeholder="Que voulez-vous faire aujourd'hui ?"
-          className="w-full p-3 border rounded-lg mb-3"
+          className="w-1/2 p-3 border rounded-lg mb-3"
         />
-        <div className="flex space-x-4">
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-md">Photo / Vidéo</button>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-md">Fichier</button>
-          <button className="bg-blue-500 text-white px-4 py-2 rounded-md">Événement</button>
+        <div className="flex space-x-5">
+          <button className=" flex space-x-8 bg-blue-500 text-white px-4 py-2 rounded-md">
+            <Image className="w-6 h-6 text-white-500" />
+            Photo / Vidéo
+          </button>
+          <button className=" flex space-x-8 bg-blue-500 text-white px-4 py-2 rounded-md">
+            <PackageOpen className="w-6 h-6 text-white-500" />
+            Fichier
+          </button>
+          <button className=" flex space-x-8 bg-blue-500 text-white px-4 py-2 rounded-md">
+            <CalendarDays className="w-6 h-6 text-white-500" />
+            Événement
+          </button>
         </div>
       </div>
 
