@@ -19,7 +19,11 @@ module.exports = router;
 //Route pour logout
 router.post('/logout', authenticateToken, etudiantController.logout);
 
+//Route pour editer profil
 router.post('/photo', authenticateToken, upload.single('photo'), etudiantController.updatePhoto);
+
+//Route pour obtenir tout les utilisateurs
+router.get('/etudiants', authenticateToken , etudiantController.getAllUsers);
 
 
 module.exports = router;

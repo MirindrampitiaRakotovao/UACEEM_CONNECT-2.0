@@ -139,7 +139,7 @@ exports.getProfil = async (req, res) => {
     }
 };
 
-// Fonction pour mettre à jour la photo de profil
+/* Fonction pour mettre à jour la photo de profil */
 exports.updatePhoto = async (req, res) => {
   try {
     const etudiantId = req.user.id;
@@ -156,5 +156,20 @@ exports.updatePhoto = async (req, res) => {
     res.status(200).json({ message: 'Photo mise à jour avec succès', photo: etudiant.photo });
   } catch (error) {
     res.status(500).json({ error: 'Une erreur est survenue' });
+  }
+};
+
+/*Fonction pour récupérer la liste de tous les utilisateurs */
+exports.getAllUsers = async (req, res) => {
+  try {
+    // Récupérer tous les utilisateurs sans inclure le mot de passe
+    const utilisateurs = await Etudiant.findAll({
+      attributes: { exclude: ['password'] } // Exclure les mots de passe
+    });
+
+    res.status(200).json({ utilisateurs });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs', error });
   }
 };
