@@ -9,7 +9,7 @@ const multer = require('../middlewares/upload')
 router.post('/login', etudiantController.login);
 
 // Route pour créer un étudiant
-router.post('/create', etudiantController.createEtudiant);
+router.post('/create/etudiant', etudiantController.createEtudiant);
 
 // Route pour consulter le profil
 router.get('/me' , authenticateToken , etudiantController.getProfil);

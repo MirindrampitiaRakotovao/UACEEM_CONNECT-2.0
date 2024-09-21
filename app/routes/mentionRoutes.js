@@ -3,6 +3,6 @@ const router = express.Router();
 const mentionController = require('../controllers/mentionController');
 
 // Route pour créer une mention
-router.post('/create', mentionController.createMention);
+router.post('/create/mention', mentionController.createMention);
 
 module.exports = router;
