@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Users, ShieldAlert, Lightbulb, MessageCircle, Bell , User } from 'lucide-react';
+import { Home, Users, ShieldAlert, Lightbulb, MessageCircle, Bell  } from 'lucide-react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import logo from "../../assets/Logo ACEEMM.png";
@@ -11,7 +11,7 @@ const HomeAdmin: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.post('http://localhost:4000/logout');
+      const response = await axios.post('http://localhost:4000/logout', {}, { withCredentials: true });
 
       if (response.status === 200) {
         // Si la déconnexion a réussi, rediriger vers la page de login
@@ -30,6 +30,10 @@ const HomeAdmin: React.FC = () => {
 
   const hideDropdown = () => {
     setDropdownVisible(false);
+  };
+
+  const goToProfile = () => {
+    navigate('/profile/:username');  // Redirige vers la page de profil
   };
 
   return (
@@ -92,7 +96,7 @@ const HomeAdmin: React.FC = () => {
                   hideDropdown();
                 }}
               >
-                <div className="flex p-4 space-x-5 cursor-pointer">
+                <div className="flex p-4 space-x-5 cursor-pointer" onClick={goToProfile}>
                   < Avatar />
                   <p className="text-gray-700">Faniriniaina</p>
                 </div>
@@ -108,9 +112,9 @@ const HomeAdmin: React.FC = () => {
                     </span>
                   </li>
                   <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Aide & Support</li>
-                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={handleLogout}                  
-                  >Déconnexion</li>
+                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onMouseEnter={handleLogout}>
+                    Déconnexion
+                  </li>
                 </ul>
               </div>
             )}

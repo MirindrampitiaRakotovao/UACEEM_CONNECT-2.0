@@ -1,65 +1,29 @@
-import React, { useEffect, useState } from 'react';
-import { jwtDecode } from 'jwt-decode';
-import { Link } from 'react-router-dom';
-import Avatar from '../avatar';
+// adminMethods.ts
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
-interface DecodedToken {
-  username: string;
-  role: string;
-}
+export const handleLogout = async (navigate: any) => {
+  try {
+    const response = await axios.post('http://localhost:4000/logout', {}, { withCredentials: true });
 
-const SidebarLeft: React.FC = () => {
-  const [username, setUsername] = useState<string | null>(null);
-  const [role, setRole] = useState<string | null>(null);
-
-  useEffect(() => {
-    // Récupérer le token JWT depuis localStorage
-    const token = localStorage.getItem('token');
-    
-    if (token) {
-      try {
-        // Décoder le token JWT pour récupérer le nom d'utilisateur
-        const decodedToken = jwtDecode<DecodedToken>(token);
-        setUsername(decodedToken.username);
-        setRole(decodedToken.role);
-      } catch (error) {
-        console.error('Erreur lors du décodage du token JWT', error);
-      }
+    if (response.status === 200) {
+      navigate('login'); // Redirige vers /login
+    } else {
+      console.error('Erreur lors de la déconnexion : ', response.status);
     }
-  }, []);
-
-  return (
-    <div className="max-w-sm bg-white shadow-lg rounded-lg overflow-hidden mx-auto my-4 p-6">
-      <div className="flex space-x-5">
-        {/* Avatar et nom de l'utilisateur */}
-        <Avatar />
-        <div className="div">
-          <h2 className="text-xl font-bold">
-            {username ? (
-              <Link to={`/profile/${username}`}>{username}</Link>
-            ) : 'Utilisateur'}
-          </h2>
-          <p className="text-sm text-gray-500">{role ? role : 'Utilisateur'}</p>
-        </div>
-      </div>
-
-      {/* Menu de navigation sous forme de carte */}
-      <div className="mt-6 space-y-4">
-        <button className="w-full text-gray-700 bg-gray-100 p-2 rounded-lg hover:bg-gray-200">
-          Fil d'actualité
-        </button>
-        <button className="w-full text-gray-700 bg-gray-100 p-2 rounded-lg hover:bg-gray-200">
-          Groupes
-        </button>
-        <button className="w-full text-gray-700 bg-gray-100 p-2 rounded-lg hover:bg-gray-200">
-          Messages
-        </button>
-        <button className="w-full text-gray-700 bg-gray-100 p-2 rounded-lg hover:bg-gray-200">
-          Paramètres
-        </button>
-      </div>
-    </div>
-  );
+  } catch (error) {
+    console.error("Erreur lors de la déconnexion :", error);
+  }
 };
 
-export default SidebarLeft;
+export const goToProfile = (navigate: any, username: string) => {
+  navigate(`/profile/${username}`); // Redirige vers la page de profil
+};
+
+export const showDropdown = (setDropdownVisible: React.Dispatch<React.SetStateAction<boolean>>) => {
+  setDropdownVisible(true);
+};
+
+export const hideDropdown = (setDropdownVisible: React.Dispatch<React.SetStateAction<boolean>>) => {
+  setDropdownVisible(false);
+};

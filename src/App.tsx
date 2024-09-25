@@ -6,7 +6,7 @@ import Login from './pages/login';
 import DashboardAdmin from './pages/dashboardAdmin';
 import DashboardDelegue from './pages/dashboardDelegue';
 import DashboardEtudiant from './pages/dashboardEtudiant';
-import ProfilPage from './components/content/ProfilPage';
+import ProfilPage from './components/Admin/ProfilPageAdmin';
 
 
 const App: React.FC = () => {
