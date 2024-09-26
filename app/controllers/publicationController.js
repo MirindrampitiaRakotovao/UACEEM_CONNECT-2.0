@@ -1,0 +1,36 @@
+const Publication = require('../models/publications');
+const Fichier = require('../models/fichier');
+
+exports.createPost = async (req, res) => {
+    const { visibilite, legende } = req.body;
+    const etudiant_id = req.user.id; 
+  
+    try {
+      // Créer la publication
+      const nouvellePublication = await Publication.create({
+        etudiant_id,
+        visibilite,
+        legende,
+        contenu: null,
+        date_publication: new Date(),
+      });
+  
+      // Si plusieurs fichiers sont uploadés, les ajouter à la base de données
+    if (req.files && req.files.length > 0) {
+      const fichiersPromises = req.files.map((file) =>
+        Fichier.create({
+          nom_fichier: file.filename,
+          type_fichier: file.mimetype,
+          id_publication: nouvellePublication.id,
+        })
+      );
+      await Promise.all(fichiersPromises); // Attendre que tous les fichiers soient créés
+    }
+  
+      res.status(201).json({ message: 'Publication créée avec succès', publication: nouvellePublication });
+    } catch (error) {
+      res.status(500).json({ message: 'Erreur lors de la création de la publication', error });
+      error: error.message || error 
+    
+    }
+  };

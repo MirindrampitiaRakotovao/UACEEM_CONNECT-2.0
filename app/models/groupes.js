@@ -25,6 +25,7 @@ const Groupes = sequelize.define('groupes', {
         },
     },
   });
+
   
   module.exports = Groupes;
   

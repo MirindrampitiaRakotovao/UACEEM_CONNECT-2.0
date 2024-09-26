@@ -14,20 +14,20 @@ const storage = multer.diskStorage({
 
 // Filtrage des fichiers par type (exemple: uniquement images)
 const fileFilter = (req, file, cb) => {
-  const allowedFileTypes = /jpeg|jpg|png/;
+  const allowedFileTypes = /jpeg|jpg|png|pdf|doc|docx|xls|xlsx|ppt|pptx/;
   const mimeType = allowedFileTypes.test(file.mimetype);
   const extname = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
 
   if (mimeType && extname) {
     return cb(null, true);
   }
-  cb(new Error('Seuls les fichiers images (jpeg, jpg, png) sont acceptés.'));
+  cb(new Error('Seuls les fichiers images (jpeg, jpg, png) et documents (pdf, doc, xls, ppt) sont acceptés.'));
 };
 
 // Initialiser multer avec les configurations
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 200 * 1024 * 1024 }, // Limite à 5MB
+  limits: { fileSize: 200 * 1024 * 1024 }, // Limite à 200MB
   fileFilter: fileFilter
 });
 

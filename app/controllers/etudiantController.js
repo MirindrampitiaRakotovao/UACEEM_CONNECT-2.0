@@ -17,6 +17,10 @@ exports.login = async (req, res) => {
           return res.status(404).json({ message: 'Utilisateur non trouvé' });
       }
 
+      // Log pour vérifier ce qui est stocké
+      console.log('Mot de passe en clair:', password);  // Mot de passe fourni par l'utilisateur
+      console.log('Mot de passe haché:', etudiant.password);  // Mot de passe stocké en base
+
       // Vérification du mot de passe
       const validPassword = await bcrypt.compare(password, etudiant.password);
       if (!validPassword) {
@@ -28,7 +32,7 @@ exports.login = async (req, res) => {
 
       // Générer un token JWT
       const token = jwt.sign(
-          { id: etudiant.id, username: etudiant.username, role:etudiant.role }, 
+          { id: etudiant.id, username: etudiant.username, role:etudiant.role, groupes_id: etudiant.groupes_id }, 
           JWT_SECRET, 
           { expiresIn: '1h' });
 
@@ -108,7 +112,7 @@ exports.createEtudiant = async (req, res) => {
       date_nais,
       lieu_nais,
       situation_matri,
-      password: hashedPassword,
+      password,
       username,
       role
     });

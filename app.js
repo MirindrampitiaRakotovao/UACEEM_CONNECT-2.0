@@ -8,8 +8,12 @@ const mentionRoutes = require('./app/routes/mentionRoutes');
 const niveauRoutes = require('./app/routes/niveauRoutes');
 const parcoursRoutes = require('./app/routes/parcoursRoutes');
 const groupeRoutes = require('./app/routes/groupeRoutes');
+const publicationsRoutes = require('./app/routes/publicationRoutes');
+
 const authenticateToken = require('./app/middlewares/authenticateToken')
 
+/*association*/
+require('./app/models/association');
 
 const app = express();
 
@@ -62,3 +66,4 @@ app.use('/mention' , mentionRoutes);
 app.use('/niveau' , niveauRoutes);
 app.use('/parcours' , parcoursRoutes);
 app.use('/groupe' , groupeRoutes);
+app.use('/publication', publicationsRoutes);

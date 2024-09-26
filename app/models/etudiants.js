@@ -78,6 +78,5 @@ Etudiants.beforeCreate(async (etudiant) => {
   etudiant.password = await bcrypt.hash(etudiant.password, salt);
 });
 
-  
   module.exports = Etudiants;
   
