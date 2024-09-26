@@ -3,11 +3,9 @@
 const { DataTypes } = require('sequelize');
 
 /** @type {import('sequelize-cli').Migration} */
-
-
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('mentions',{
+    await queryInterface.createTable('parcours',{
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -18,14 +16,19 @@ module.exports = {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      code: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
-      },
       description: {
         type: DataTypes.STRING,
         allowNull: false,
+      },
+      mention_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'mentions',
+          key: 'id',
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
       },
 
       //Autres colonnes 
@@ -41,6 +44,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('mentions');
+    await queryInterface.dropTable('parcours');
   }
 };

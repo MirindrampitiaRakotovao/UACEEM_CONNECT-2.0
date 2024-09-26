@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const { Op } = require('sequelize');
 const Etudiant = require('../models/etudiants');
 
 /*login*/
@@ -86,7 +87,7 @@ exports.logout = async (req, res) => {
 /*creer un etudiant*/
 exports.createEtudiant = async (req, res) => {
   try {
-    const { nom, email, mention_id, matricule, sexe, date_nais, lieu_nais, situation_matri, password, username } = req.body;
+    const { nom, email, groupes_id, matricule, sexe, date_nais, lieu_nais, situation_matri, password, username, role } = req.body;
 
     // Vérifier si l'email ou le matricule existe déjà
     const existingEtudiant = await Etudiant.findOne({ where: { [Op.or]: [{ email }, { matricule }, { username }] } });
@@ -101,14 +102,15 @@ exports.createEtudiant = async (req, res) => {
     const etudiant = await Etudiant.create({
       nom,
       email,
-      mention_id,
+      groupes_id,
       matricule,
       sexe,
       date_nais,
       lieu_nais,
       situation_matri,
       password: hashedPassword,
-      username
+      username,
+      role
     });
 
     res.status(201).json({ message: 'Utilisateur créé avec succès', etudiant });

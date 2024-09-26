@@ -2,10 +2,7 @@
 
 const { DataTypes } = require('sequelize');
 
-
 /** @type {import('sequelize-cli').Migration} */
-
-
 module.exports = {
   async up (queryInterface, Sequelize) {
     await queryInterface.createTable('etudiants', {
@@ -24,11 +21,11 @@ module.exports = {
           allowNull: false,
           unique: true,
       },
-      mention_id: {
+      groupes_id: {
           type: DataTypes.INTEGER,
           allowNull: false,
           references: {
-            model: 'mentions',
+            model: 'groupes',
             key: 'id',
           },
       },

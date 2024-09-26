@@ -1,6 +1,7 @@
+const { Op } = require('sequelize');
 const Mention = require('../models/mentions');
 
-const createMention = async (req, res) => {
+exports.createMention = async (req, res) => {
   try {
     const { design , code , description } = req.body;
 
@@ -10,7 +11,7 @@ const createMention = async (req, res) => {
       return res.status(400).json({ message: 'Cette mention existe déjà.' });
     }
 
-    // Création de l'étudiant
+    // Création de la mention
     const mention = await Mention.create({
       design ,
       code,
@@ -25,4 +26,4 @@ const createMention = async (req, res) => {
   }
 };
 
-module.exports = { createMention };
+

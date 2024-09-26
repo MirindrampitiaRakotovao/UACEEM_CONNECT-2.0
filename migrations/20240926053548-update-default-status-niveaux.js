@@ -3,11 +3,9 @@
 const { DataTypes } = require('sequelize');
 
 /** @type {import('sequelize-cli').Migration} */
-
-
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('parcours',{
+    await queryInterface.createTable('niveaux', {
       id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -15,18 +13,18 @@ module.exports = {
         autoIncrement: true,
       },
       design: {
-        type: DataTypes.STRING,
+        type: DataTypes.ENUM('L1', 'L2', 'L3', 'M1', 'M2'),
         allowNull: false,
       },
       description: {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      mention_id: {
+      parcours_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'mentions',
+          model: 'parcours',
           key: 'id',
         },
         onUpdate: 'CASCADE',
@@ -46,6 +44,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('parcours');
+    await queryInterface.dropTable('niveaux');
   }
 };

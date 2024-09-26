@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/database');
 
-const Niveaux = sequelize.define('niveaux', {
+const Groupes = sequelize.define('groupes', {
     id: {
       type: DataTypes.INTEGER,
       allowNull: false,
@@ -9,25 +9,22 @@ const Niveaux = sequelize.define('niveaux', {
       autoIncrement: true,
     },
     design: {
-      type: DataTypes.ENUM('L1', 'L2', 'L3', 'M1', 'M2'),
+      type: DataTypes.STRING,
       allowNull: false,
     },
     description: {
       type: DataTypes.STRING,
       allowNull: false,
     },
-    parcours_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'parcours',
-        key: 'id',
-      },
+    niveaux_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'niveaux',
+          key: 'id',
+        },
     },
-  },
-  {
-    tableName: 'niveaux', 
   });
-
-module.exports = Niveaux;
-
+  
+  module.exports = Groupes;
+  

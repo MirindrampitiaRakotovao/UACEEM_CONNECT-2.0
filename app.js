@@ -5,6 +5,9 @@ const cookieParser = require('cookie-parser');
 const sequelize = require('./config/database');
 const etudiantRoutes = require('./app/routes/etudiantRoutes');
 const mentionRoutes = require('./app/routes/mentionRoutes');
+const niveauRoutes = require('./app/routes/niveauRoutes');
+const parcoursRoutes = require('./app/routes/parcoursRoutes');
+const groupeRoutes = require('./app/routes/groupeRoutes');
 const authenticateToken = require('./app/middlewares/authenticateToken')
 
 
@@ -53,45 +56,9 @@ async function startServer() {
 // Démarrer le serveur
 startServer();
 
-// Route de test pour vérifier que le serveur fonctionne
-app.get('/', (req, res) => {
-  res.send('Bienvenue sur l\'API de réseau social étudiant');
-});
-
-
-// Etudiants
-const Etudiants = require('./app/models/etudiants'); 
-
-
-
-app.post('/etudiants/create', async (req, res) => {
-  try {
-    const etudiant = await Etudiants.create(req.body);
-    res.status(201).json({ message: 'Utilisateur créé avec succès', etudiant });
-  } catch (error) {
-    console.error('Erreur lors de la création de l\'utilisateur:', error);
-    res.status(500).json({ message: 'Erreur lors de la création de l\'utilisateur', error });
-  }
-});
-
-
-//Mentions
-const Mentions = require('./app/models/mentions');
-
-
-app.post('/mentions/create', async (req, res) => {
-  try {
-    const mention = await Mentions.create(req.body);
-    res.status(201).json({ message: 'Mention créé avec succès', mention });
-  } catch (error) {
-    console.error('Erreur lors de la création de la mention:', error);
-    res.status(500).json({ message: 'Erreur lors de la création de la mention', error });
-  }
-});
-
-
-//pour login
-app.use('/', etudiantRoutes);
-
-// Ajouter la route pour la consultation du profil
-app.use('/profil', etudiantRoutes);
+/*ROUTES*/
+app.use('/etudiant' , etudiantRoutes);
+app.use('/mention' , mentionRoutes);
+app.use('/niveau' , niveauRoutes);
+app.use('/parcours' , parcoursRoutes);
+app.use('/groupe' , groupeRoutes);

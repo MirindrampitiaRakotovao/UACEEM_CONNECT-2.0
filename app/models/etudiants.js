@@ -18,11 +18,11 @@ const Etudiants = sequelize.define('etudiants', {
         allowNull: false,
         unique: true,
     },
-    mention_id: {
+    groupes_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'mentions',
+          model: 'groupes',
           key: 'id',
         },
     },

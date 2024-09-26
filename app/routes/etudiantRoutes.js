@@ -9,7 +9,7 @@ const multer = require('../middlewares/upload')
 router.post('/login', etudiantController.login);
 
 // Route pour créer un étudiant
-router.post('/create/etudiant', etudiantController.createEtudiant);
+router.post('/create', etudiantController.createEtudiant);
 
 // Route pour consulter le profil
 router.get('/me' , authenticateToken , etudiantController.getProfil);
@@ -23,7 +23,8 @@ router.post('/logout', authenticateToken, etudiantController.logout);
 router.post('/photo', authenticateToken, upload.single('photo'), etudiantController.updatePhoto);
 
 //Route pour obtenir tout les utilisateurs
-router.get('/etudiants', authenticateToken , etudiantController.getAllUsers);
+router.get('/contact', authenticateToken , etudiantController.getAllUsers);
 
 
 module.exports = router;
+    
