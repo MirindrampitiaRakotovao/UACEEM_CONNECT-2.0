@@ -8,6 +8,7 @@ const mentionRoutes = require('./app/routes/mentionRoutes');
 const niveauRoutes = require('./app/routes/niveauRoutes');
 const parcoursRoutes = require('./app/routes/parcoursRoutes');
 const groupeRoutes = require('./app/routes/groupeRoutes');
+const partageGroupeRoutes = require('./app/routes/partageGroupeRoutes')
 const publicationsRoutes = require('./app/routes/publicationRoutes');
 
 const authenticateToken = require('./app/middlewares/authenticateToken')
@@ -66,4 +67,5 @@ app.use('/mention' , mentionRoutes);
 app.use('/niveau' , niveauRoutes);
 app.use('/parcours' , parcoursRoutes);
 app.use('/groupe' , groupeRoutes);
+app.use('/partageGroupe' , partageGroupeRoutes);
 app.use('/publication', publicationsRoutes);
