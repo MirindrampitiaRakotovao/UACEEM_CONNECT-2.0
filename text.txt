@@ -1,0 +1,160 @@
+const GroupePartage = require('../models/GroupePartage');
+const PartageGroupeEtudiants = require('../models/PartageGroupeEtudiants');
+const Publication = require('../models/publications');
+const Etudiants = require('../models/etudiants');
+
+// Créer un groupe de partage
+exports.createGroupePartage = async (req, res) => {
+  const { design_groupe_partage } = req.body;
+  const admin_id = req.user.id; // L'utilisateur authentifié devient admin du groupe
+
+  try {
+    const groupe = await GroupePartage.create({
+      design_groupe_partage,
+      admin_id,
+      date_creation: new Date()
+    });
+
+    // Ajouter l'admin comme membre du groupe avec le rôle 'admin'
+    await PartageGroupeEtudiants.create({
+      membre_id: admin_id,
+      groupe_partage_id: groupe.id,
+      date_adhesion: new Date(),
+      role_membre_groupe: 'admin'
+    });
+
+    res.status(201).json({ message: 'Groupe créé avec succès', groupe });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la création du groupe', error: error.message });
+  }
+};
+
+// Ajouter un membre à un groupe
+exports.addMember = async (req, res) => {
+  const { groupe_nom, membre_id } = req.body;
+  const etudiant_id = req.user.id; // ID de l'admin qui ajoute un membre
+
+  try {
+    // Trouver le groupe par son nom
+    const groupe = await GroupePartage.findOne({ where: { design_groupe_partage: groupe_nom } });
+
+    if (!groupe) {
+      return res.status(404).json({ message: 'Groupe non trouvé' });
+    }
+
+    // Vérifier si l'utilisateur est admin du groupe
+    const estAdmin = await PartageGroupeEtudiants.findOne({
+      where: { groupe_partage_id: groupe.id, membre_id: etudiant_id, role_membre_groupe: 'admin' }
+    });
+
+    if (!estAdmin) {
+      return res.status(403).json({ message: 'Action réservée aux administrateurs du groupe' });
+    }
+
+    // Ajouter le nouveau membre au groupe
+    await PartageGroupeEtudiants.create({
+      membre_id,
+      groupe_partage_id: groupe.id,
+      date_adhesion: new Date(),
+      role_membre_groupe: 'membre'
+    });
+
+    res.status(201).json({ message: 'Membre ajouté avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de l\'ajout du membre', error: error.message });
+  }
+};
+
+// Lister les membres d'un groupe
+exports.listMembers = async (req, res) => {
+  const { groupe_nom } = req.params;
+
+  try {
+    // Trouver le groupe par son nom
+    const groupe = await GroupePartage.findOne({ where: { design_groupe_partage: groupe_nom } });
+
+    if (!groupe) {
+      return res.status(404).json({ message: 'Groupe non trouvé' });
+    }
+
+    // Récupérer les membres du groupe
+    const membres = await PartageGroupeEtudiants.findAll({
+      where: { groupe_partage_id: groupe.id },
+      include: [{ model: Etudiants, attributes: ['id', 'nom', 'email', 'username'] }]
+    });
+
+    res.status(200).json({ membres });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération des membres', error: error.message });
+  }
+};
+
+// Supprimer un membre d'un groupe
+exports.removeMember = async (req, res) => {
+  const { groupe_nom, membre_id } = req.body;
+  const etudiant_id = req.user.id; // ID de l'admin qui supprime un membre
+
+  try {
+    // Trouver le groupe par son nom
+    const groupe = await GroupePartage.findOne({ where: { design_groupe_partage: groupe_nom } });
+
+    if (!groupe) {
+      return res.status(404).json({ message: 'Groupe non trouvé' });
+    }
+
+    // Vérifier si l'utilisateur est admin du groupe
+    const estAdmin = await PartageGroupeEtudiants.findOne({
+      where: { groupe_partage_id: groupe.id, membre_id: etudiant_id, role_membre_groupe: 'admin' }
+    });
+
+    if (!estAdmin) {
+      return res.status(403).json({ message: 'Action réservée aux administrateurs du groupe' });
+    }
+
+    // Supprimer le membre du groupe
+    await PartageGroupeEtudiants.destroy({
+      where: { groupe_partage_id: groupe.id, membre_id }
+    });
+
+    res.status(200).json({ message: 'Membre supprimé avec succès' });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la suppression du membre', error: error.message });
+  }
+};
+
+// Publier dans un groupe
+exports.createPostInGroup = async (req, res) => {
+  const { groupe_nom, visibilite, legende } = req.body;
+  const etudiant_id = req.user.id;
+
+  try {
+    // Trouver le groupe par son nom
+    const groupe = await GroupePartage.findOne({ where: { design_groupe_partage: groupe_nom } });
+
+    if (!groupe) {
+      return res.status(404).json({ message: 'Groupe non trouvé' });
+    }
+
+    // Vérifier si l'utilisateur est membre du groupe
+    const estMembre = await PartageGroupeEtudiants.findOne({
+      where: { groupe_partage_id: groupe.id, membre_id: etudiant_id }
+    });
+
+    if (!estMembre) {
+      return res.status(403).json({ message: 'Seuls les membres peuvent publier dans ce groupe' });
+    }
+
+    // Créer la publication
+    const nouvellePublication = await Publication.create({
+      etudiant_id,
+      visibilite,
+      legende,
+      contenu: null, // Pourrait contenir des fichiers, à ajouter plus tard
+      date_publication: new Date()
+    });
+
+    res.status(201).json({ message: 'Publication créée avec succès dans le groupe', publication: nouvellePublication });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la publication', error: error.message });
+  }
+};
