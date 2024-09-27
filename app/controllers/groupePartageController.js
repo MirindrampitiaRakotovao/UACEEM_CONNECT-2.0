@@ -1,5 +1,6 @@
-const PartageGroupe = require('../models/groupePartage');
-const PartageGroupeEtudiant = require('../models/groupePartageEtudiant');
+const GroupePartage = require('../models/groupePartage');
+const GroupePartageEtudiant = require('../models/groupePartageEtudiant');
+const Etudiant = require('../models/etudiants');
 
 //creer groupe de partage
 exports.createGroupeEtudiant = async (req, res) => {
@@ -7,14 +8,14 @@ exports.createGroupeEtudiant = async (req, res) => {
   const admin_id = req.user.id;
 
   try {
-    const nouveauGroupe = await PartageGroupe.create({
+    const nouveauGroupe = await GroupePartage.create({
       design_groupe_partage,
       admin_id,
       date_creation: new Date(),
     });
 
     // Ajouter l'admin comme membre du groupe
-    await PartageGroupeEtudiant.create({
+    await GroupePartageEtudiant.create({
       membre_id: admin_id,
       groupe_partage_id: nouveauGroupe.id,
       role_membre_groupe: 'admin',
@@ -30,7 +31,7 @@ exports.createGroupeEtudiant = async (req, res) => {
 
 //ajouter des membres au groupe de partage
 exports.addMember = async (req, res) => {
-    const { groupe_nom, membre_id } = req.body;
+    const { groupe_nom, membre_username } = req.body;
     const admin_id = req.user.id;
   
     try {
@@ -43,24 +44,32 @@ exports.addMember = async (req, res) => {
   
 
       // Vérifier que l'utilisateur est l'admin du groupe
-      const isAdmin = await PartageGroupeEtudiant.findOne({
-        where: { groupe_partage_id, membre_id: admin_id, role_membre_groupe: 'admin' },
+      const isAdmin = await GroupePartageEtudiant.findOne({
+        where: { groupe_partage_id: groupe.id, membre_id: admin_id, role_membre_groupe: 'admin' },
       });
   
       if (!isAdmin) {
         return res.status(403).json({ message: 'Action réservée aux administrateurs du groupe' });
       }
   
-      const newMember = await PartageGroupeEtudiant.create({
-        membre_id,
-        groupe_partage_id,
-        role_membre_groupe: 'membre',
-        date_adhesion: new Date(),
-      });
+     // Trouver l'étudiant par son username
+    const membre = await Etudiant.findOne({ where: { username: membre_username } });
+
+    if (!membre) {
+      return res.status(404).json({ message: 'Étudiant non trouvé' });
+    }
+
+    // Ajouter l'étudiant au groupe en utilisant son ID
+    const newMember = await GroupePartageEtudiant.create({
+      membre_id: membre.id,
+      groupe_partage_id: groupe.id,
+      role_membre_groupe: 'membre',
+      date_adhesion: new Date(),
+    });
   
       res.status(201).json({ message: 'Membre ajouté avec succès', member: newMember });
     } catch (error) {
-      res.status(500).json({ message: 'Erreur lors de l\'ajout du membre', error });
+      res.status(500).json({ message: 'Erreur lors de l\'ajout du membre', error: error.message });
     }
   };
 
@@ -78,7 +87,7 @@ exports.addMember = async (req, res) => {
       }
 
       // Vérifier que l'étudiant fait partie du groupe
-      const isMember = await PartageGroupeEtudiant.findOne({
+      const isMember = await GroupePartageEtudiant.findOne({
         where: { membre_id: etudiant_id, groupe_partage_id },
       });
   
@@ -87,7 +96,7 @@ exports.addMember = async (req, res) => {
       }
   
       // Récupérer les membres du groupe
-      const membres = await PartageGroupeEtudiant.findAll({
+      const membres = await GroupePartageEtudiant.findAll({
         where: { groupe_partage_id },
         include: ['etudiant'], // Inclure les informations de l'étudiant
       });
@@ -112,7 +121,7 @@ exports.removeMember = async (req, res) => {
     }
 
     // Vérifier si l'utilisateur est admin du groupe
-    const estAdmin = await PartageGroupeEtudiants.findOne({
+    const estAdmin = await GroupePartageEtudiant.findOne({
       where: { groupe_partage_id: groupe.id, membre_id: etudiant_id, role_membre_groupe: 'admin' }
     });
 
@@ -121,7 +130,7 @@ exports.removeMember = async (req, res) => {
     }
 
     // Supprimer le membre du groupe
-    await PartageGroupeEtudiants.destroy({
+    await GroupePartageEtudiant.destroy({
       where: { groupe_partage_id: groupe.id, membre_id }
     });
 

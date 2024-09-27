@@ -23,7 +23,7 @@ const Fichiers = sequelize.define('fichiers', {
       model: 'publications',
       key: 'id',
     },
-  },
+  }
 });
 
 module.exports = Fichiers;

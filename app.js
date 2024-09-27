@@ -8,7 +8,7 @@ const mentionRoutes = require('./app/routes/mentionRoutes');
 const niveauRoutes = require('./app/routes/niveauRoutes');
 const parcoursRoutes = require('./app/routes/parcoursRoutes');
 const groupeRoutes = require('./app/routes/groupeRoutes');
-const partageGroupeRoutes = require('./app/routes/partageGroupeRoutes')
+const groupePartageRoutes = require('./app/routes/groupePartageRoutes')
 const publicationsRoutes = require('./app/routes/publicationRoutes');
 
 const authenticateToken = require('./app/middlewares/authenticateToken')
@@ -57,6 +57,8 @@ async function startServer() {
     process.exit(1); // Arrête le processus en cas d'erreur critique
   }
 }
+//sequelize.sync({ force: true });
+
 
 // Démarrer le serveur
 startServer();
@@ -67,5 +69,5 @@ app.use('/mention' , mentionRoutes);
 app.use('/niveau' , niveauRoutes);
 app.use('/parcours' , parcoursRoutes);
 app.use('/groupe' , groupeRoutes);
-app.use('/partageGroupe' , partageGroupeRoutes);
+app.use('/partageGroupe' , groupePartageRoutes);
 app.use('/publication', publicationsRoutes);

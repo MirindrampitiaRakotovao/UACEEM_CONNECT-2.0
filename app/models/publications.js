@@ -39,6 +39,14 @@ const Publications = sequelize.define('publications', {
     type: DataTypes.STRING, 
     allowNull: true,
   },
+  groupe_partage_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true, 
+    references: {
+      model: 'groupePartages',
+      key: 'id'
+    }
+  }
 });
 
 module.exports = Publications;

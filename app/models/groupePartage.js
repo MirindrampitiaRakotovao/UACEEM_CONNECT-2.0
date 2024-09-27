@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/database');
 
-const PartageGroupes = sequelize.define('partageGroupes', {
+const GroupePartages = sequelize.define('groupePartages', {
   id: {
     type: DataTypes.INTEGER,
     primaryKey: true,
@@ -22,7 +22,7 @@ const PartageGroupes = sequelize.define('partageGroupes', {
   date_creation: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
-  }
+  },
 });
 
-module.exports = PartageGroupes;
+module.exports = GroupePartages;

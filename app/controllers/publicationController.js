@@ -1,12 +1,13 @@
 const Publication = require('../models/publications');
 const Fichier = require('../models/fichier');
 const GroupePartage = require ('../models/groupePartage');
-const PartageGroupeEtudiant = require('../models/groupePartageEtudiant');
+const GroupePartageEtudiant = require('../models/groupePartageEtudiant');
 
 //creation publication
 exports.createPost = async (req, res) => {
     const { visibilite, legende , design_groupe_partage } = req.body;
     const etudiant_id = req.user.id; 
+    console.log('Etudiant ID:', etudiant_id);
   
     try {
       let groupe_partage_id = null;
@@ -14,7 +15,7 @@ exports.createPost = async (req, res) => {
       // Vérifier la visibilité
       if (visibilite === 'groupe') {
         if (!design_groupe_partage) {
-          return res.status(400).json({ message: 'Le nom du groupe est requis pour publier dans un groupe.' });
+          return res.status(400).json({ message: 'Le nom du groupe est requis pour publier dans un groupe.'});
         }
 
         // Trouver le groupe par son nom
@@ -25,11 +26,12 @@ exports.createPost = async (req, res) => {
         }
 
         // Vérifier si l'utilisateur est membre du groupe
-        const estMembre = await PartageGroupeEtudiants.findOne({
+        const estMembre = await GroupePartageEtudiant.findOne({
           where: { groupe_partage_id: groupe.id, membre_id: etudiant_id }
         });
 
         if (!estMembre) {
+          
           return res.status(403).json({ message: 'Vous devez être membre du groupe pour publier.' });
         }
 

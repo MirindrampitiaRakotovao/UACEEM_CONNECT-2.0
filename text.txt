@@ -1,25 +1,4 @@
-const GroupePartage = require('../models/GroupePartage');
-const PartageGroupeEtudiants = require('../models/PartageGroupeEtudiants');
-
-exports.listerMembresGroupe = async (req, res) => {
-    const { nomGroupe } = req.params;
-
-    try {
-        // Trouver le groupe par son nom
-        const groupe = await GroupePartage.findOne({ where: { design_groupe_partage: nomGroupe } });
-
-        if (!groupe) {
-            return res.status(404).json({ message: 'Groupe non trouvé.' });
-        }
-
-        // Récupérer les membres du groupe
-        const membres = await PartageGroupeEtudiants.findAll({
-            where: { groupe_partage_id: groupe.id },
-            include: [{ model: Etudiant, attributes: ['id', 'nom', 'prenom'] }], // Assurez-vous d'importer le modèle étudiant
-        });
-
-        res.status(200).json({ membres });
-    } catch (error) {
-        res.status(500).json({ message: 'Erreur lors de la récupération des membres du groupe', error: error.message });
-    }
-};
+// Vérifier si l'utilisateur est membre du groupe
+const estMembre = await GroupePartageEtudiant.findOne({
+  where: { groupe_partage_id: groupe.id, membre_id: etudiant_id }
+});

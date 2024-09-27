@@ -1,7 +1,12 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/database');
 
-const PartageGroupeEtudiants = sequelize.define('partage_groupe_etudiants', {
+const GroupePartageEtudiants = sequelize.define('groupePartageEtudiants', {
+  id: {
+    type: DataTypes.INTEGER,
+    primaryKey: true,
+    autoIncrement: true,
+  },
   membre_id: {
     type: DataTypes.INTEGER,
     references: {
@@ -13,7 +18,7 @@ const PartageGroupeEtudiants = sequelize.define('partage_groupe_etudiants', {
   groupe_partage_id: {
     type: DataTypes.INTEGER,
     references: {
-      model: 'partageGroupes',
+      model: 'groupePartages',
       key: 'id',
     },
     allowNull: false,
@@ -26,15 +31,7 @@ const PartageGroupeEtudiants = sequelize.define('partage_groupe_etudiants', {
     type: DataTypes.ENUM('membre', 'admin'),
     allowNull: false,
     defaultValue: 'membre',
-  },
-  publication_id: {
-    type: DataTypes.INTEGER,
-    allowNull: true,
-    references: {
-      model: 'publications',
-      key: 'id',
-    },
-  },
+  }
 });
 
-module.exports = PartageGroupeEtudiants;
+module.exports = GroupePartageEtudiants;
