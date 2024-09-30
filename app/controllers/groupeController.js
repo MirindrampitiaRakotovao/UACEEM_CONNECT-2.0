@@ -20,7 +20,7 @@ exports.createGroupe = async (req, res) => {
       niveaux_id
     });
 
-    res.status(201).json({ message: 'Groupe créé avec succès', groupe });
+    res.status(200).json({ message: 'Groupe créé avec succès', groupe });
     console.log(req.body);
 
   } catch (error) {

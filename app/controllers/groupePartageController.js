@@ -22,7 +22,7 @@ exports.createGroupeEtudiant = async (req, res) => {
       date_adhesion: new Date(),
     });
 
-    res.status(201).json({ message: 'Groupe créé avec succès', groupe: nouveauGroupe });
+    res.status(200).json({ message: 'Groupe créé avec succès', groupe: nouveauGroupe });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la création du groupe', error });
   }
@@ -67,7 +67,7 @@ exports.addMember = async (req, res) => {
       date_adhesion: new Date(),
     });
   
-      res.status(201).json({ message: 'Membre ajouté avec succès', member: newMember });
+      res.status(200).json({ message: 'Membre ajouté avec succès', member: newMember });
     } catch (error) {
       res.status(500).json({ message: 'Erreur lors de l\'ajout du membre', error: error.message });
     }

@@ -1,4 +1,1 @@
-// Vérifier si l'utilisateur est membre du groupe
-const estMembre = await GroupePartageEtudiant.findOne({
-  where: { groupe_partage_id: groupe.id, membre_id: etudiant_id }
-});
+Niveaux.belongsTo(Parcours, { as: 'parcours', foreignKey: 'parcours_id' });

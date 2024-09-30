@@ -14,6 +14,9 @@ router.post('/create', etudiantController.createEtudiant);
 // Route pour consulter le profil
 router.get('/me' , authenticateToken , etudiantController.getProfil);
 
+// Route pour voir photo de profil
+router.get('/photo' , authenticateToken , etudiantController.photoDeProfil);
+
 module.exports = router;
 
 //Route pour logout

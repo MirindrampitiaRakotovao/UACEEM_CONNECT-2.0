@@ -6,7 +6,7 @@ exports.createMention = async (req, res) => {
     const { design , code , description } = req.body;
 
     // Vérifier si la mention existe 
-    const existingMention = await Mention.findOne({ where: { [Op.or]: [{ design }, { code }, { description }] } });
+    const existingMention = await Mention.findOne({ where: { [Op.or]: [{ design }, { code }] } });
     if (existingMention) {
       return res.status(400).json({ message: 'Cette mention existe déjà.' });
     }
@@ -18,7 +18,7 @@ exports.createMention = async (req, res) => {
       description
     });
 
-    res.status(201).json({ message: 'Mention créé avec succès', mention });
+    res.status(200).json({ message: 'Mention créé avec succès', mention });
     console.log(req.body);
 
   } catch (error) {

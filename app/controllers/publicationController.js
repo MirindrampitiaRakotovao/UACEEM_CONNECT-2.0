@@ -60,7 +60,7 @@ exports.createPost = async (req, res) => {
       await Promise.all(fichiersPromises); // Attendre que tous les fichiers soient créés
     }
   
-      res.status(201).json({ message: 'Publication créée avec succès', publication: nouvellePublication });
+      res.status(200).json({ message: 'Publication créée avec succès', publication: nouvellePublication });
     } catch (error) {
       res.status(500).json({ message: 'Erreur lors de la création de la publication', error });
       error: error.message || error 

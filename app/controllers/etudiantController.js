@@ -117,7 +117,7 @@ exports.createEtudiant = async (req, res) => {
       role
     });
 
-    res.status(201).json({ message: 'Utilisateur créé avec succès', etudiant });
+    res.status(200).json({ message: 'Utilisateur créé avec succès', etudiant });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la création de l\'utilisateur', error });
   }
@@ -143,6 +143,27 @@ exports.getProfil = async (req, res) => {
         console.error(error);
         res.status(500).json({ message: 'Erreur serveur', error });
     }
+};
+
+/* afficher photo de profil */
+exports.photoDeProfil = async (req, res) => {
+  try {
+    // Utilisateur authentifié via JWT
+    const etudiantId = req.user.id;
+
+    // Récupérer uniquement la photo de l'étudiant connecté
+    const etudiant = await Etudiant.findByPk(etudiantId, {
+      attributes: ['photo'], // Inclure uniquement le champ 'photo'
+      });
+      if (!etudiant) {
+        return res.status(404).json({ message: 'Profil non trouvé' });
+    }
+
+    res.status(200).json({ photo: etudiant.photo });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur', error });
+  }
 };
 
 /* Fonction pour mettre à jour la photo de profil */

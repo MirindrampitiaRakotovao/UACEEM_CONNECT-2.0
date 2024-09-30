@@ -6,7 +6,7 @@ const createParcours = async (req, res) => {
     const { design , description , mention_id } = req.body;
 
     // Vérifier si le parcours existe
-    const existingParcours = await Parcours.findOne({ where: { [Op.or]: [{ design }, { description }] } });
+    const existingParcours = await Parcours.findOne({ where: { [Op.or]: [{ design }] } });
     if (existingParcours) {
       return res.status(400).json({ message: 'Ce parcours existe déjà.' });
     }
@@ -18,7 +18,7 @@ const createParcours = async (req, res) => {
       mention_id
     });
 
-    res.status(201).json({ message: 'Parcours créé avec succès', parcours });
+    res.status(200).json({ message: 'Parcours créé avec succès', parcours });
     console.log(req.body);
 
   } catch (error) {
