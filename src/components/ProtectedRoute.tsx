@@ -6,7 +6,7 @@ const ProtectedRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
 
   if (!token) {
     // Si l'utilisateur n'est pas authentifié, redirige vers la page de connexion
-    return <Navigate to="/" />;
+    return <Navigate to="/login" />;
   }
 
   // Si l'utilisateur est authentifié, affiche la page demandée

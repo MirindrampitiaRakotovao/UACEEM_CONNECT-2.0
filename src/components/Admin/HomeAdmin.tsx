@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { Home, Users, ShieldAlert, Lightbulb, MessageCircle, Bell  } from 'lucide-react';
-
+import { Home, Users, ShieldAlert, Lightbulb, MessageCircle, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import logo from "../../assets/Logo ACEEMM.png";
 import Avatar from "../avatar";
-import axios from "axios";
+import {  showDropdown, hideDropdown, goToProfile } from "../../services/homeService";
+import { logout } from '../../services/authService';
 
 const HomeAdmin: React.FC = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -12,24 +12,11 @@ const HomeAdmin: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      await axios.post('http://localhost:4000/etudiant/logout', {}, { withCredentials: true });
+      await logout();
       navigate('/login');
     } catch (error) {
       console.error("Erreur lors de la déconnexion :", error);
     }
-  };
-  
-
-  const showDropdown = () => {
-    setDropdownVisible(true);
-  };
-
-  const hideDropdown = () => {
-    setDropdownVisible(false);
-  };
-
-  const goToProfile = () => {
-    navigate('/profile/:username');  // Redirige vers la page de profil
   };
 
   return (
@@ -76,23 +63,22 @@ const HomeAdmin: React.FC = () => {
           
           {/* Avatar avec gestion du clic pour afficher le dropdown */}
           <div className="relative" 
-            onMouseEnter={showDropdown} 
+            onMouseEnter={() => showDropdown(setDropdownVisible)} 
           >
             <Avatar />
             {isDropdownVisible && (
               <div className="absolute right-0 mt-2 w-60 bg-white border border-gray-300 rounded-md shadow-lg"
-                onMouseEnter={showDropdown}
+                onMouseEnter={() => showDropdown(setDropdownVisible)}
                 onMouseLeave={(e) => {
                   if (e.currentTarget instanceof Node && e.relatedTarget instanceof Node) {
                     if (e.currentTarget.contains(e.relatedTarget)) {
                       return;
                     }
                   }
-            
-                  hideDropdown();
+                  hideDropdown(setDropdownVisible);
                 }}
               >
-                <div className="flex p-4 space-x-5 cursor-pointer" onClick={goToProfile}>
+                <div className="flex p-4 space-x-5 cursor-pointer" onClick={() => goToProfile(navigate)}>
                   < Avatar />
                   <p className="text-gray-700">Faniriniaina</p>
                 </div>
@@ -108,7 +94,7 @@ const HomeAdmin: React.FC = () => {
                     </span>
                   </li>
                   <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Aide & Support</li>
-                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onMouseEnter={handleLogout}>
+                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer" onClick={() => handleLogout}>
                     Déconnexion
                   </li>
                 </ul>
@@ -122,4 +108,3 @@ const HomeAdmin: React.FC = () => {
 };
 
 export default HomeAdmin;
-

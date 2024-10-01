@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { jwtDecode } from 'jwt-decode';
-import axios from 'axios';
+import { login } from '../services/authService';
 import logo from "../assets/Logo ACEEMM.png";
 
 const Login: React.FC = () => {
@@ -14,21 +13,9 @@ const Login: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:4000/etudiant/login', {
-        username,
-        password
-      });
-      
-      const data = response.data;
-  
-      // Stocker le token JWT dans le localStorage ou dans un state manager comme Redux
-      localStorage.setItem('token', data.token);
-  
-      // Décoder le token JWT pour obtenir le rôle
-      const decodedToken = jwtDecode<{ role: string }>(data.token);
-  
-      // Rediriger en fonction du rôle de l'utilisateur
-      switch (decodedToken.role) {
+      const role = await login(username, password);
+
+      switch (role) {
         case 'Admin':
           navigate('/DashboardAdmin');
           break;
@@ -43,7 +30,7 @@ const Login: React.FC = () => {
       }
     } catch (err: any) {
       console.error(err);
-      setError(err.response?.data?.message || 'Erreur serveur');
+      setError(err.message);
     }
   };
 

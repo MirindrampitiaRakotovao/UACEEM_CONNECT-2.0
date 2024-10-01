@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Home, Users, Shield, Lightbulb, MessageCircle, Bell } from 'lucide-react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import logo from "../../assets/Logo ACEEMM.png";
 import Avatar from "../avatar";
+import {  showDropdown, hideDropdown, goToProfile } from "../../services/homeService";
+import { logout } from '../../services/authService';
 
 
 const HomeDelegue: React.FC = () => {
@@ -12,25 +13,11 @@ const HomeDelegue: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.post('http://localhost:4000/logout');
-
-      if (response.status === 200) {
-        // Si la déconnexion a réussi, rediriger vers la page de login
-        navigate('/login');  // Redirige vers /login
-      } else {
-        console.error('Erreur lors de la déconnexion : ', response.status);
-      }
+      await logout();
+      navigate('/login');
     } catch (error) {
       console.error("Erreur lors de la déconnexion :", error);
     }
-  };
-
-  const showDropdown = () => {
-    setDropdownVisible(true);
-  };
-
-  const hideDropdown = () => {
-    setDropdownVisible(false);
   };
 
   return (
@@ -74,12 +61,12 @@ const HomeDelegue: React.FC = () => {
           
           {/* Avatar avec gestion du clic pour afficher le dropdown */}
           <div className="relative" 
-            onMouseEnter={showDropdown} 
+            onMouseEnter={() => showDropdown(setDropdownVisible)} 
           >
             <Avatar />
             {isDropdownVisible && (
               <div className="absolute right-0 mt-2 w-60 bg-white border border-gray-300 rounded-md shadow-lg"
-                onMouseEnter={showDropdown}
+              onMouseEnter={() => showDropdown(setDropdownVisible)}
                 onMouseLeave={(e) => {
                   if (e.currentTarget instanceof Node && e.relatedTarget instanceof Node) {
                     if (e.currentTarget.contains(e.relatedTarget)) {
@@ -87,10 +74,10 @@ const HomeDelegue: React.FC = () => {
                     }
                   }
             
-                  hideDropdown();
+                  hideDropdown(setDropdownVisible);
                 }}
               >
-                <div className="flex p-4 space-x-5 cursor-pointer">
+                <div className="flex p-4 space-x-5 cursor-pointer" onClick={() => goToProfile(navigate)}>
                   < Avatar />
                   <p className="text-gray-700">Faniriniaina</p>
                 </div>
@@ -107,7 +94,7 @@ const HomeDelegue: React.FC = () => {
                   </li>
                   <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Aide & Support</li>
                   <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={handleLogout}                  
+                      onClick={() => handleLogout}                  
                   >Déconnexion</li>
                 </ul>
               </div>

@@ -1,11 +1,17 @@
 import React from 'react';
+import { useEditProfileModal } from '../services/editProfilService';
 
 interface EditProfileModalProps {
   isOpen: boolean;
   closeModal: () => void;
+  bio: string;
+  nom: string;
+  username: string;
 }
 
-const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal }) => {
+const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal, bio, nom, username }) => {
+  const { formData, loading, error, success, handleInputChange, handleSubmit } = useEditProfileModal(bio);
+
   if (!isOpen) return null;
 
   return (
@@ -18,48 +24,43 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal 
           </button>
         </div>
 
-        {/* Formulaire d'édition */}
+        {/* Information non modifiable */}
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Name</label>
-          <input
-            type="text"
-            placeholder="TOLOTRINIAVO Faniriniana Lucia"
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Bio</label>
-          <input
-            type="text"
-            placeholder="+ Write bio"
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-          />
-        </div>
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Link</label>
-          <input
-            type="text"
-            placeholder="+ Add link"
-            className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2"
-          />
+          <p>{nom}</p>
+          <p> @{username}</p>
         </div>
 
-        {/* Profil privé */}
-        <div className="flex items-center mb-4">
-          <span className="text-sm text-gray-700">Private profile</span>
-          <label className="ml-auto relative inline-flex items-center cursor-pointer">
-            <input type="checkbox" className="sr-only peer" />
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-blue-500 rounded-full peer dark:bg-gray-300 peer-checked:bg-blue-500 after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-full peer-checked:after:border-white" />
+        {/* Bio Input */}
+        <div className="mb-4">
+          <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
+            Bio
           </label>
+          <textarea
+            id="bio"
+            name="bio"
+            value={formData.bio}
+            onChange={handleInputChange}
+            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+            rows={4}
+          />
         </div>
 
-        {/* Bouton de fermeture */}
-        <button
-          onClick={closeModal}
-          className="w-full py-2 px-4 bg-blue-500 text-white rounded-lg"
-        >
-          Done
-        </button>
+        {/* Affichage d'erreurs */}
+        {error && <p className="text-red-500 text-sm">{error}</p>}
+        
+        {/* Message de succès */}
+        {success && <p className="text-green-500 text-sm">Profil mis à jour avec succès</p>}
+
+        {/* Boutons */}
+        <div className="mt-6 flex justify-between">
+          <button
+            className="bg-blue-500 text-white py-2 px-4 rounded-lg w-full"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? 'Mise à jour...' : 'Enregistrer'}
+          </button>
+        </div>
       </div>
     </div>
   );

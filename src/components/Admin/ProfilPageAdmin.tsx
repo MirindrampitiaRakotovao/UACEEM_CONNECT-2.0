@@ -1,65 +1,11 @@
 import HomeAdmin from './HomeAdmin';
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import Avatar from "../avatar";
 import EditProfileModal from '../EditProfileModal';
-
-
-interface Etudiant {
-  nom: string;
-  email: string;
-  photo: string | null;
-  matricule: string;
-  sexe: string;
-  date_nais: string | null;
-  lieu_nais: string | null;
-  situation_matri: string | null;
-  username: string;
-  role: string;
-  status: boolean;
-  bio: string | null;
-}
-
-
+import { useUserProfile } from '../../services/profileService';
 
 const UserProfile: React.FC = () => {
 
-  const [etudiant, setEtudiant] = useState<Etudiant | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  
-  const [isOpen, setIsOpen] = useState(false);
-
-  // Fonction pour ouvrir le modal
-  const openModal = () => {
-    setIsOpen(true);
-  };
-
-  // Fonction pour fermer le modal
-  const closeModal = () => {
-    setIsOpen(false);
-  };
-
-  useEffect(() => {
-    // Requête pour obtenir les informations du profil
-    const fetchProfil = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/etudiant/me', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`,
-          },
-        });
-        setEtudiant(response.data.etudiant);
-        setLoading(false);
-      } catch (err) {
-        setError('Erreur lors du chargement du profil');
-        setLoading(false);
-      }
-    };
-
-    fetchProfil();
-  }, []);
-
+  const { etudiant, loading, error, isOpen, openModal, closeModal } = useUserProfile();
 
   if (loading) {
     return <div>Chargement...</div>;
@@ -72,7 +18,6 @@ const UserProfile: React.FC = () => {
   if (!etudiant) {
     return <div>Profil non trouvé</div>;
   }
-
 
 
   return(
@@ -98,7 +43,10 @@ const UserProfile: React.FC = () => {
         {isOpen && (
         <EditProfileModal 
           isOpen={isOpen} 
-          closeModal={closeModal} // Passe la fonction pour fermer le modal
+          closeModal={closeModal} 
+          nom={etudiant.nom}
+          username={etudiant.username}
+          bio={etudiant.bio || ''}
         />
       )}
 
