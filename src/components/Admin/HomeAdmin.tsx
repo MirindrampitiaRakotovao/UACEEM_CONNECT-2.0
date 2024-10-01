@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Home, Users, ShieldAlert, Lightbulb, MessageCircle, Bell  } from 'lucide-react';
-import axios from 'axios';
+
 import { useNavigate } from 'react-router-dom';
 import logo from "../../assets/Logo ACEEMM.png";
 import Avatar from "../avatar";
+import axios from "axios";
 
 const HomeAdmin: React.FC = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
@@ -11,18 +12,13 @@ const HomeAdmin: React.FC = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.post('http://localhost:4000/logout', {}, { withCredentials: true });
-
-      if (response.status === 200) {
-        // Si la déconnexion a réussi, rediriger vers la page de login
-        navigate('/login');  // Redirige vers /login
-      } else {
-        console.error('Erreur lors de la déconnexion : ', response.status);
-      }
+      await axios.post('http://localhost:4000/etudiant/logout', {}, { withCredentials: true });
+      navigate('/login');
     } catch (error) {
       console.error("Erreur lors de la déconnexion :", error);
     }
   };
+  
 
   const showDropdown = () => {
     setDropdownVisible(true);

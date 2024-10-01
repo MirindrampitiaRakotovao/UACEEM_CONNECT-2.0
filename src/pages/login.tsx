@@ -14,7 +14,7 @@ const Login: React.FC = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post('http://localhost:4000/login', {
+      const response = await axios.post('http://localhost:4000/etudiant/login', {
         username,
         password
       });
@@ -29,13 +29,13 @@ const Login: React.FC = () => {
   
       // Rediriger en fonction du rôle de l'utilisateur
       switch (decodedToken.role) {
-        case 'admin':
+        case 'Admin':
           navigate('/DashboardAdmin');
           break;
-        case 'delegue':
+        case 'Délegué':
           navigate('/homeDelegue');
           break;
-        case 'etudiant':
+        case 'Etudiant':
           navigate('/homeEtudiant');
           break;
         default:
