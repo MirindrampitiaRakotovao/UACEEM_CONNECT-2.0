@@ -25,8 +25,11 @@ const HomeDelegue: React.FC = () => {
   return (
     <nav className="flex justify-between items-center px-5 h-16 bg-white border-b border-gray-200">
       {/* Logo */}
-      <div className="w-20">
-        <img src={logo} alt="Logo" className="h-auto w-full" /> {/* Utilisez votre logo ici */}
+      <div className="flex items-center space-x-2">
+        <img src={logo} alt="Logo" className="h-10" />
+        <span className="font-bold text-3xl tracking-wide text-[#1c3d6e]">
+          UACEEM-CONNECT
+        </span>
       </div>
 
       {/* Icones du menu principal */}
