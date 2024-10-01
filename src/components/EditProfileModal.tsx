@@ -1,7 +1,7 @@
 import React from 'react';
 import { useEditProfileModal } from '../services/editProfilService';
+import { useNavigate } from 'react-router-dom';  // Ajout pour la navigation
 import { UserRoundPenIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 
 
 interface EditProfileModalProps {
@@ -14,10 +14,19 @@ interface EditProfileModalProps {
 
 const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal, bio, nom, username }) => {
   const { formData,  loading, error, success, handleInputChange, handleFileChange, handleSubmit } = useEditProfileModal(bio);
+  const navigate = useNavigate();  // Initialiser la navigation
 
   const autoResizeTextarea = (textarea: HTMLTextAreaElement) => {
-    textarea.style.height = 'auto';  // Reset height to auto
-    textarea.style.height = `${textarea.scrollHeight}px`;  // Set height based on scrollHeight
+    textarea.style.height = 'auto';  // Réinitialiser la hauteur
+    textarea.style.height = `${textarea.scrollHeight}px`;  // Ajuster la hauteur
+  };
+
+  const handleSave = async () => {
+    await handleSubmit();  // Soumettre le formulaire
+    if (success) {
+      closeModal();  // Fermer le modal
+      navigate('/profile/:username');  // Rediriger vers UserProfile
+    }
   };
 
   if (!isOpen) return null;
@@ -32,7 +41,6 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal,
           </button>
         </div>
 
-        {/* Information non modifiable */}
         <div className="flex items-center justify-between mt-5 mb-10">
           <div>
             <p>{nom}</p>
@@ -64,22 +72,18 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal,
               autoResizeTextarea(e.target);
             }}
             className="mt-1 block w-full h-auto p-2 border border-gray-300 rounded-md shadow-sm"
-            rows={1}  // Start with minimum rows
-            style={{ overflow: 'hidden' }}  // Hide scrollbar
+            rows={1}
+            style={{ overflow: 'hidden' }}
           />
         </div>
 
-        {/* Affichage d'erreurs */}
         {error && <p className="text-red-500 text-sm">{error}</p>}
+        
 
-        {/* Message de succès */}
-        {success && <p className="text-green-500 text-sm">Profil mis à jour avec succès</p>}
-
-        {/* Bouton */}
         <div className="mt-6 flex justify-end">
           <button
             className="bg-blue-500 text-white py-2 px-4 rounded-lg w-full"
-            onClick={handleSubmit}
+            onClick={handleSave}  // Utiliser handleSave pour soumettre et rediriger
             disabled={loading}
           >
             Enregistrer
