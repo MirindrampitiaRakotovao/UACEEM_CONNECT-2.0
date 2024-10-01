@@ -1,8 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useEditProfileModal } from '../services/editProfilService';
 import { useNavigate } from 'react-router-dom';  // Ajout pour la navigation
 import { UserRoundPenIcon } from 'lucide-react';
-
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -13,8 +12,10 @@ interface EditProfileModalProps {
 }
 
 const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal, bio, nom, username }) => {
-  const { formData,  loading, error, success, handleInputChange, handleFileChange, handleSubmit } = useEditProfileModal(bio);
+  const { formData, loading, error, success, handleInputChange, handleFileChange, handleSubmit } = useEditProfileModal(bio);
   const navigate = useNavigate();  // Initialiser la navigation
+
+  const [imagePreview, setImagePreview] = useState<string | null>(null);  // État pour l'aperçu de l'image
 
   const autoResizeTextarea = (textarea: HTMLTextAreaElement) => {
     textarea.style.height = 'auto';  // Réinitialiser la hauteur
@@ -25,7 +26,15 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal,
     await handleSubmit();  // Soumettre le formulaire
     if (success) {
       closeModal();  // Fermer le modal
-      navigate('/profile/:username');  // Rediriger vers UserProfile
+      navigate(`/profile/${username}`);  // Rediriger vers UserProfile
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImagePreview(URL.createObjectURL(file));  // Créer un aperçu de l'image
+      handleFileChange(e);  // Passer l'image au service de gestion
     }
   };
 
@@ -46,15 +55,21 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal,
             <p>{nom}</p>
             <p>@{username}</p>
           </div>
-          <label htmlFor="photo-upload">
-            <UserRoundPenIcon className="w-8 h-8 cursor-pointer" />
+          <label htmlFor="photo-upload" className="relative">
+            {imagePreview ? (
+              // Afficher l'aperçu de l'image
+              <img src={imagePreview} alt="Profile Preview" className="w-8 h-8 object-cover rounded-full" />
+            ) : (
+              // Afficher l'icône si aucune image n'est sélectionnée
+              <UserRoundPenIcon className="w-8 h-8 cursor-pointer" />
+            )}
           </label>
           <input
             id="photo-upload"
             type="file"
             accept="image/*"
             className="hidden"
-            onChange={handleFileChange}
+            onChange={handleImageChange}  // Utiliser la fonction handleImageChange
           />
         </div>
 
