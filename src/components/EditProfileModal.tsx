@@ -1,5 +1,6 @@
 import React from 'react';
 import { useEditProfileModal } from '../services/editProfilService';
+import { UserRoundPenIcon } from 'lucide-react';
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -25,13 +26,18 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal,
         </div>
 
         {/* Information non modifiable */}
-        <div className="mb-4">
-          <p>{nom}</p>
-          <p> @{username}</p>
+        <div className="flex items-center justify-between mt-5 mb-10">
+          <div className="">
+            <p>{nom}</p>
+            <p> @{username}</p>
+
+          </div>
+          < UserRoundPenIcon className="w-8 h-8"/>
         </div>
+        
 
         {/* Bio Input */}
-        <div className="mb-4">
+        <div className="mb-10">
           <label htmlFor="bio" className="block text-sm font-medium text-gray-700">
             Bio
           </label>
@@ -40,7 +46,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal,
             name="bio"
             value={formData.bio}
             onChange={handleInputChange}
-            className="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm"
+            className="mt-1 block w-full h-auto p-2 border border-gray-10 rounded-md shadow-sm"
             rows={4}
           />
         </div>
@@ -58,7 +64,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal,
             onClick={handleSubmit}
             disabled={loading}
           >
-            {loading ? 'Mise à jour...' : 'Enregistrer'}
+            Enregistrer
           </button>
         </div>
       </div>
