@@ -1,7 +1,8 @@
 import React from 'react';
 import { useEditProfileModal } from '../services/editProfilService';
-import { usePhotoUpload } from '../services/updatePhotoService';
 import { UserRoundPenIcon } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+
 
 interface EditProfileModalProps {
   isOpen: boolean;
@@ -12,8 +13,7 @@ interface EditProfileModalProps {
 }
 
 const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal, bio, nom, username }) => {
-  const { formData, loading, error, success, handleInputChange, handleSubmit } = useEditProfileModal(bio);
-  const { handleFileChange, handlePhotoUpload, uploading, uploadError, uploadSuccess } = usePhotoUpload();
+  const { formData,  loading, error, success, handleInputChange, handleFileChange, handleSubmit } = useEditProfileModal(bio);
 
   const autoResizeTextarea = (textarea: HTMLTextAreaElement) => {
     textarea.style.height = 'auto';  // Reset height to auto
@@ -34,7 +34,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal,
 
         {/* Information non modifiable */}
         <div className="flex items-center justify-between mt-5 mb-10">
-          <div className="">
+          <div>
             <p>{nom}</p>
             <p>@{username}</p>
           </div>
@@ -71,27 +71,18 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal,
 
         {/* Affichage d'erreurs */}
         {error && <p className="text-red-500 text-sm">{error}</p>}
-        {uploadError && <p className="text-red-500 text-sm">{uploadError}</p>}
 
         {/* Message de succès */}
         {success && <p className="text-green-500 text-sm">Profil mis à jour avec succès</p>}
-        {uploadSuccess && <p className="text-green-500 text-sm">Photo mise à jour avec succès</p>}
 
-        {/* Boutons */}
-        <div className="mt-6 flex justify-between">
+        {/* Bouton */}
+        <div className="mt-6 flex justify-end">
           <button
             className="bg-blue-500 text-white py-2 px-4 rounded-lg w-full"
             onClick={handleSubmit}
             disabled={loading}
           >
             Enregistrer
-          </button>
-          <button
-            className="bg-green-500 text-white py-2 px-4 rounded-lg ml-2"
-            onClick={handlePhotoUpload}
-            disabled={uploading}
-          >
-            Mettre à jour la photo
           </button>
         </div>
       </div>
