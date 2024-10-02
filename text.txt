@@ -1,1 +1,0 @@
-Niveaux.belongsTo(Parcours, { as: 'parcours', foreignKey: 'parcours_id' });

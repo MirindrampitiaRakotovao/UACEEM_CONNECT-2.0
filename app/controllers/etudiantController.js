@@ -200,3 +200,49 @@ exports.getAllUsers = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs', error });
   }
 };
+
+//modifier bio
+exports.updateBio = async (req, res) => {
+  try {
+    const etudiantId = req.user.id;
+    const { bio } = req.body;
+
+    // Récupérer l'étudiant connecté
+    const etudiant = await Etudiant.findByPk(etudiantId);
+
+    if (!etudiant) {
+      return res.status(404).json({ message: 'Étudiant non trouvé' });
+    }
+
+    // Mettre à jour la bio
+    etudiant.bio = bio;
+    await etudiant.save();
+
+    res.status(200).json({ message: 'Bio mise à jour avec succès', bio: etudiant.bio });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur', error });
+  }
+};
+
+//afficher bio
+exports.getBio = async (req, res) => {
+  try {
+    const etudiantId = req.user.id;
+
+    // Récupérer l'étudiant connecté
+    const etudiant = await Etudiant.findByPk(etudiantId, {
+      attributes: ['bio'], // Inclure uniquement le champ 'bio'
+    });
+
+    if (!etudiant) {
+      return res.status(404).json({ message: 'Étudiant non trouvé' });
+    }
+
+    res.status(200).json({ bio: etudiant.bio });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur serveur', error });
+  }
+};
+

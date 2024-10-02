@@ -72,6 +72,10 @@ module.exports = {
         allowNull: false,
         defaultValue: false,
       },
+      bio: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
 
       //Autres colonnes 
       createdAt: {

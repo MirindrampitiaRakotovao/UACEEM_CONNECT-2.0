@@ -18,8 +18,11 @@ require('./app/models/association');
 
 const app = express();
 
-app.use(cors());
-
+app.use(cors({
+  origin: 'http://localhost:3000',  // Specify the frontend origin
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
+  credentials: true // Enable credentials (cookies, etc.)
+}));
 app.use(cookieParser());
 
 // Middleware pour parser les requêtes JSON

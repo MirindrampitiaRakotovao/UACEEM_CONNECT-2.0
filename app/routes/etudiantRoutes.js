@@ -3,7 +3,6 @@ const router = express.Router();
 const upload = require('../middlewares/upload');
 const etudiantController = require('../controllers/etudiantController');
 const authenticateToken = require('../middlewares/authenticateToken');
-const multer = require('../middlewares/upload')
 
 //Route pour login
 router.post('/login', etudiantController.login);
@@ -27,6 +26,13 @@ router.post('/photo', authenticateToken, upload.single('photo'), etudiantControl
 
 //Route pour obtenir tout les utilisateurs
 router.get('/contact', authenticateToken , etudiantController.getAllUsers);
+
+//Route pour modifier le bio
+router.put('/modifierBio', authenticateToken, etudiantController.updateBio);
+
+//Route pour afficher le bio
+router.get('/afficherBio', authenticateToken, etudiantController.getBio);
+
 
 
 module.exports = router;
