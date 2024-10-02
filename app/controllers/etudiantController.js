@@ -2,9 +2,9 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 const Etudiant = require('../models/etudiants');
+const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_key';
 
 /*login*/
-const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_key';
 
 exports.login = async (req, res) => {
   const { username, password } = req.body;
@@ -16,10 +16,6 @@ exports.login = async (req, res) => {
       if (!etudiant) {
           return res.status(404).json({ message: 'Utilisateur non trouvé' });
       }
-
-      // Log pour vérifier ce qui est stocké
-      console.log('Mot de passe en clair:', password);  // Mot de passe fourni par l'utilisateur
-      console.log('Mot de passe haché:', etudiant.password);  // Mot de passe stocké en base
 
       // Vérification du mot de passe
       const validPassword = await bcrypt.compare(password, etudiant.password);
@@ -43,6 +39,14 @@ exports.login = async (req, res) => {
           maxAge: 3600000 // 1 heure
       });
 
+      res.status(200).json({
+        token,  // Pour React, vous pouvez aussi passer le token dans la réponse JSON
+        etudiant: {
+          id: etudiant.id,
+          username: etudiant.username,
+          role: etudiant.role,
+        }
+      });
 
       // Retirer le mot de passe avant de retourner l'objet utilisateur
       const { password: etudiantPassword, ...etudiantSansMotDePasse } = etudiant.dataValues;

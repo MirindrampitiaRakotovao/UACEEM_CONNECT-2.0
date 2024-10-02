@@ -1,10 +1,15 @@
 const express = require('express');
-const router = express.Router();
 const publicationController = require('../controllers/publicationController');
-const authenticateToken = require('../middlewares/authenticateToken');
-const upload = require('../middlewares/upload');
+const upload = require('../middlewares/upload');  // Middleware d'upload
+const authenticateToken = require('../middlewares/authenticateToken');  // Middleware d'authentification
 
+const router = express.Router();
 
-router.post('/create', authenticateToken, upload.array('fichiers', 10) , publicationController.createPost);
+// Ajoute un middleware de débogage avant Multer pour afficher les informations de la requête
+router.post('/create', authenticateToken, (req, res, next) => {
+  console.log('Corps de la requête:', req.body);
+  console.log('Fichiers reçus:', req.files);
+  next();  // Passe à l'étape suivante (upload)
+}, upload.array('fichiers', 10), publicationController.createPublication);
 
 module.exports = router;

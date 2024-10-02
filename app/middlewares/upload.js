@@ -28,7 +28,13 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   limits: { fileSize: 200 * 1024 * 1024 }, // Limite à 200MB
-  fileFilter: fileFilter
+  fileFilter: (req, file, cb) => {
+    // Vérifie que le champ du fichier est bien 'fichiers'
+    if (file.fieldname !== 'fichiers') {
+      return cb(new multer.MulterError('LIMIT_UNEXPECTED_FILE'), false);
+    }
+    cb(null, true);
+  }
 });
 
 module.exports = upload;

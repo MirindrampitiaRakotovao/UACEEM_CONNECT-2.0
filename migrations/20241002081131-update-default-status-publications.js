@@ -21,7 +21,7 @@ module.exports = {
         },
       },
       visibilite: {
-        type: DataTypes.ENUM('public', 'groupe'),
+        type: DataTypes.ENUM('Public', 'Groupe'),
         allowNull: false,
       },
       nombre_reaction: {
@@ -46,7 +46,7 @@ module.exports = {
         type: DataTypes.INTEGER,
         allowNull: true, 
         references: {
-          model: 'groupePartage',
+          model: 'groupePartages',
           key: 'id'
         }
       },

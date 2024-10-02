@@ -18,7 +18,7 @@ const Publications = sequelize.define('publications', {
     },
   },
   visibilite: {
-    type: DataTypes.ENUM('public', 'groupe'),
+    type: DataTypes.ENUM('Public', 'Groupe'),
     allowNull: false,
   },
   nombre_reaction: {
