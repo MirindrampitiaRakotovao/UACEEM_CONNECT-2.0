@@ -5,11 +5,15 @@ import logo from "../../assets/Logo ACEEMM.png";
 import Avatar from "../avatar";
 import {  showDropdown, hideDropdown, goToProfile } from "../../services/homeService";
 import { logout } from '../../services/authService';
+import { useUserProfile } from "../../services/profileService"; 
+
 
 
 const HomeDelegue: React.FC = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const navigate = useNavigate();
+
+  const { etudiant, loading, error } = useUserProfile();
 
   const handleHomeClick = () => {
     navigate('/homeEtudiant'); // ou l'URL de la page que vous souhaitez rediriger
@@ -86,7 +90,9 @@ const HomeDelegue: React.FC = () => {
               >
                 <div className="flex p-4 space-x-5 cursor-pointer" onClick={() => goToProfile(navigate)}>
                   < Avatar />
-                  <p className="text-gray-700">Faniriniaina</p>
+                  <p className="text-gray-700">
+                    {loading ? "Chargement..." : error ? "Erreur" : etudiant?.username}
+                  </p>
                 </div>
                 <ul>
                   <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between">

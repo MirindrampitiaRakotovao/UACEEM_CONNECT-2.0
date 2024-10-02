@@ -73,6 +73,7 @@ const Login: React.FC = () => {
           <button
             type="submit"
             className="w-full bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition-colors"
+            data-preline="tooltip" // Exemple d'utilisation de Preline
           >
             Connexion
           </button>

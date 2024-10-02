@@ -45,12 +45,11 @@ const AudienceSelector = () => {
                 < Globe className='mr-3 w-5 h-5'/>
               Public
             </li>
-            <li onClick={() => handleSelectAudience('Amis')} className=" flex cursor-pointer hover:bg-gray-100 p-2 rounded">
+            <li onClick={() => handleSelectAudience('Groupe')} className=" flex cursor-pointer hover:bg-gray-100 p-2 rounded">
               < UsersRound className='mr-3 w-5 h-5' />
               Groupe
             </li>
           </ul>
-          <button className="mt-2 text-sm text-blue-500" onClick={handleCloseAudienceModal}>Terminé</button>
         </div>
       )}
     </div>
