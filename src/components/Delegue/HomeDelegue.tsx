@@ -6,11 +6,13 @@ import Avatar from "../avatar";
 import {  showDropdown, hideDropdown, goToProfile } from "../../services/homeService";
 import { logout } from '../../services/authService';
 
-
-
 const HomeDelegue: React.FC = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
-  const navigate =useNavigate();
+  const navigate = useNavigate();
+
+  const handleHomeClick = () => {
+    navigate('/homeDelegue'); // ou l'URL de la page que vous souhaitez rediriger
+  };
 
   const handleLogout = async () => {
     try {
@@ -20,7 +22,6 @@ const HomeDelegue: React.FC = () => {
       console.error("Erreur lors de la déconnexion :", error);
     }
   };
-
 
   return (
     <nav className="flex justify-between items-center px-5 h-16 bg-white border-b border-gray-200">
@@ -35,7 +36,7 @@ const HomeDelegue: React.FC = () => {
       {/* Icones du menu principal */}
       <div className="flex justify-center flex-1">
         <ul className="flex space-x-20">
-          <li className="cursor-pointer">
+          <li className="cursor-pointer" onClick={handleHomeClick}>
             <Home size={25} />
           </li>
           <li className="cursor-pointer">
@@ -82,7 +83,7 @@ const HomeDelegue: React.FC = () => {
                   hideDropdown(setDropdownVisible);
                 }}
               >
-                <div className="flex p-4 space-x-5 cursor-pointer">
+                <div className="flex p-4 space-x-5 cursor-pointer" onClick={() => goToProfile(navigate)}>
                   < Avatar />
                   <p className="text-gray-700">Faniriniaina</p>
                 </div>
@@ -91,7 +92,7 @@ const HomeDelegue: React.FC = () => {
                     Mode sombre
                     <span
                       role="switch"
-                      aria-checked="false"  // Modifie cette valeur dynamiquement selon l'état du mode sombre
+                      aria-checked="false"
                       className="ml-2"
                     >
                       🌙
@@ -112,4 +113,3 @@ const HomeDelegue: React.FC = () => {
 };
 
 export default HomeDelegue;
-

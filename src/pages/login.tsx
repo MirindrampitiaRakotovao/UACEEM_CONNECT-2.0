@@ -17,7 +17,7 @@ const Login: React.FC = () => {
 
       switch (role) {
         case 'Admin':
-          navigate('/DashboardAdmin');
+          navigate('/homeAdmin');
           break;
         case 'Délegué':
           navigate('/homeDelegue');

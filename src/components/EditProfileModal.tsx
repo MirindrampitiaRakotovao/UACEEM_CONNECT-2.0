@@ -50,6 +50,9 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal,
           </button>
         </div>
 
+        {/* Divider */}
+        <hr className="w-full my-4 border-gray-300" />
+
         <div className="flex items-center justify-between mt-5 mb-10">
           <div>
             <p>{nom}</p>
@@ -86,7 +89,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({ isOpen, closeModal,
               handleInputChange(e);
               autoResizeTextarea(e.target);
             }}
-            className="mt-1 block w-full h-auto p-2 border border-gray-300 rounded-md shadow-sm"
+            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
             rows={1}
             style={{ overflow: 'hidden' }}
           />

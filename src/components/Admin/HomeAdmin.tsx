@@ -10,6 +10,10 @@ const HomeAdmin: React.FC = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const navigate = useNavigate();
 
+  const handleHomeClick = () => {
+    navigate('/homeAdmin'); // ou l'URL de la page que vous souhaitez rediriger
+  };
+
   const handleLogout = async () => {
     try {
       await logout();
@@ -32,7 +36,7 @@ const HomeAdmin: React.FC = () => {
       {/* Icones du menu principal */}
       <div className="flex justify-center flex-1">
         <ul className="flex space-x-20">
-          <li className="cursor-pointer">
+          <li className="cursor-pointer" onClick={handleHomeClick}>
             <Home size={25} />
           </li>
           <li className="cursor-pointer">

@@ -13,7 +13,7 @@ const getHomeComponent = (role: string) => {
       return <HomeAdmin />;
     case 'Etudiant':
       return <HomeEtudiant />;
-    case 'Delegue':
+    case 'Délegué':
       return <HomeDelegue />;
     default:
       return <div>Rôle inconnu</div>;
