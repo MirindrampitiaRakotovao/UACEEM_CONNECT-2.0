@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import {  PackageOpen } from 'lucide-react'; // Importer les icônes nécessaires
+import { PackageOpen } from 'lucide-react';
 import AudienceSelector from './ModalVisibilite';
 import { useAudience } from '../services/audienceService';
 
@@ -10,8 +10,8 @@ interface ModalProps {
 }
 
 const autoResizeTextarea = (textarea: HTMLTextAreaElement) => {
-  textarea.style.height = 'auto';  // Réinitialiser la hauteur
-  textarea.style.height = `${textarea.scrollHeight}px`;  // Ajuster la hauteur
+  textarea.style.height = 'auto';
+  textarea.style.height = `${textarea.scrollHeight}px`;
 };
 
 const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
@@ -26,7 +26,7 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   } = useAudience();
 
   const [legende, setLegende] = useState('');
-  const [files, setFiles] = useState<FileList | null>(null);
+  const [files, setFiles] = useState<File[]>([]); // Fichiers stockés dans un tableau
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -49,8 +49,8 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
       formData.append('groupe_nom', designGroupePartage);
     }
 
-    if (files) {
-      Array.from(files).forEach((file) => {
+    if (files.length > 0) {
+      files.forEach((file) => {
         formData.append('fichiers', file);
       });
     }
@@ -66,7 +66,7 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
       console.log('Publication créée avec succès:', response.data);
       onClose();
       setLegende('');
-      setFiles(null);
+      setFiles([]); // Réinitialiser les fichiers après soumission
     } catch (error: any) {
       console.error('Erreur lors de la création de la publication:', error);
       setErrorMessage(error.response?.data?.message || 'Erreur inconnue');
@@ -76,7 +76,14 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFiles(e.target.files);
+    if (e.target.files) {
+      // Utiliser un tableau pour les fichiers sélectionnés
+      setFiles(Array.from(e.target.files)); // Remplacer avec la nouvelle sélection
+    }
+  };
+
+  const removeFile = (index: number) => {
+    setFiles(files.filter((_, i) => i !== index)); // Retirer un fichier par son index
   };
 
   if (!isOpen) return null;
@@ -124,24 +131,32 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             <label className="flex items-center">
               <input
                 type="file"
-                id="file-input" // Ajout d'un id pour lier cet input
+                id="file-input"
                 multiple
                 onChange={handleFileSelect}
                 className="hidden"
               />
-              <PackageOpen className="text-blue-600 hover:text-blue-800" size={32} /> {/* Icône plus grande et colorée */}
-              <span className="ml-2 text-blue-600 hover:text-blue-800 font-medium">Ajouter des fichiers</span> {/* Texte explicite et coloré */}
+              <PackageOpen className="text-blue-600 hover:text-blue-800" size={32} />
+              <span className="ml-2 text-blue-600 hover:text-blue-800 font-medium">Ajouter des fichiers</span>
             </label>
           </div>
 
-
           {/* Liste des fichiers sélectionnés */}
-          {files && (
+          {files.length > 0 && (
             <div className="mt-2">
               <h3 className="text-sm font-semibold">Fichiers sélectionnés :</h3>
               <ul className="list-disc list-inside">
-                {Array.from(files).map((file, index) => (
-                  <li key={index} className="text-sm">{file.name}</li>
+                {files.map((file, index) => (
+                  <li key={index} className="text-sm flex justify-between items-center">
+                    {file.name}
+                    <button
+                      type="button"
+                      className="text-red-500 hover:text-red-700 ml-4"
+                      onClick={() => removeFile(index)} // Bouton pour retirer le fichier
+                    >
+                      Retirer
+                    </button>
+                  </li>
                 ))}
               </ul>
             </div>

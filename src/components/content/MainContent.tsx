@@ -1,11 +1,49 @@
-import React, { useState } from 'react';
-import { CalendarDays , PackageOpen , Image } from 'lucide-react';
-import Avatar from '../avatar';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { CalendarDays, PackageOpen, Image, Heart, MessageCircle, Flag } from 'lucide-react'; // Import additional icons
+import Avatar from '../avatar'; // Ensure the avatar component handles default icons if image is missing
 import ModalPublication from '../ModalPublication';
+import { getPublicPublications } from '../../services/publicationService';
 
+type Publication = {
+  id: number;
+  contenu: string;
+  date_publication: string;
+  etudiant: {
+    id: number;
+    nom: string;
+    username: string;
+    role: string; // Assuming user roles like 'Professeur'
+    avatar_url: string | null; // URL of profile picture
+  };
+  file_url?: string; // Optional file like an image or video
+};
 
 const MainContent: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [publications, setPublications] = useState<Publication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchPublications = async () => {
+      try {
+        const data = await getPublicPublications();
+        setPublications(data);
+      } catch (err: any) {
+        if (err.message === 'Utilisateur non authentifié') {
+          navigate('/login');
+        } else {
+          setError('Erreur lors du chargement des publications.');
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPublications();
+  }, [navigate]);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -19,7 +57,7 @@ const MainContent: React.FC = () => {
           <input
             type="text"
             placeholder="Que voulez-vous faire aujourd'hui ?"
-            className="w-full p-2 border rounded-full hover:outline-none hover:ring-2 hover:ring-blue-500 mb-1 ml-3 "
+            className="w-full p-2 border rounded-full hover:outline-none hover:ring-2 hover:ring-blue-500 mb-1 ml-3"
             onClick={openModal}
           />
         </div>
@@ -29,45 +67,75 @@ const MainContent: React.FC = () => {
 
         {/* Icon section */}
         <div className="flex justify-around w-full">
-          <div className=" flex flex-col items-center ">
-            <Image className="w-6 h-6 " />
+          <div className="flex flex-col items-center">
+            <Image className="w-6 h-6" />
             <span className="text-sm text-gray-700">Photo / Video</span>
           </div>
-          <div className=" flex flex-col items-center">
-            <PackageOpen className="w-6 h-6 " />
+          <div className="flex flex-col items-center">
+            <PackageOpen className="w-6 h-6" />
             <span className="text-sm text-gray-700">Fichier</span>
           </div>
-          <div className=" flex flex-col items-center">
-            <CalendarDays className="w-6 h-6 " />
+          <div className="flex flex-col items-center">
+            <CalendarDays className="w-6 h-6" />
             <span className="text-sm text-gray-700">Événement</span>
           </div>
         </div>
       </div>
 
       {/* Liste des publications */}
-      <div className="bg-white p-4 rounded-md shadow mb-6">
-        <div className="flex items-center mb-4 space-x-5">
-          < Avatar />
-          <div>
-            <h3 className="text-lg font-bold">Ambinintsoa</h3>
-            <p className="text-sm text-gray-500">Étudiant en L3 Informatique</p>
-          </div>
-        </div>
-        <div className="grid grid-cols-2 gap-2 mb-4">
-          <img src="/image1.jpg" alt="Post" className="w-full h-auto rounded-md" />
-          <img src="/image2.jpg" alt="Post" className="w-full h-auto rounded-md" />
-        </div>
-        <p className="text-gray-700 mb-3">Légende de la publication</p>
-        <div className="flex space-x-3">
-          <button className="text-gray-500">❤️</button>
-          <button className="text-gray-500">💬</button>
-        </div>
+      <div className="publication-list">
+        {loading ? (
+          <p>Chargement des publications...</p>
+        ) : error ? (
+          <p>{error}</p>
+        ) : (
+          publications.map((publication) => (
+            <div key={publication.id} className="bg-white p-4 rounded-md shadow mb-4">
+              {/* Header Section with Avatar, Name, Role */}
+              <div className="flex items-center mb-2">
+                <Avatar /> {/* Add avatar */}
+                <div className="ml-3">
+                  <h4 className="text-lg font-bold">{publication.etudiant.nom}</h4>
+                  <p className="text-gray-500">@{publication.etudiant.username}</p>
+                  <p className="text-sm text-gray-400">{publication.etudiant.role}</p> {/* Display user role */}
+                </div>
+              </div>
+
+              {/* Content Section */}
+              <p className="mt-2 mb-4">{publication.contenu}</p>
+              {publication.file_url && (
+                <div className="mb-4">
+                  <img src={publication.file_url} alt="Publication content" className="w-full rounded-lg" />
+                </div>
+              )}
+              <span className="text-sm text-gray-400">
+                {new Date(publication.date_publication).toLocaleDateString()}
+              </span>
+
+              {/* Icon Actions */}
+              <div className="flex justify-between mt-4">
+                <div className="flex space-x-4">
+                  <Heart className="w-6 h-6 text-gray-500 hover:text-red-500 cursor-pointer" />
+                  <MessageCircle className="w-6 h-6 text-gray-500 hover:text-blue-500 cursor-pointer" />
+                  <Flag className="w-6 h-6 text-gray-500 hover:text-yellow-500 cursor-pointer" />
+                </div>
+              </div>
+
+              {/* Comment Section */}
+              <div className="mt-4">
+                <input
+                  type="text"
+                  placeholder="Commentaires..."
+                  className="w-full p-2 border rounded-full hover:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Modal component */}
       <ModalPublication isOpen={isModalOpen} onClose={closeModal} />
-
-       
     </main>
   );
 };
