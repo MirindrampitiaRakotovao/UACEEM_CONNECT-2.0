@@ -39,14 +39,14 @@ exports.login = async (req, res) => {
           maxAge: 3600000 // 1 heure
       });
 
-      res.status(200).json({
+      /*res.status(200).json({
         token,  // Pour React, vous pouvez aussi passer le token dans la réponse JSON
         etudiant: {
           id: etudiant.id,
           username: etudiant.username,
           role: etudiant.role,
         }
-      });
+      });*/
 
       // Retirer le mot de passe avant de retourner l'objet utilisateur
       const { password: etudiantPassword, ...etudiantSansMotDePasse } = etudiant.dataValues;

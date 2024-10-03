@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const sequelize = require('./config/database');
+const bodyParser = require('body-parser');
 const etudiantRoutes = require('./app/routes/etudiantRoutes');
 const mentionRoutes = require('./app/routes/mentionRoutes');
 const niveauRoutes = require('./app/routes/niveauRoutes');
@@ -24,6 +25,12 @@ app.use(cors({
   credentials: true // Enable credentials (cookies, etc.)
 }));
 app.use(cookieParser());
+
+// Pour les données encodées dans l'URL (formulaires)
+app.use(express.urlencoded({ extended: true }));
+
+// Si tu utilises body-parser (optionnel)
+app.use(bodyParser.json());
 
 // Middleware pour parser les requêtes JSON
 app.use(express.json());

@@ -1,26 +1,12 @@
-const multer = require('multer');
-const path = require('path');
 
-// Configuration de stockage pour multer
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, 'uploads/'); // Dossier où les fichiers sont sauvegardés
-  },
-  filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`);
-  }
-});
+const bodyParser = require('body-parser'); // Si tu utilises body-parser
 
-// Configuration de Multer avec vérification du champ
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    // Vérifie que le champ du fichier est bien 'fichiers'
-    if (file.fieldname !== 'fichiers') {
-      return cb(new multer.MulterError('LIMIT_UNEXPECTED_FILE'), false);
-    }
-    cb(null, true);
-  }
-});
 
-module.exports = upload;
+// Pour les requêtes JSON
+app.use(express.json()); // Permet de parser les requêtes avec un corps JSON
+
+// Pour les données encodées dans l'URL (formulaires)
+app.use(express.urlencoded({ extended: true }));
+
+// Si tu utilises body-parser (optionnel)
+app.use(bodyParser.json()); // Ancienne façon pour les requêtes JSON
