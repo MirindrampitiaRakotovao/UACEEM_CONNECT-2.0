@@ -1,12 +1,34 @@
+const createPublication = async (req, files) => {
+  const { visibilite, legende, groupe_nom } = req.body;
 
-const bodyParser = require('body-parser'); // Si tu utilises body-parser
+  // Récupérer l'ID de l'utilisateur authentifié
+  const etudiant_id = req.user.id;
 
+  let groupe_partage_id = null;
 
-// Pour les requêtes JSON
-app.use(express.json()); // Permet de parser les requêtes avec un corps JSON
+  // Vérification de la visibilité
+  if (visibilite === 'Groupe') {
+    if (!groupe_nom) {
+      throw new Error('Le nom du groupe est requis pour une publication de groupe');
+    }
+    groupe_partage_id = await verifyGroupMembership(etudiant_id, groupe_nom);
+  }
 
-// Pour les données encodées dans l'URL (formulaires)
-app.use(express.urlencoded({ extended: true }));
+  // Gestion des fichiers (contenu)
+  let contenu = null;
+  if (files && files.length > 0) {
+    const uploadedFiles = files.map(file => file.filename);
+    contenu = uploadedFiles.join(','); // Sauvegarde les fichiers comme liste de noms
+  }
 
-// Si tu utilises body-parser (optionnel)
-app.use(bodyParser.json()); // Ancienne façon pour les requêtes JSON
+  // Création de la publication
+  const publication = await Publications.create({
+    etudiant_id,
+    visibilite,
+    legende: legende || null,
+    contenu: contenu || null,
+    groupe_partage_id
+  });
+
+  return publication;
+};

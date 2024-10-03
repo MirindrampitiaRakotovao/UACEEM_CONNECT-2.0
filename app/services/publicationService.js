@@ -25,8 +25,15 @@ const verifyGroupMembership = async (etudiant_id, design_groupe_partage) => {
 
 
 // Fonction pour créer une publication
-const createPublication = async (data, files) => {
-  const { etudiant_id, visibilite, legende, groupe_nom } = data;
+const createPublication = async (req, files) => {
+  const { visibilite, legende, groupe_nom } = req.body;
+
+  // Ensure user is authenticated
+  if (!req.user || !req.user.id) {
+    throw new Error("L'utilisateur doit être authentifié pour créer une publication.");
+  }
+
+  const etudiant_id = req.user.id;
 
   let groupe_partage_id = null;
 
