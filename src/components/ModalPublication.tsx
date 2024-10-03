@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import AudienceSelector from './ModalVisibilite'; // Chemin correct
+import AudienceSelector from './ModalVisibilite';
 import { useAudience } from '../services/audienceService';
 
 interface ModalProps {
@@ -10,8 +10,8 @@ interface ModalProps {
 
 const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const {
-    selectedAudience, // Gardé car utilisé
-    designGroupePartage, // Gardé car utilisé
+    selectedAudience,
+    designGroupePartage,
   } = useAudience();
 
   const [legende, setLegende] = useState('');
@@ -34,12 +34,11 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
     if (files) {
       Array.from(files).forEach((file) => {
-        formData.append('files', file);
+        formData.append('fichiers', file); 
       });
     }
 
     try {
-      // Envoie la requête à l'URL de création de publication sur le backend
       const response = await axios.post('http://localhost:4000/publication/create', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
@@ -48,7 +47,7 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
       });
 
       console.log('Publication créée avec succès:', response.data);
-      onClose(); // Fermer le modal après la soumission réussie
+      onClose();
       setLegende('');
       setFiles(null);
     } catch (error: any) {
@@ -66,9 +65,7 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
       <div className="bg-white rounded-lg p-6 shadow-lg max-w-md w-full">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-semibold">Créer une publication</h2>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            ✖
-          </button>
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✖</button>
         </div>
 
         <form onSubmit={handleSubmit}>
@@ -91,18 +88,12 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             className="mt-4"
           />
 
-          {errorMessage && (
-            <div className="mt-2 text-red-500">
-              {errorMessage}
-            </div>
-          )}
+          {errorMessage && <div className="mt-2 text-red-500">{errorMessage}</div>}
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ${
-              isSubmitting ? 'opacity-50 cursor-not-allowed' : ''
-            }`}
+            className={`mt-4 bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isSubmitting ? 'Publier...' : 'Publier'}
           </button>
