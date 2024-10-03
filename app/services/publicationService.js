@@ -1,23 +1,28 @@
+require('../models/association');
 const Publications = require('../models/publications');
-const Groupes = require('../models/groupePartage'); // Modèle des groupes
+const GroupePartages = require('../models/groupePartage'); // Modèle des groupes
 const fs = require('fs');
 const path = require('path');
 
+
 // Vérifie si l'utilisateur est membre du groupe
 const verifyGroupMembership = async (etudiant_id, design_groupe_partage) => {
-  const groupe = await Groupes.findOne({ where: { design_groupe_partage: design_groupe_partage } });
+  const groupePartage = await GroupePartages.findOne({ where: { design_groupe_partage } });
 
-  if (!groupe) {
+  if (!groupePartage) {
     throw new Error('Le groupe spécifié n\'existe pas');
   }
 
-  const isMember = await groupe.hasEtudiant(etudiant_id); // Vérifie si l'étudiant est membre du groupe
-  if (!isMember) {
+  // Utiliser getEtudiants pour vérifier l'appartenance au groupe
+  const etudiants = await groupePartage.getEtudiants({ where: { id: etudiant_id } });
+
+  if (etudiants.length === 0) {
     throw new Error('Vous n\'êtes pas membre de ce groupe');
   }
 
-  return groupe.id;
+  return groupePartage.id;
 };
+
 
 // Fonction pour créer une publication
 const createPublication = async (data, files) => {

@@ -34,4 +34,5 @@ const GroupePartageEtudiants = sequelize.define('groupePartageEtudiants', {
   }
 });
 
+
 module.exports = GroupePartageEtudiants;
