@@ -18,6 +18,7 @@ interface Etudiant {
 
 export const useUserProfile = () => {
   const [etudiant, setEtudiant] = useState<Etudiant | null>(null);
+  const [role, setRole] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [isOpen, setIsOpen] = useState(false);
@@ -29,6 +30,7 @@ export const useUserProfile = () => {
     try {
       const studentProfile = await fetchStudentProfile();
       setEtudiant(studentProfile);
+      setRole(studentProfile);
     } catch (err) {
       setError('Erreur lors du chargement du profil');
     } finally {
@@ -41,6 +43,7 @@ export const useUserProfile = () => {
   }, []);
 
   return {
+    role,
     etudiant,
     loading,
     error,

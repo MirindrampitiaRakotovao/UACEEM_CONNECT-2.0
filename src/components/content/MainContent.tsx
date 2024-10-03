@@ -66,6 +66,8 @@ const MainContent: React.FC = () => {
 
       {/* Modal component */}
       <ModalPublication isOpen={isModalOpen} onClose={closeModal} />
+
+       
     </main>
   );
 };

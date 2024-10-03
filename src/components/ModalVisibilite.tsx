@@ -1,6 +1,7 @@
 import React from 'react';
 import Avatar from './avatar';
 import { Globe, UsersRound } from 'lucide-react';
+import { useUserProfile } from "../services/profileService"; 
 
 interface AudienceSelectorProps {
   selectedAudience: 'Public' | 'Groupe';
@@ -21,58 +22,81 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({
   designGroupePartage,
   setDesignGroupePartage
 }) => {
+
+  const { etudiant, loading, error  } = useUserProfile();
+
   return (
     <div>
       <div className="flex items-center mb-2">
         <Avatar />
-        <span className="ml-2 text-sm font-semibold">Sélectionner une audience</span>
-        <button 
-          type="button" 
-          onClick={handleOpenAudienceModal} 
-          className="ml-auto text-blue-500 text-sm"
+        <div className="flex flex-col ml-5">
+          <span className="text-gray-700 dark:text-gray-300 text-xl font-bold ">
+            {loading ? "Chargement..." : error ? "Erreur" : etudiant?.username}
+          </span>
+          <span className='text-sm text-gray-500'>
+            role
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={handleOpenAudienceModal}
+          className="flex ml-auto text-blue-500 hover:underline items-center"
         >
           {selectedAudience === 'Public' ? (
             <>
-              <Globe size={16} className="mr-2" /> Public
+              <Globe className="w-6 h-6 mr-1" />
+              <span className="text-[1em]">Public</span>
             </>
           ) : (
             <>
-              <UsersRound size={16} className="mr-2" /> Groupe
+              <UsersRound className="w-6 h-6 mr-1" />
+              <span className="text-[1em]">Groupe</span>
             </>
           )}
         </button>
+
       </div>
-      
-      {isAudienceModalOpen && (
-        <div className="mt-4">
-          <label>
-            <input 
-              type="radio" 
-              value="Public" 
-              checked={selectedAudience === 'Public'} 
-              onChange={() => handleSelectAudience('Public')} 
-            /> Public
-          </label>
-          <label className="ml-4">
-            <input 
-              type="radio" 
-              value="Groupe" 
-              checked={selectedAudience === 'Groupe'} 
-              onChange={() => handleSelectAudience('Groupe')} 
-            /> Groupe
-          </label>
-          {selectedAudience === 'Groupe' && (
-            <input
-              type="text"
-              value={designGroupePartage}
-              onChange={(e) => setDesignGroupePartage(e.target.value)}
-              placeholder="Nom du groupe"
-              className="mt-2 p-2 border rounded w-full"
-            />
-          )}
-        </div>
-      )}
+
+{isAudienceModalOpen && (
+  <div className="mt-5 space-y-4 ">
+    <div className="form-radio-group">
+      <label className="form-radio mr-5">
+        <input
+          type="radio"
+          value="Public"
+          checked={selectedAudience === 'Public'}
+          onChange={() => handleSelectAudience('Public')}
+          className="form-radio-input mr-2"
+        />
+        <span className="form-radio-label">Public</span>
+      </label>
+
+      <label className="form-radio ml-10">
+        <input
+          type="radio"
+          value="Groupe"
+          checked={selectedAudience === 'Groupe'}
+          onChange={() => handleSelectAudience('Groupe')}
+          className="form-radio-input mr-2"
+        />
+        <span className="form-radio-label">Groupe</span>
+      </label>
     </div>
+
+    {selectedAudience === 'Groupe' && (
+      <input
+        type="text"
+        value={designGroupePartage}
+        onChange={(e) => setDesignGroupePartage(e.target.value)}
+        placeholder="Nom du groupe"
+        className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      />
+    )}
+  </div>
+)}
+
+    </div>
+    
   );
 };
 
