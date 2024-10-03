@@ -25,7 +25,7 @@ const verifyGroupMembership = async (etudiant_id, design_groupe_partage) => {
 
 
 // Fonction pour créer une publication
-const createPublication = async (req, files) => {
+exports.createPublication = async (req, fichiers, photo) => {
   const { visibilite, legende, groupe_nom } = req.body;
 
   // Ensure user is authenticated
@@ -47,9 +47,15 @@ const createPublication = async (req, files) => {
 
   // Gestion des fichiers (contenu)
   let contenu = null;
-  if (files && files.length > 0) {
-    const uploadedFiles = files.map(file => file.filename);
+  if (fichiers && fichiers.length > 0) {
+    const uploadedFiles = fichiers.map(file => file.filename);
     contenu = uploadedFiles.join(','); // Sauvegarde les fichiers comme liste de noms
+  }
+
+  // Gestion de la photo
+  let photoFilename = null;
+  if (photo) {
+    photoFilename = photo.filename;
   }
 
   // Création de la publication
@@ -58,12 +64,29 @@ const createPublication = async (req, files) => {
     visibilite,
     legende: legende || null,
     contenu: contenu || null,
+    photo: photoFilename || null, // Ajoutez la photo ici
     groupe_partage_id
   });
 
   return publication;
 };
 
-module.exports = {
-  createPublication,
+
+exports.getPublicPublications = async () => {
+  try {
+    // Récupérer toutes les publications avec visibilité "Public"
+    const publications = await Publications.findAll({
+      where: { visibilite: 'Public' },
+      include: [
+        {
+          model: require('../models/etudiants'), // Inclure le modèle des étudiants
+          attributes: ['nom', 'username'], // Par exemple, nom et prénom de l'étudiant
+        },
+      ],
+    });
+
+    return publications;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 };

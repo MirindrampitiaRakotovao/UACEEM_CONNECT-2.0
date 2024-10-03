@@ -1,6 +1,8 @@
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const http = require('http');
+const { Server } = require('socket.io');
 const cookieParser = require('cookie-parser');
 const sequelize = require('./config/database');
 const bodyParser = require('body-parser');
@@ -12,7 +14,22 @@ const groupeRoutes = require('./app/routes/groupeRoutes');
 const groupePartageRoutes = require('./app/routes/groupePartageRoutes')
 const publicationsRoutes = require('./app/routes/publicationRoutes');
 
-const authenticateToken = require('./app/middlewares/authenticateToken')
+const server = http.createServer(app);
+const io = new Server(server);
+
+io.on('connection', (socket) => {
+  console.log('Un utilisateur est connecté');
+
+  socket.on('disconnect', () => {
+    console.log('Utilisateur déconnecté');
+  });
+
+  socket.on('message', (data) => {
+    console.log('Message reçu:', data);
+    // Envoyer le message à tous les clients
+    io.emit('message', data);
+  });
+});
 
 /*association*/
 require('./app/models/association');

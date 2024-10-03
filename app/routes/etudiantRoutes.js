@@ -14,7 +14,7 @@ router.post('/create', etudiantController.createEtudiant);
 router.get('/me' , authenticateToken , etudiantController.getProfil);
 
 // Route pour voir photo de profil
-router.get('/photo' , authenticateToken , etudiantController.photoDeProfil);
+router.post('/photo', authenticateToken, upload, etudiantController.updatePhoto);
 
 module.exports = router;
 
@@ -22,7 +22,7 @@ module.exports = router;
 router.post('/logout', authenticateToken, etudiantController.logout);
 
 //Route pour editer profil
-router.post('/photo', authenticateToken, upload.single('photo'), etudiantController.updatePhoto);
+router.post('/photo', authenticateToken, upload, etudiantController.updatePhoto);
 
 //Route pour obtenir tout les utilisateurs
 router.get('/contact', authenticateToken , etudiantController.getAllUsers);

@@ -1,34 +1,25 @@
-const createPublication = async (req, files) => {
-  const { visibilite, legende, groupe_nom } = req.body;
+const express = require('express');
+const http = require('http');
+const { Server } = require('socket.io');
 
-  // Récupérer l'ID de l'utilisateur authentifié
-  const etudiant_id = req.user.id;
+const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
-  let groupe_partage_id = null;
+io.on('connection', (socket) => {
+  console.log('Un utilisateur est connecté');
 
-  // Vérification de la visibilité
-  if (visibilite === 'Groupe') {
-    if (!groupe_nom) {
-      throw new Error('Le nom du groupe est requis pour une publication de groupe');
-    }
-    groupe_partage_id = await verifyGroupMembership(etudiant_id, groupe_nom);
-  }
-
-  // Gestion des fichiers (contenu)
-  let contenu = null;
-  if (files && files.length > 0) {
-    const uploadedFiles = files.map(file => file.filename);
-    contenu = uploadedFiles.join(','); // Sauvegarde les fichiers comme liste de noms
-  }
-
-  // Création de la publication
-  const publication = await Publications.create({
-    etudiant_id,
-    visibilite,
-    legende: legende || null,
-    contenu: contenu || null,
-    groupe_partage_id
+  socket.on('disconnect', () => {
+    console.log('Utilisateur déconnecté');
   });
 
-  return publication;
-};
+  socket.on('message', (data) => {
+    console.log('Message reçu:', data);
+    // Envoyer le message à tous les clients
+    io.emit('message', data);
+  });
+});
+
+server.listen(3000, () => {
+  console.log('Serveur démarré sur le port 3000');
+});

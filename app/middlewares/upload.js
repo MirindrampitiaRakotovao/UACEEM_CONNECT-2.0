@@ -4,7 +4,7 @@ const path = require('path');
 // Définir le stockage pour les fichiers
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, 'uploads/'); // Dossier où enregistrer les fichiers
+    cb(null, 'uploads/photos'); // Dossier où enregistrer les fichiers
   },
   filename: function (req, file, cb) {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -12,29 +12,39 @@ const storage = multer.diskStorage({
   }
 });
 
-// Filtrage des fichiers par type (exemple: uniquement images)
+// Filtrage des fichiers par type
 const fileFilter = (req, file, cb) => {
+  // Types de fichiers acceptés pour 'photo'
+  const allowedImageTypes = /jpeg|jpg|png/;
   const allowedFileTypes = /jpeg|jpg|png|pdf|doc|docx|xls|xlsx|ppt|pptx/;
-  const mimeType = allowedFileTypes.test(file.mimetype);
-  const extname = allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
 
-  if (mimeType && extname) {
-    return cb(null, true);
+  if (file.fieldname === 'photo') {
+    const isImage = allowedImageTypes.test(file.mimetype) && allowedImageTypes.test(path.extname(file.originalname).toLowerCase());
+    if (isImage) {
+      return cb(null, true);
+    }
+    return cb(new Error('Seuls les fichiers images (jpeg, jpg, png) sont acceptés pour le champ photo.'));
   }
-  cb(new Error('Seuls les fichiers images (jpeg, jpg, png) et documents (pdf, doc, xls, ppt) sont acceptés.'));
+
+  if (file.fieldname === 'fichiers') {
+    const isAllowed = allowedFileTypes.test(file.mimetype) && allowedFileTypes.test(path.extname(file.originalname).toLowerCase());
+    if (isAllowed) {
+      return cb(null, true);
+    }
+    return cb(new Error('Seuls les fichiers images (jpeg, jpg, png) et documents (pdf, doc, xls, ppt) sont acceptés.'));
+  }
+
+  cb(new multer.MulterError('LIMIT_UNEXPECTED_FILE'));
 };
 
-// Initialiser multer avec les configurations
+// Initialiser multer avec la configuration pour plusieurs champs
 const upload = multer({
   storage: storage,
   limits: { fileSize: 200 * 1024 * 1024 }, // Limite à 200MB
-  fileFilter: (req, file, cb) => {
-    // Vérifie que le champ du fichier est bien 'fichiers'
-    if (file.fieldname !== 'fichiers') {
-      return cb(new multer.MulterError('LIMIT_UNEXPECTED_FILE'), false);
-    }
-    cb(null, true);
-  }
-});
+  fileFilter: fileFilter
+}).fields([
+  { name: 'photo', maxCount: 1 },      // Accepter un seul fichier pour le champ 'photo'
+  { name: 'fichiers', maxCount: 10 }   // Accepter jusqu'à 10 fichiers pour le champ 'fichiers'
+]);
 
 module.exports = upload;

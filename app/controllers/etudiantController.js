@@ -2,6 +2,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const { Op } = require('sequelize');
 const Etudiant = require('../models/etudiants');
+const Etudiants = require('../services/etudiantService');
 const JWT_SECRET = process.env.JWT_SECRET || 'votre_secret_key';
 
 /*login*/
@@ -173,22 +174,26 @@ exports.photoDeProfil = async (req, res) => {
 /* Fonction pour mettre à jour la photo de profil */
 exports.updatePhoto = async (req, res) => {
   try {
-    const etudiantId = req.user.id;
-    const etudiant = await Etudiant.findByPk(etudiantId);
-    
-    if (!etudiant) {
-      return res.status(404).json({ error: 'Étudiant non trouvé' });
+    // Vérifiez que le fichier photo est bien présent
+    console.log(req.file); // Log pour vérifier le fichier reçu
+
+    if (!req.file) {
+      return res.status(400).json({ message: "Aucune photo n'a été téléchargée" });
     }
 
-    // Mettre à jour le chemin de la photo dans la base de données
-    etudiant.photo = `../uploads/${req.file.filename}`;
-    await etudiant.save();
+    // Log avant l'appel du service pour suivre l'utilisateur
+    console.log('Mise à jour de la photo pour l\'utilisateur : ', req.user.id);
 
-    res.status(200).json({ message: 'Photo mise à jour avec succès', photo: etudiant.photo });
+    // Appel du service pour mettre à jour la photo de profil
+    const updatedProfile = await etudiantService.updateProfilePhoto(req.user.id, req.file);
+
+    return res.status(200).json({ message: 'Photo de profil mise à jour avec succès', updatedProfile });
   } catch (error) {
-    res.status(500).json({ error: 'Une erreur est survenue' });
+    console.error('Erreur lors de la mise à jour de la photo de profil:', error); // Log de l'erreur
+    return res.status(500).json({ message: 'Une erreur est survenue lors de la mise à jour de la photo.' });
   }
 };
+
 
 /*Fonction pour récupérer la liste de tous les utilisateurs */
 exports.getAllUsers = async (req, res) => {

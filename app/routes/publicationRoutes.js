@@ -10,6 +10,9 @@ router.post('/create', authenticateToken, (req, res, next) => {
   console.log('Corps de la requête:', req.body);
   console.log('Fichiers reçus:', req.files);
   next();  // Passe à l'étape suivante (upload)
-}, upload.array('fichiers', 10), publicationController.createPublication);
+}, upload, publicationController.createPublication);
+
+router.get('/liste/public', authenticateToken ,publicationController.getPublicPublications);
 
 module.exports = router;
+
