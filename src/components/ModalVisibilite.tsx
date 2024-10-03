@@ -1,19 +1,26 @@
 import React from 'react';
 import Avatar from './avatar';
 import { Globe, UsersRound } from 'lucide-react';
-import { useAudience } from '../services/audienceService';
 
-const AudienceSelector = () => {
-  const { 
-    selectedAudience, 
-    isAudienceModalOpen, 
-    handleOpenAudienceModal, 
-    handleCloseAudienceModal, 
-    handleSelectAudience,
-    designGroupePartage,
-    setDesignGroupePartage
-  } = useAudience();
+interface AudienceSelectorProps {
+  selectedAudience: 'Public' | 'Groupe';
+  isAudienceModalOpen: boolean;
+  handleOpenAudienceModal: () => void;
+  handleCloseAudienceModal: () => void;
+  handleSelectAudience: (audience: 'Public' | 'Groupe') => void;
+  designGroupePartage: string;
+  setDesignGroupePartage: (value: string) => void;
+}
 
+const AudienceSelector: React.FC<AudienceSelectorProps> = ({
+  selectedAudience,
+  isAudienceModalOpen,
+  handleOpenAudienceModal,
+  handleCloseAudienceModal,
+  handleSelectAudience,
+  designGroupePartage,
+  setDesignGroupePartage
+}) => {
   return (
     <div>
       <div className="flex items-center mb-2">
@@ -63,7 +70,6 @@ const AudienceSelector = () => {
               className="mt-2 p-2 border rounded w-full"
             />
           )}
-          <button onClick={handleCloseAudienceModal} className="mt-4 bg-gray-200 px-4 py-2 rounded">Fermer</button>
         </div>
       )}
     </div>

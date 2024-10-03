@@ -12,6 +12,11 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const {
     selectedAudience,
     designGroupePartage,
+    setDesignGroupePartage,
+    isAudienceModalOpen,
+    handleOpenAudienceModal,
+    handleCloseAudienceModal,
+    handleSelectAudience,
   } = useAudience();
 
   const [legende, setLegende] = useState('');
@@ -24,17 +29,23 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     setIsSubmitting(true);
     setErrorMessage('');
 
+    if (selectedAudience === 'Groupe' && !designGroupePartage) {
+      setErrorMessage("Veuillez entrer un nom de groupe.");
+      setIsSubmitting(false);
+      return;
+    }
+
     const formData = new FormData();
     formData.append('visibilite', selectedAudience);
     formData.append('legende', legende);
 
     if (selectedAudience === 'Groupe') {
-      formData.append('design_groupe_partage', designGroupePartage);
+      formData.append('groupe_nom', designGroupePartage);
     }
 
     if (files) {
       Array.from(files).forEach((file) => {
-        formData.append('fichiers', file); 
+        formData.append('fichiers', file);
       });
     }
 
@@ -69,7 +80,15 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
         </div>
 
         <form onSubmit={handleSubmit}>
-          <AudienceSelector />
+          <AudienceSelector
+            selectedAudience={selectedAudience}
+            isAudienceModalOpen={isAudienceModalOpen}
+            handleOpenAudienceModal={handleOpenAudienceModal}
+            handleCloseAudienceModal={handleCloseAudienceModal}
+            handleSelectAudience={handleSelectAudience}
+            designGroupePartage={designGroupePartage}
+            setDesignGroupePartage={setDesignGroupePartage}
+          />
           <hr className="w-full my-4 border-gray-300" />
 
           <textarea
