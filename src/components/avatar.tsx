@@ -7,8 +7,14 @@ interface AvatarProps {
   size?: string; // Taille optionnelle pour l'avatar (par défaut "w-16 h-16")
 }
 
-const Avatar: React.FC<AvatarProps> = ({  size = "w-10 h-10" }) => {
+const Avatar: React.FC<AvatarProps> = ({ size = "w-10 h-10" }) => {
   const [photo, setPhoto] = useState<string | null>(null);
+
+  // Fonction pour calculer la taille de l'icône en fonction du cercle
+  const calculateIconSize = (size: string) => {
+    const sizeValue = parseInt(size.split("-")[1]); // Récupérer la taille numérique de la classe (par ex: 10 de "w-10")
+    return `${sizeValue / 2}rem`; // Calculer une taille d'icône proportionnelle
+  };
 
   useEffect(() => {
     // Appel API pour récupérer la photo de profil de l'utilisateur
@@ -37,7 +43,10 @@ const Avatar: React.FC<AvatarProps> = ({  size = "w-10 h-10" }) => {
           className="object-cover w-full h-full"
         />
       ) : (
-        <User className="text-gray-500 w-8 h-8" /> // Icône User de Lucide
+        <User
+          className="text-gray-500"
+          style={{ width: calculateIconSize(size), height: calculateIconSize(size) }} // Appliquer la taille dynamique
+        />
       )}
     </div>
   );

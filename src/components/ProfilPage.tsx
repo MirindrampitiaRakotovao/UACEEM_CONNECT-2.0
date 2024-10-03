@@ -36,11 +36,11 @@ const UserProfile: React.FC = () => {
   }
 
   return (
-    <div className="div">
+    <div className="h-screen flex flex-col">
       {/* Afficher le composant approprié selon le rôle */}
       {getHomeComponent(etudiant.role)}
       
-      <div className="bg-gray-50 text-gray h-full p-4">
+      <div className="bg-gray-50 text-gray flex-1 overflow-y-auto p-4">
         <div className="w-3/5 mx-auto bg-white rounded-lg p-6">
           {/* Header du profil */}
           <div className="flex items-center justify-between">
