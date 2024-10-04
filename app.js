@@ -14,7 +14,7 @@ const groupeRoutes = require('./app/routes/groupeRoutes');
 const groupePartageRoutes = require('./app/routes/groupePartageRoutes')
 const publicationsRoutes = require('./app/routes/publicationRoutes');
 
-const server = http.createServer(app);
+/*const server = http.createServer(app);
 const io = new Server(server);
 
 io.on('connection', (socket) => {
@@ -29,7 +29,7 @@ io.on('connection', (socket) => {
     // Envoyer le message à tous les clients
     io.emit('message', data);
   });
-});
+});*/
 
 /*association*/
 require('./app/models/association');

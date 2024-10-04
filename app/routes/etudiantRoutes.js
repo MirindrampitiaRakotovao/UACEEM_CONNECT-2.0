@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const upload = require('../middlewares/upload');
+const upload = require('../middlewares/multerpdp');
 const etudiantController = require('../controllers/etudiantController');
 const authenticateToken = require('../middlewares/authenticateToken');
 
@@ -14,7 +14,7 @@ router.post('/create', etudiantController.createEtudiant);
 router.get('/me' , authenticateToken , etudiantController.getProfil);
 
 // Route pour voir photo de profil
-router.post('/photo', authenticateToken, upload, etudiantController.updatePhoto);
+router.get('/photo', authenticateToken, etudiantController.photoDeProfil);
 
 module.exports = router;
 
@@ -22,7 +22,7 @@ module.exports = router;
 router.post('/logout', authenticateToken, etudiantController.logout);
 
 //Route pour editer profil
-router.post('/photo', authenticateToken, upload, etudiantController.updatePhoto);
+router.post('/photo', authenticateToken, upload.single('photo'), etudiantController.updatePhoto);
 
 //Route pour obtenir tout les utilisateurs
 router.get('/contact', authenticateToken , etudiantController.getAllUsers);

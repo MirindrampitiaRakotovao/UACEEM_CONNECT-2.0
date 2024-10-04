@@ -1,25 +1,9 @@
 const express = require('express');
-const http = require('http');
-const { Server } = require('socket.io');
+const router = express.Router();
+const upload = require('../config/multerConfig'); // Importer Multer
+const { updatePhoto } = require('../controllers/etudiantController'); // Importer le contrôleur
 
-const app = express();
-const server = http.createServer(app);
-const io = new Server(server);
+// Route pour mettre à jour la photo de profil
+router.post('/update-photo', upload.single('photo'), updatePhoto);
 
-io.on('connection', (socket) => {
-  console.log('Un utilisateur est connecté');
-
-  socket.on('disconnect', () => {
-    console.log('Utilisateur déconnecté');
-  });
-
-  socket.on('message', (data) => {
-    console.log('Message reçu:', data);
-    // Envoyer le message à tous les clients
-    io.emit('message', data);
-  });
-});
-
-server.listen(3000, () => {
-  console.log('Serveur démarré sur le port 3000');
-});
+module.exports = router;
