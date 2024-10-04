@@ -75,7 +75,7 @@ const UserProfile: React.FC = () => {
       {getHomeComponent(etudiant.role)}
       
       <div className="bg-gray-50 text-gray flex-1 overflow-y-auto p-4">
-        <div className="w-3/5 mx-auto bg-white rounded-lg p-6">
+        <div className="w-2/5 mx-auto bg-white rounded-lg p-6">
          {/* Header du profil */}
           <div className="flex items-center justify-between">
             <div>

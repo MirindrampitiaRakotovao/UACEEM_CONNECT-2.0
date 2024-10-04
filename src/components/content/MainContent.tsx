@@ -55,9 +55,9 @@ const MainContent: React.FC = () => {
   const closeModal = () => setIsModalOpen(false);
 
   return (
-    <main className="relative flex-1 h-full bg-gray-50 p-6">
+    <main className="relative flex-1 h-[90vh] overflow-y-scroll bg-gray-50 p-6 scrollbar-hidden">
       {/* Section de création de publication toujours visible */}
-      <div className="bg-white p-4 rounded-md shadow mb-6 sticky top-0 z-10">
+      <div className="bg-white p-4 rounded-md shadow mb-6 top-0 z-10">
         <div className="flex mb-6">
           <Avatar />
           <input
