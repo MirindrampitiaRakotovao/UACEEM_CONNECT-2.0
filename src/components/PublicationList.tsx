@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Heart, MessageCircle, Flag, SendHorizonal } from 'lucide-react';
+import { Heart, MessageCircle, BadgeAlert, SendHorizonal, CircleX } from 'lucide-react';
 import Avatar from './avatar';
 import ModalFile from './ModalFile';  // Importation du composant ModalFile
 
@@ -54,12 +54,18 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
       ) : (
         publications.map((publication) => (
           <div key={publication.id} className="bg-white p-4 rounded-md shadow mb-4">
-            <div className="flex items-center mb-2">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex">
               <Avatar />
-              <div className="ml-3">
+              <div className="ml-4">
                 <h4 className="text-lg font-bold">{publication.etudiant.username}</h4>
                 <p className="text-sm text-gray-400">{publication.etudiant.role}</p>
               </div>
+              </div>
+              
+              <button  className="text-gray-500 hover:text-gray-700 ml-40">
+                < CircleX />
+              </button>
             </div>
 
             <p className="mt-2 mb-4">{publication.legende}</p>
@@ -85,7 +91,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
               <div className="flex space-x-4">
                 <Heart className="w-6 h-6 text-gray-500 hover:text-red-500 cursor-pointer" />
                 <MessageCircle className="w-6 h-6 text-gray-500 hover:text-blue-500 cursor-pointer" />
-                <Flag className="w-6 h-6 text-gray-500 hover:text-yellow-500 cursor-pointer" />
+                <BadgeAlert className="w-6 h-6 text-gray-500 hover:text-yellow-500 cursor-pointer" />
               </div>
             </div>
 
