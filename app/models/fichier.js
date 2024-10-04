@@ -16,14 +16,18 @@ const Fichiers = sequelize.define('fichiers', {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  url_fichier: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
   id_publication: {
     type: DataTypes.INTEGER,
-    allowNull: true,
     references: {
-      model: 'publications',
+      model: 'Publications',
       key: 'id',
     },
-  }
+    onDelete: 'CASCADE', // Si une publication est supprimée, supprimer aussi les fichiers associés
+  },
 });
 
 module.exports = Fichiers;

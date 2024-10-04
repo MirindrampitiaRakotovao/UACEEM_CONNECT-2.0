@@ -44,12 +44,17 @@ Publications.belongsTo(Etudiants, {
 });
 
 // Association entre publications et fichiers
+// Une publication peut avoir plusieurs fichiers
 Publications.hasMany(Fichiers, {
-  foreignKey: 'id_publication' 
+  foreignKey: 'id_publication',
+  as: 'fichiers',
+  onDelete: 'CASCADE',
 });
 
+// Un fichier appartient à une publication
 Fichiers.belongsTo(Publications, {
-  foreignKey: 'id_publication' 
+  foreignKey: 'id_publication',
+  as: 'publication',
 });
 
 // Associations avec niveaux, parcours et mentions
@@ -76,3 +81,7 @@ module.exports = {
   GroupePartages,
   GroupePartageEtudiants
 };
+
+
+
+

@@ -14,5 +14,7 @@ router.post('/create', authenticateToken, (req, res, next) => {
 
 router.get('/liste/public', authenticateToken ,publicationController.getPublicPublications);
 
+router.get('/liste/public/me', authenticateToken ,publicationController.getPublicPublicationsByUser);
+
 module.exports = router;
 

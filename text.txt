@@ -1,9 +1,22 @@
-const express = require('express');
-const router = express.Router();
-const upload = require('../config/multerConfig'); // Importer Multer
-const { updatePhoto } = require('../controllers/etudiantController'); // Importer le contrôleur
+exports.getPublicPublications = async () => {
+  try {
+    const publications = await Publications.findAll({
+      where: { visibilite: 'Public' },
+      include: [
+        {
+          model: require('../models/etudiants'),
+          attributes: ['nom', 'username'],
+        },
+        {
+          model: Fichiers,
+          as: 'fichiers', // Inclure les fichiers liés à la publication
+          attributes: ['nom_fichier', 'url_fichier'], // Renvoyer le nom et l'URL des fichiers
+        },
+      ],
+    });
 
-// Route pour mettre à jour la photo de profil
-router.post('/update-photo', upload.single('photo'), updatePhoto);
-
-module.exports = router;
+    return publications;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
