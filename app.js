@@ -13,6 +13,7 @@ const parcoursRoutes = require('./app/routes/parcoursRoutes');
 const groupeRoutes = require('./app/routes/groupeRoutes');
 const groupePartageRoutes = require('./app/routes/groupePartageRoutes')
 const publicationsRoutes = require('./app/routes/publicationRoutes');
+const reactionRoutes = require('./app/routes/reactionRoutes');
 
 /*const server = http.createServer(app);
 const io = new Server(server);
@@ -98,3 +99,4 @@ app.use('/parcours' , parcoursRoutes);
 app.use('/groupe' , groupeRoutes);
 app.use('/partageGroupe' , groupePartageRoutes);
 app.use('/publication', publicationsRoutes);
+app.use('/reaction' , reactionRoutes);

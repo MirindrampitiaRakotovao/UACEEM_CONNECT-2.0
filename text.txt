@@ -1,22 +1,11 @@
-exports.getPublicPublications = async () => {
-  try {
-    const publications = await Publications.findAll({
-      where: { visibilite: 'Public' },
-      include: [
-        {
-          model: require('../models/etudiants'),
-          attributes: ['nom', 'username'],
-        },
-        {
-          model: Fichiers,
-          as: 'fichiers', // Inclure les fichiers liés à la publication
-          attributes: ['nom_fichier', 'url_fichier'], // Renvoyer le nom et l'URL des fichiers
-        },
-      ],
-    });
+const Publications = require('./Publications');
+const Reactions = require('./Reactions');
+const Etudiants = require('./Etudiants');
 
-    return publications;
-  } catch (error) {
-    throw new Error(error.message);
-  }
-};
+// Une publication peut avoir plusieurs réactions
+Publications.hasMany(Reactions, { foreignKey: 'publication_id' });
+Reactions.belongsTo(Publications, { foreignKey: 'publication_id' });
+
+// Un étudiant peut avoir plusieurs réactions
+Etudiants.hasMany(Reactions, { foreignKey: 'etudiant_id' });
+Reactions.belongsTo(Etudiants, { foreignKey: 'etudiant_id' });
