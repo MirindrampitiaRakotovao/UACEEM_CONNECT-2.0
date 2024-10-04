@@ -1,29 +1,32 @@
-// ModalFile.tsx
 import React from 'react';
-import { Dialog } from '@headlessui/react'; // Assuming you're using Headless UI for modals
 
-type ModalFileProps = {
+interface ModalFileProps {
   isOpen: boolean;
   onClose: () => void;
   fileUrl: string;
-};
+}
 
 const ModalFile: React.FC<ModalFileProps> = ({ isOpen, onClose, fileUrl }) => {
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-      <div className="fixed inset-0 bg-black opacity-30" />
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="w-full max-w-md bg-white rounded-lg shadow-lg p-6">
-          <img src={fileUrl} alt="Fichier" className="w-full rounded-md" />
-          <button
-            onClick={onClose}
-            className="mt-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-          >
-            Fermer
-          </button>
-        </Dialog.Panel>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+      {/* Contenu du modal */}
+      <div className="relative bg-white rounded-lg shadow-lg max-w-3xl mx-auto">
+        {/* Bouton de fermeture */}
+        <button
+          onClick={onClose}
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+        >
+          &times;
+        </button>
+
+        {/* Contenu du fichier */}
+        <div className="p-6">
+          <img src={fileUrl} alt="Fichier sélectionné" className="object-contain max-h-[80vh] mx-auto" />
+        </div>
       </div>
-    </Dialog>
+    </div>
   );
 };
 
