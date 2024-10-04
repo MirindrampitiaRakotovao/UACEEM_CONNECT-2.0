@@ -15,3 +15,17 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+/* Pour Chrome, Safari et Edge */
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+/* Pour Firefox */
+.scrollbar-hidden {
+  scrollbar-width: none; /* Masque la scrollbar */
+}
+
+/* Désactivation du comportement du curseur par défaut */
+.scrollbar-hidden {
+  -ms-overflow-style: none; /* Masque la scrollbar dans Internet Explorer et Edge */
+}

@@ -1,10 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import HomeAdmin from './Admin/HomeAdmin';
 import HomeEtudiant from './Etudiant/HomeEtudiant';
 import HomeDelegue from './Delegue/HomeDelegue';
 import Avatar from "./avatar";
 import EditProfileModal from './EditProfileModal';
 import { useUserProfile } from '../services/profileService';
+import { Heart, MessageCircle, Flag } from 'lucide-react';
+import { getPublicPublicationMe } from '../services/publicationService';
 
 // Fonction pour déterminer le bon composant en fonction du rôle
 const getHomeComponent = (role: string) => {
@@ -20,8 +22,40 @@ const getHomeComponent = (role: string) => {
   }
 };
 
+type Publication = {
+  id: number;
+  contenu: string;
+  date_publication: string;
+  etudiant: {
+    id: number;
+    nom: string;
+    username: string;
+    role: string; // Assuming user roles like 'Professeur'
+    avatar_url: string | null; // URL of profile picture
+  };
+  file_url?: string; // Optional file like an image or video
+};
+
 const UserProfile: React.FC = () => {
   const { etudiant, loading, error, isOpen, openModal, closeModal } = useUserProfile();
+  const [publications, setPublications] = useState<Publication[]>([]);
+  const [loadingPublications, setLoadingPublications] = useState(true);
+  const [publicationError, setPublicationError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchUserPublications = async () => {
+      try {
+        const data = await getPublicPublicationMe(); // Fetch only the current user's publications
+        setPublications(data);
+      } catch (err) {
+        setPublicationError('Erreur lors du chargement des publications.');
+      } finally {
+        setLoadingPublications(false);
+      }
+    };
+
+    fetchUserPublications();
+  }, []);
 
   if (loading) {
     return <div>Chargement...</div>;
@@ -37,12 +71,12 @@ const UserProfile: React.FC = () => {
 
   return (
     <div className="h-screen flex flex-col">
-      {/* Afficher le composant approprié selon le rôle */}
+        {/* Afficher le composant approprié selon le rôle */}
       {getHomeComponent(etudiant.role)}
       
       <div className="bg-gray-50 text-gray flex-1 overflow-y-auto p-4">
         <div className="w-3/5 mx-auto bg-white rounded-lg p-6">
-          {/* Header du profil */}
+         {/* Header du profil */}
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold">{etudiant.nom}</h2>
@@ -67,42 +101,59 @@ const UserProfile: React.FC = () => {
               bio={etudiant.bio || ''}
             />
           )}
+          
 
-          {/* Section des onglets */}
-          <div className="mt-4 flex justify-center space-x-8 text-gray-400">
-            <button className="border-b-2 border-white pb-2">Threads</button>
-            <button>Replies</button>
-            <button>Reposts</button>
-          </div>
-
-          {/* Complétez votre profil */}
+          {/* Publications section */}
           <div className="mt-6">
-            <h3 className="text-sm text-gray-400 mb-4">Complétez votre profil</h3>
-            <div className="grid grid-cols-3 gap-4">
-              {/* Ajouter une photo de profil */}
-              <div className="bg-gray-800 rounded-lg p-4 text-center">
-                <div className="text-2xl mb-2">📷</div>
-                <h4 className="text-sm font-semibold">Ajouter une photo de profil</h4>
-                <p className="text-xs text-gray-400 mb-4">Aidez les gens à vous reconnaître plus facilement.</p>
-                <button className="bg-gray-700 text-gray py-1 px-4 rounded-lg">Ajouter</button>
-              </div>
+            <h3 className="text-sm text-gray-400 mb-4">Vos Publications</h3>
+            {loadingPublications ? (
+              <p>Chargement des publications...</p>
+            ) : publicationError ? (
+              <p>{publicationError}</p>
+            ) : (
+              publications.map((publication) => (
+                <div key={publication.id} className="bg-white p-4 rounded-md shadow mb-4">
+                  {/* Publication header with avatar, name, role */}
+                  <div className="flex items-center mb-2">
+                    <Avatar  /> {/* Use avatar */}
+                    <div className="ml-3">
+                      <h4 className="text-lg font-bold">{publication.etudiant.nom}</h4>
+                      <p className="text-gray-500">@{publication.etudiant.username}</p>
+                      <p className="text-sm text-gray-400">{publication.etudiant.role}</p> {/* User role */}
+                    </div>
+                  </div>
 
-              {/* Ajouter une bio */}
-              <div className="bg-gray-800 rounded-lg p-4 text-center">
-                <div className="text-2xl mb-2">📝</div>
-                <h4 className="text-sm font-semibold">Ajouter une bio</h4>
-                <p className="text-xs text-gray-400 mb-4">Présentez-vous et partagez ce qui vous intéresse.</p>
-                <button className="bg-gray-700 text-gray py-1 px-4 rounded-lg">Ajouter</button>
-              </div>
+                  {/* Publication content */}
+                  <p className="mt-2 mb-4">{publication.contenu}</p>
+                  {publication.file_url && (
+                    <div className="mb-4">
+                      <img src={publication.file_url} alt="Publication content" className="w-full rounded-lg" />
+                    </div>
+                  )}
+                  <span className="text-sm text-gray-400">
+                    {new Date(publication.date_publication).toLocaleDateString()}
+                  </span>
 
-              {/* Créer un thread */}
-              <div className="bg-gray-800 rounded-lg p-4 text-center">
-                <div className="text-2xl mb-2">📝</div>
-                <h4 className="text-sm font-semibold">Créer un thread</h4>
-                <p className="text-xs text-gray-400 mb-4">Partagez vos idées ou un fait marquant récent.</p>
-                <button className="bg-white-700 text-gray py-1 px-4 rounded-lg">Créer</button>
-              </div>
-            </div>
+                  {/* Icon actions */}
+                  <div className="flex justify-between mt-4">
+                    <div className="flex space-x-4">
+                      <Heart className="w-6 h-6 text-gray-500 hover:text-red-500 cursor-pointer" />
+                      <MessageCircle className="w-6 h-6 text-gray-500 hover:text-blue-500 cursor-pointer" />
+                      <Flag className="w-6 h-6 text-gray-500 hover:text-yellow-500 cursor-pointer" />
+                    </div>
+                  </div>
+
+                  {/* Comment input */}
+                  <div className="mt-4">
+                    <input
+                      type="text"
+                      placeholder="Commentaires..."
+                      className="w-full p-2 border rounded-full hover:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
