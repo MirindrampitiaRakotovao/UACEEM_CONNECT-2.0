@@ -45,6 +45,11 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
     setSelectedFileUrl(null);
   };
 
+  // Trier les publications de la plus récente à la plus ancienne
+  const sortedPublications = publications.sort((a, b) =>
+    new Date(b.date_publication).getTime() - new Date(a.date_publication).getTime()
+  );
+
   return (
     <div className="publication-list mt-8">
       {loading ? (
@@ -52,19 +57,18 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
       ) : error ? (
         <p>{error}</p>
       ) : (
-        publications.map((publication) => (
+        sortedPublications.map((publication) => (
           <div key={publication.id} className="bg-white p-4 rounded-md shadow mb-4">
             <div className="flex justify-between items-center mb-4">
               <div className="flex">
-              <Avatar />
-              <div className="ml-4">
-                <h4 className="text-lg font-bold">{publication.etudiant.username}</h4>
-                <p className="text-sm text-gray-400">{publication.etudiant.role}</p>
+                <Avatar />
+                <div className="ml-4">
+                  <h4 className="text-lg font-bold">{publication.etudiant.username}</h4>
+                  <p className="text-sm text-gray-400">{publication.etudiant.role}</p>
+                </div>
               </div>
-              </div>
-              
-              <button  className="text-gray-500 hover:text-gray-700 ml-40">
-                < CircleX />
+              <button className="text-gray-500 hover:text-gray-700 ml-40">
+                <CircleX />
               </button>
             </div>
 
@@ -114,5 +118,6 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
     </div>
   );
 };
+
 
 export default PublicationList;
