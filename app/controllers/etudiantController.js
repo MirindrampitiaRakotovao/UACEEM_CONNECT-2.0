@@ -153,10 +153,10 @@ exports.getProfil = async (req, res) => {
 // Contrôleur pour récupérer la photo de profil d'un étudiant spécifique
 exports.photoDeProfil = async (req, res) => {
   try {
-    // Récupérer l'identifiant de l'étudiant à partir des paramètres de la requête
-    const etudiantId = req.params.id;
+    // Récupérer l'identifiant de l'étudiant connecté depuis l'authentification
+    const etudiantId = req.user.id; // Assurez-vous que 'req.user' contient les informations de l'utilisateur connecté
 
-    // Récupérer uniquement la photo de l'étudiant spécifié
+    // Récupérer uniquement la photo de l'étudiant connecté
     const etudiant = await Etudiant.findByPk(etudiantId, {
       attributes: ['photo'],
     });
@@ -171,6 +171,7 @@ exports.photoDeProfil = async (req, res) => {
     res.status(500).json({ message: 'Erreur serveur', error });
   }
 };
+
 
 
 /* Fonction pour mettre à jour la photo de profil */
