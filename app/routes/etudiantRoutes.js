@@ -16,7 +16,6 @@ router.get('/me' , authenticateToken , etudiantController.getProfil);
 // Route pour voir photo de profil
 router.get('/photo', authenticateToken, etudiantController.photoDeProfil);
 
-module.exports = router;
 
 //Route pour logout
 router.post('/logout', authenticateToken, etudiantController.logout);
@@ -32,6 +31,9 @@ router.put('/modifierBio', authenticateToken, etudiantController.updateBio);
 
 //Route pour afficher le bio
 router.get('/afficherBio', authenticateToken, etudiantController.getBio);
+
+//afficher tout les photo de profil des etudiants
+router.get('/toutPhotodeProfil' , etudiantController.getAllUsersWithPhotos);
 
 
 

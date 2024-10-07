@@ -150,17 +150,19 @@ exports.getProfil = async (req, res) => {
 };
 
 /* afficher photo de profil */
+// Contrôleur pour récupérer la photo de profil d'un étudiant spécifique
 exports.photoDeProfil = async (req, res) => {
   try {
-    // Utilisateur authentifié via JWT
-    const etudiantId = req.user.id;
+    // Récupérer l'identifiant de l'étudiant à partir des paramètres de la requête
+    const etudiantId = req.params.id;
 
-    // Récupérer uniquement la photo de l'étudiant connecté
+    // Récupérer uniquement la photo de l'étudiant spécifié
     const etudiant = await Etudiant.findByPk(etudiantId, {
-      attributes: ['photo'], // Inclure uniquement le champ 'photo'
-      });
-      if (!etudiant) {
-        return res.status(404).json({ message: 'Profil non trouvé' });
+      attributes: ['photo'],
+    });
+
+    if (!etudiant) {
+      return res.status(404).json({ message: 'Profil non trouvé' });
     }
 
     res.status(200).json({ photo: etudiant.photo });
@@ -169,6 +171,7 @@ exports.photoDeProfil = async (req, res) => {
     res.status(500).json({ message: 'Erreur serveur', error });
   }
 };
+
 
 /* Fonction pour mettre à jour la photo de profil */
 /* Fonction pour mettre à jour la photo de profil */
@@ -252,3 +255,21 @@ exports.getBio = async (req, res) => {
   }
 };
 
+/* Fonction pour récupérer la liste de tous les utilisateurs avec leurs photos de profil */
+exports.getAllUsersWithPhotos = async (req, res) => {
+  try {
+    // Récupérer tous les utilisateurs sans inclure le mot de passe mais en incluant les photos de profil
+    const utilisateurs = await Etudiant.findAll({
+      attributes: ['id', 'username', 'photo'] // Inclure uniquement l'ID, le nom d'utilisateur et la photo de profil
+    });
+
+    if (!utilisateurs.length) {
+      return res.status(404).json({ message: 'Aucun utilisateur trouvé' });
+    }
+
+    res.status(200).json({ utilisateurs });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs', error });
+  }
+};
