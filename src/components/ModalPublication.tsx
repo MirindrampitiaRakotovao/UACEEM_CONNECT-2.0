@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { PackageOpen } from 'lucide-react';
+import { PackageOpen , LucideTrash} from 'lucide-react';
 import AudienceSelector from './ModalVisibilite';
 import { useAudience } from '../services/audienceService';
 
@@ -37,6 +37,13 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
     if (selectedAudience === 'Groupe' && !designGroupePartage) {
       setErrorMessage("Veuillez entrer un nom de groupe.");
+      setIsSubmitting(false);
+      return;
+    }
+
+      // Vérifiez si au moins une légende ou un fichier est fourni
+    if (!legende.trim() && files.length === 0) {
+      setErrorMessage("Veuillez ajouter une légende ou sélectionner au moins un fichier.");
       setIsSubmitting(false);
       return;
     }
@@ -120,7 +127,6 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
               setLegende(e.target.value);
               autoResizeTextarea(e.target);
             }}
-            required
           />
 
           {/* Boutons pour les fichiers et autres éléments */}
@@ -154,7 +160,7 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                       className="text-red-500 hover:text-red-700 ml-4"
                       onClick={() => removeFile(index)} // Bouton pour retirer le fichier
                     >
-                      Retirer
+                      <LucideTrash />
                     </button>
                   </li>
                 ))}

@@ -1,9 +1,51 @@
-<div class="form-group">
-  <input type="radio" id="option1" name="options" class="form-radio">
-  <label for="option1" class="ml-2 text-gray-700">Option 1</label>
-</div>
+const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsSubmitting(true);
+  setErrorMessage('');
 
-<div class="form-group">
-  <input type="radio" id="option2" name="options" class="form-radio">
-  <label for="option2" class="ml-2 text-gray-700">Option 2</label>
-</div>
+  if (selectedAudience === 'Groupe' && !designGroupePartage) {
+    setErrorMessage("Veuillez entrer un nom de groupe.");
+    setIsSubmitting(false);
+    return;
+  }
+
+  // Vérifiez si au moins une légende ou un fichier est fourni
+  if (!legende.trim() && files.length === 0) {
+    setErrorMessage("Veuillez ajouter une légende ou sélectionner au moins un fichier.");
+    setIsSubmitting(false);
+    return;
+  }
+
+  const formData = new FormData();
+  formData.append('visibilite', selectedAudience);
+  formData.append('legende', legende);
+
+  if (selectedAudience === 'Groupe') {
+    formData.append('groupe_nom', designGroupePartage);
+  }
+
+  if (files.length > 0) {
+    files.forEach((file) => {
+      formData.append('fichiers', file);
+    });
+  }
+
+  try {
+    const response = await axios.post('http://localhost:4000/publication/create', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+
+    console.log('Publication créée avec succès:', response.data);
+    onClose();
+    setLegende('');
+    setFiles([]); // Réinitialiser les fichiers après soumission
+  } catch (error: any) {
+    console.error('Erreur lors de la création de la publication:', error);
+    setErrorMessage(error.response?.data?.message || 'Erreur inconnue');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
