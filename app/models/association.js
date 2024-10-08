@@ -8,6 +8,7 @@ const Mentions = require('./mentions');
 const GroupePartages = require('./groupePartage');
 const GroupePartageEtudiants = require('./groupePartageEtudiant');
 const Reactions = require('./reactions');
+const Commentaires = require('./commentaires');
 
 // Associations entre groupes et étudiants
 Groupes.hasMany(Etudiants, {
@@ -73,12 +74,37 @@ Parcours.belongsTo(Mentions, {
 
 //Relation entre reaction et publication
 // Une publication peut avoir plusieurs réactions
-Publications.hasMany(Reactions, { foreignKey: 'publication_id' });
-Reactions.belongsTo(Publications, { foreignKey: 'publication_id' });
+Publications.hasMany(Reactions, { 
+  foreignKey: 'publication_id' 
+});
+
+Reactions.belongsTo(Publications, {
+  foreignKey: 'publication_id' 
+});
 
 // Un étudiant peut avoir plusieurs réactions
-Etudiants.hasMany(Reactions, { foreignKey: 'etudiant_id' });
-Reactions.belongsTo(Etudiants, { foreignKey: 'etudiant_id' });
+Etudiants.hasMany(Reactions, { 
+  foreignKey: 'etudiant_id' 
+});
+
+Reactions.belongsTo(Etudiants, { 
+  foreignKey: 'etudiant_id' 
+});
+
+
+// association entre commentaire et publication
+Commentaires.belongsTo(Publications, { 
+  foreignKey: 'publication_id' 
+});
+
+Commentaires.belongsTo(Etudiants, { 
+  foreignKey: 'etudiant_id' 
+});
+
+//reaction et commentaire
+Reactions.belongsTo(Commentaires, {
+  foreignKey: 'commentaire_id',
+});
 
 module.exports = {
   Groupes,
@@ -90,7 +116,8 @@ module.exports = {
   Mentions,
   GroupePartages,
   GroupePartageEtudiants,
-  Reactions
+  Reactions,
+  Commentaires,
 };
 
 

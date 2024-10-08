@@ -5,52 +5,41 @@ const { DataTypes } = require('sequelize');
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up (queryInterface, Sequelize) {
-    await queryInterface.createTable('publications',{
+    await queryInterface.createTable('commentaires',{
       id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
         primaryKey: true,
         autoIncrement: true,
+      },
+      contenu: {
+        type: DataTypes.TEXT,
+        allowNull: false,
       },
       etudiant_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
         references: {
-          model: 'etudiants',
+          model: 'etudiants', 
           key: 'id',
         },
       },
-      visibilite: {
-        type: DataTypes.ENUM('Public', 'Groupe'),
+      publication_id: {
+        type: DataTypes.INTEGER,
         allowNull: false,
+        references: {
+          model: 'publications',
+          key: 'id',
+        },
       },
-      nombre_reaction: {
+      date_commentaire: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW,
+      },
+      nombre_reaction_commentaire: {
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0,
       },
-      date_publication: {
-        type: DataTypes.DATE,
-        allowNull: false,
-        defaultValue: DataTypes.NOW,
-      },
-      legende: {
-        type: DataTypes.TEXT,
-        allowNull: true,
-      },
-      contenu: {
-        type: DataTypes.STRING, 
-        allowNull: true,
-      },
-      groupe_partage_id: {
-        type: DataTypes.INTEGER,
-        allowNull: true, 
-        references: {
-          model: 'groupePartages',
-          key: 'id'
-        }
-      },
-
       //Autres colonnes 
       createdAt: {
         allowNull: false,
@@ -64,6 +53,6 @@ module.exports = {
   },
 
   async down (queryInterface, Sequelize) {
-    await queryInterface.dropTable('publications');
+    await queryInterface.dropTable('commentaires');
   }
 };

@@ -26,6 +26,11 @@ const Publications = sequelize.define('publications', {
     allowNull: false,
     defaultValue: 0,
   },
+  nombre_commentaire: {
+    type: DataTypes.INTEGER,
+    allowNull: false,
+    defaultValue: 0,
+  },
   date_publication: {
     type: DataTypes.DATE,
     allowNull: false,

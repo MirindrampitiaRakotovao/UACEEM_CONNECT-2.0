@@ -22,9 +22,17 @@ module.exports = {
       },
       publication_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
+        allowNull: true, // Peut être NULL si c'est une réaction à un commentaire
         references: {
-          model: 'publications', // Fait référence à ta table publication
+          model: 'publications',
+          key: 'id',
+        },
+      },
+      commentaire_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true, // Peut être NULL si c'est une réaction à une publication
+        references: {
+          model: 'commentaires',
           key: 'id',
         },
       },
@@ -33,7 +41,7 @@ module.exports = {
         allowNull: false,
         defaultValue: true, // Par défaut, la réaction est "true" lors de la création
       },
-
+      
       //Autres colonnes 
       createdAt: {
         allowNull: false,

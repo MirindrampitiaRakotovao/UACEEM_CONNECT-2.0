@@ -14,23 +14,7 @@ const groupeRoutes = require('./app/routes/groupeRoutes');
 const groupePartageRoutes = require('./app/routes/groupePartageRoutes')
 const publicationsRoutes = require('./app/routes/publicationRoutes');
 const reactionRoutes = require('./app/routes/reactionRoutes');
-
-/*const server = http.createServer(app);
-const io = new Server(server);
-
-io.on('connection', (socket) => {
-  console.log('Un utilisateur est connecté');
-
-  socket.on('disconnect', () => {
-    console.log('Utilisateur déconnecté');
-  });
-
-  socket.on('message', (data) => {
-    console.log('Message reçu:', data);
-    // Envoyer le message à tous les clients
-    io.emit('message', data);
-  });
-});*/
+const commentaireRoutes = require('./app/routes/commentaireRoutes');
 
 /*association*/
 require('./app/models/association');
@@ -100,3 +84,4 @@ app.use('/groupe' , groupeRoutes);
 app.use('/partageGroupe' , groupePartageRoutes);
 app.use('/publication', publicationsRoutes);
 app.use('/reaction' , reactionRoutes);
+app.use('/commentaire' , commentaireRoutes);
