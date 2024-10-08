@@ -1,0 +1,177 @@
+/*COMMENTAIRE CONTROLLER*/
+POST :
+    * createCommentaire : http://localhost:4000/commentaire
+                JSON
+            {
+                "contenu": "",
+                "publicationId": ,   
+                "etudiantId":
+             }
+
+    * createReponse : http://localhost:4000/commentaire/reponse
+                JSON
+            {
+                "contenu": "",
+                "commentaireId": , 
+                "etudiantId": 
+            }
+
+
+GET :
+    * getCommentairesEtReponses : http://localhost:4000/commentaire/:publicationId
+
+DELETE :
+    * deleteCommentaire : http://localhost:4000/commentaire/:commentaireId
+
+/* ETUDIANT CONTROLLER */
+POST :
+    * login : http://localhost:4000/etudiant/login
+                JSON
+            {
+                "username": "",
+                "password": ""
+            } 
+
+    * logout : http://localhost:4000/etudiant/logout
+
+    * createEtudiant : http://localhost:4000/etudiant/create
+                JSON
+            {
+                "nom": "",
+                "email": "",
+                "groupes_id": ,
+                "photo": "",
+                "matricule": "",
+                "sexe": "F",
+                "date_nais": "",
+                "lieu_nais": "",
+                "situation_matri": "",
+                "password": "",
+                "username": "",
+                "role": ""
+            }
+
+    * updatePhoto : http://localhost:4000/etudiant/photo
+                FORM-DATA
+            key : photo 
+                type : file
+            content :
+
+GET :
+    * getProfil : http://localhost:4000/etudiant/me
+    * getAllUsers : http://localhost:4000/etudiant/contact
+    * getBio : http://localhost:4000/etudiant/afficherBio
+    * getAllUsersWithPhotos : http://localhost:4000/etudiant/toutPhotodeProfil
+
+PUT :
+    * updateBio : http://localhost:4000/etudiant/modifierBio
+                JSON
+            {
+                "bio": ""
+            }
+
+
+/* GROUPE CONTROLLER */
+POST :
+    * createGroupe : http://localhost:4000/groupe/create
+                JSON
+            {
+                "design": "",
+                "description": "",
+                "niveaux_id": 
+            }
+
+GET :
+    * getEtudiantsByGroupe : http://localhost:4000/groupe/membres
+
+
+/* GROUPE PARTAGE CONTROLLER */
+POST :
+    * createGroupeEtudiant : http://localhost:4000/partageGroupe/create
+                JSON
+            {
+                "design_groupe_partage": ""
+            }
+
+    * addMember : http://localhost:4000/partageGroupe/addMember
+                JSON
+            {
+                "groupe_nom": "",
+                "membre_username": ""
+            }
+
+    * removeMember : http://localhost:4000/partageGroupe/removeMember
+                NON TESTER
+
+GET :
+    * listMembers : http://localhost:4000/partageGroupe/membres/:groupe_nom
+
+
+/* MENTION CONTROLLER */
+POST :
+    * createMention : http://localhost:4000/mention/create
+                JSON
+            {
+                "design": "",
+                "code": "",
+                "description": ""
+            }
+
+
+/* NIVEAU CONTROLLER */
+POST :
+    * createNiveau : http://localhost:4000/niveau/create
+                JSON
+            {
+                "design": "",
+                "description": "",
+                "parcours_id": 
+            }
+
+
+/* PARCOURS CONTROLLER */
+POST :
+    * createParcours : http://localhost:4000/parcours/create
+                JSON
+            {
+                "design": "",
+                "description": "",
+                "mention_id": 
+            }
+
+
+
+/* PUBLICATION CONTROLLER */
+POST :
+    * createPublication : http://localhost:4000/publication/create
+                FORM-DATA
+            key : visibilite 
+                type : text
+            content :
+            key : legende 
+                type : text
+            content :
+            key : fichiers 
+                type : file
+            content :
+
+            key : groupe_nom        (si visibilite == Groupe)
+                type : texte
+            content :
+
+GET :
+    * getPublicPublications : http://localhost:4000/publication/liste/public
+    * getPublicPublicationsByUser : http://localhost:4000/publication/public/me
+
+
+
+/* REACTION CONTROLLER */
+POST : 
+    * addOrRemoveReaction : http://localhost:4000/reaction
+                JSON
+            {
+                "commentaireId":                (si commentaire)
+            }
+            {
+                "publicationId":                (si publication)
+            }

@@ -106,6 +106,17 @@ Reactions.belongsTo(Commentaires, {
   foreignKey: 'commentaire_id',
 });
 
+//commentaire et reponse aux commentaire
+Commentaires.hasMany(Commentaires, {
+   as: 'reponses', 
+   foreignKey: 'parent_id' 
+  });
+
+Commentaires.belongsTo(Commentaires, {
+   as: 'parent',
+    foreignKey: 'parent_id' 
+  });
+
 module.exports = {
   Groupes,
   Etudiants,

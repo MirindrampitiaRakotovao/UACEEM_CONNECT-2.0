@@ -15,7 +15,7 @@ const Commentaire = sequelize.define('commentaire', {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'etudiants', 
+      model: 'etudiants',
       key: 'id',
     },
   },
@@ -24,6 +24,14 @@ const Commentaire = sequelize.define('commentaire', {
     allowNull: false,
     references: {
       model: 'publications',
+      key: 'id',
+    },
+  },
+  parent_id: {
+    type: DataTypes.INTEGER,
+    allowNull: true, // Peut être NULL si c'est un commentaire principal
+    references: {
+      model: 'commentaires', // Référence à ce même modèle pour les réponses
       key: 'id',
     },
   },

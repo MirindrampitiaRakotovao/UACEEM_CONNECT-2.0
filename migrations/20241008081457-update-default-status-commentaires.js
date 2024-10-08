@@ -31,6 +31,14 @@ module.exports = {
           key: 'id',
         },
       },
+      parent_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true, // Peut être NULL si c'est un commentaire principal
+        references: {
+          model: 'commentaires', // Référence à ce même modèle pour les réponses
+          key: 'id',
+        },
+      },
       date_commentaire: {
         type: DataTypes.DATE,
         defaultValue: DataTypes.NOW,
