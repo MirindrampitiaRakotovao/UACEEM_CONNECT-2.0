@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from "react";
 import { Heart, MessageCircle, BadgeAlert, SendHorizonal, CircleX } from 'lucide-react';
 import Avatar from './avatar';
 import ModalFile from './ModalFile';
@@ -45,6 +45,24 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
     setIsFileModalOpen(false);
     setSelectedFileUrl(null);
   };
+
+  useEffect(() => {
+    const fetchUserReactions = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:4000/reaction', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const userLikedPublications = response.data.map((reaction: any) => reaction.publication_id);
+        setLikedPublications(userLikedPublications);
+      } catch (error) {
+        console.error('Erreur lors du chargement des réactions:', error);
+      }
+    };
+  
+    fetchUserReactions();
+  }, []);
+  
 
    // Fonction pour gérer le like/délike
    const handleLikeToggle = async (publicationId: number) => {
@@ -216,11 +234,15 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                   onClick={() => handleLikeToggle(publication.id)} // Appeler la fonction de like
                 >
                   <Heart
-                    className={`w-6 h-6 cursor-pointer ${
-                      isLiked ? 'text-red-500' : 'text-gray-500'
-                    }`} // Changer la couleur si aimé
+                    className={`w-6 h-6 cursor-pointer transition duration-200 ease-in-out ${
+                      isLiked ? 'text-red-500 fill-red-500' : 'text-gray-500'
+                    } hover:text-red-500 hover:fill-red-500`} // Aperçu de la couleur et du remplissage au survol
                   />
-                  <span className={`text-sm ${isLiked ? 'text-red-500' : 'text-gray-500'}`}>
+                  <span
+                    className={`text-sm transition duration-200 ease-in-out ${
+                      isLiked ? 'text-red-500' : 'text-gray-500'
+                    } hover:text-red-500`}
+                  >
                     J'adore
                   </span>
                 </button>

@@ -48,7 +48,7 @@ const HomeAdmin: React.FC = () => {
       <div className="flex justify-center flex-1">
         <ul className="flex space-x-20">
           <li
-              className={`relative flex flex-col items-center cursor-pointer ${currentPath === '/homeAdmin' ? 'border-b-4 border-blue-600 rounded-b-lg w-16' : 'w-12'}`}
+              className={`relative flex flex-col items-center cursor-pointer ${currentPath === '/homeAdmin' ? 'border-b-2 border-blue-600 rounded-b-lg w-16' : 'w-15'}`}
               onClick={() => navigate('/homeAdmin')}
           >
             <Home size={25} className={`${currentPath === '/homeAdmin' ? 'text-blue-600' : 'dark:text-white'}`} />
