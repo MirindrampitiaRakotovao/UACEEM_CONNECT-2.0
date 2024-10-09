@@ -65,6 +65,10 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                 <div className="ml-4">
                   <h4 className="text-lg font-bold">{publication.etudiant.username}</h4>
                   <p className="text-sm text-gray-400">{publication.etudiant.role}</p>
+                  <span className="text-sm text-gray-400">
+                    {new Date(publication.date_publication).toLocaleDateString()}
+                  </span>
+
                 </div>
               </div>
               <button className="text-gray-500 hover:text-gray-700 ml-40">
@@ -78,28 +82,39 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
             <div className={`grid ${publication.fichiers.length === 1 ? 'grid-cols-1 justify-items-center' : 'grid-cols-2'}`}>
               {publication.fichiers.map((file, index) => (
                 <img
-                  key={index}
-                  src={file.url_fichier}
-                  alt={`Fichier ${index + 1}`}
-                  className={`w-full ${publication.fichiers.length === 1 ? 'h-60 object-contain' : 'h-40 object-cover'} rounded-lg cursor-pointer p-3`}
-                  onClick={() => openFileModal(file.url_fichier)}
-                />
+                key={index}
+                src={file.url_fichier}
+                alt={`Fichier ${index + 1}`}
+                className={`w-80 h-80 object-cover rounded-3xl cursor-pointer p-3`}  // Fixe la taille à 256px (64x64 en rem)
+                onClick={() => openFileModal(file.url_fichier)}
+              />
+              
               ))}
             </div>
 
-            <span className="text-sm text-gray-400">
-              {new Date(publication.date_publication).toLocaleDateString()}
-            </span>
+            <div className="flex justify-between mt-6">
+                
+                <button className="flex items-center space-x-2">
+                  <Heart className="w-6 h-6 text-gray-500 hover:text-red-500 cursor-pointer" />
+                  <span className="text-sm text-gray-500">J'adore</span>
+                </button>
 
-            <div className="flex justify-between mt-4">
-              <div className="flex space-x-4">
-                <Heart className="w-6 h-6 text-gray-500 hover:text-red-500 cursor-pointer" />
-                <MessageCircle className="w-6 h-6 text-gray-500 hover:text-blue-500 cursor-pointer" />
-                <BadgeAlert className="w-6 h-6 text-gray-500 hover:text-yellow-500 cursor-pointer" />
+                
+                <button className="flex items-center space-x-2 mx-auto">
+                  <MessageCircle className="w-6 h-6 text-gray-500 hover:text-blue-500 cursor-pointer" />
+                  <span className="text-sm text-gray-500">Commenter</span>
+                </button>
+
+                
+                <button className="flex items-center space-x-2">
+                  <BadgeAlert className="w-6 h-6 text-gray-500 hover:text-yellow-500 cursor-pointer" />
+                  <span className="text-sm text-gray-500">Signaler</span>
+                </button>
               </div>
-            </div>
 
-            <div className="flex mt-4">
+            
+
+            <div className="flex mt-10">
               <input
                 type="text"
                 placeholder="Commentaires..."
@@ -118,6 +133,5 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
     </div>
   );
 };
-
 
 export default PublicationList;
