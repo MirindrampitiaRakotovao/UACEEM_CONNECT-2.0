@@ -54,3 +54,43 @@ exports.addOrRemoveReaction = async (req, res) => {
     res.status(500).json({ error: 'Erreur lors de la gestion de la réaction.' });
   }
 };
+
+
+// Lister les réactions pour un étudiant
+exports.listReactions = async (req, res) => {
+  try {
+    const etudiantId = req.user.id; // ID de l'étudiant authentifié
+    const { publicationId, commentaireId } = req.query; // Permet de filtrer par publication ou commentaire
+
+    let condition = { etudiant_id: etudiantId };
+
+    // Filtrer par publication ou commentaire si un ID est fourni
+    if (publicationId) {
+      condition.publication_id = publicationId;
+    }
+    if (commentaireId) {
+      condition.commentaire_id = commentaireId;
+    }
+
+    // Récupérer les réactions de l'étudiant
+    const reactions = await Reactions.findAll({
+      where: condition,
+      include: [
+        { model: Publications, attributes: ['id', 'legende'] }, // Inclure les informations de la publication
+        { model: Commentaires, attributes: ['id', 'contenu'] }   // Inclure les informations du commentaire
+      ]
+    });
+
+    // Si aucune réaction trouvée
+    if (reactions.length === 0) {
+      return res.status(404).json({ message: 'Aucune réaction trouvée.' });
+    }
+
+    // Retourner la liste des réactions
+    res.status(200).json(reactions);
+  } catch (error) {
+    console.error('Error in listReactions:', error);
+    res.status(500).json({ error: 'Erreur lors de la récupération des réactions.' });
+  }
+};
+

@@ -1,0 +1,23 @@
+1. Se Connecter     V
+
+2. Gérer profil :
+    * Editer profil     V        
+    * Consulter profil    V
+
+3. Gérer publication :
+    * Créer publication :
+        + Choisir lieu de publication :
+            - Public    V 
+            - Groupe    V
+        + Choisir système de notification :
+            - Seulement dans l'application      F
+            -par Email      F
+    * Créer groupe de Partage   V
+
+4. Gérer messagerie :
+    * Echanger message  F
+    * Créer groupe de discussion    F
+
+5. Gérer mentorat   F
+
+6. Gérer role et permission

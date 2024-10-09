@@ -175,3 +175,6 @@ POST :
             {
                 "publicationId":                (si publication)
             }
+
+GET : 
+    * listReactions : http://localhost:4000/reaction
