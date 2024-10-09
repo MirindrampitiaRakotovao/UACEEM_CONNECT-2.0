@@ -16,6 +16,14 @@ type Etudiant = {
   avatar_url: string | null;
 };
 
+type Commentaire = {
+  id: number;
+  contenu: string;
+  date_commentaire: string;
+  etudiant: Etudiant;
+  reponses?: Commentaire[]; // Réponses aux commentaires
+};
+
 type Publication = {
   id: number;
   legende: string;
@@ -30,11 +38,11 @@ interface PublicationListProps {
   error: string | null;
 }
 
-// Ajouter un état local pour suivre les publications aimées
 const PublicationList: React.FC<PublicationListProps> = ({ publications, loading, error }) => {
   const [isFileModalOpen, setIsFileModalOpen] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
   const [likedPublications, setLikedPublications] = useState<number[]>([]); // Ajouté pour les likes
+  const [commentaires, setCommentaires] = useState<{ [key: number]: Commentaire[] }>({}); // Stocker les commentaires pour chaque publication
 
   const openFileModal = (fileUrl: string) => {
     setSelectedFileUrl(fileUrl);
@@ -46,6 +54,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
     setSelectedFileUrl(null);
   };
 
+  // Fetch reactions (aime)
   useEffect(() => {
     const fetchUserReactions = async () => {
       try {
@@ -59,45 +68,49 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
         console.error('Erreur lors du chargement des réactions:', error);
       }
     };
-  
+
     fetchUserReactions();
   }, []);
-  
 
-   // Fonction pour gérer le like/délike
-   const handleLikeToggle = async (publicationId: number) => {
+  // Fetch commentaires pour chaque publication
+  const fetchCommentaires = async (publicationId: number) => {
+    try {
+      const response = await axios.get(`http://localhost:4000/commentaire/${publicationId}`);
+      setCommentaires((prev) => ({
+        ...prev,
+        [publicationId]: response.data,
+      }));
+    } catch (error) {
+      console.error('Erreur lors du chargement des commentaires:', error);
+    }
+  };
+
+  useEffect(() => {
+    publications.forEach((publication) => {
+      fetchCommentaires(publication.id);
+    });
+  }, [publications]);
+
+  // Fonction pour gérer le like/délike
+  const handleLikeToggle = async (publicationId: number) => {
     try {
       const isLiked = likedPublications.includes(publicationId);
-  
-      // Log the current state
-      console.log('Liked state before:', likedPublications);
-  
-      const token = localStorage.getItem('token'); // Ou selon l'endroit où vous stockez le token
-
-      const response = await axios.post(
+      const token = localStorage.getItem('token');
+      await axios.post(
         'http://localhost:4000/reaction',
         { publicationId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-  
-      // Check if the request was successful
-      console.log('API response:', response.data);
-  
-      // Mettre à jour l'état pour ajouter ou retirer le like
       setLikedPublications((prevLikedPublications) =>
         isLiked
           ? prevLikedPublications.filter((id) => id !== publicationId)
           : [...prevLikedPublications, publicationId]
       );
-  
-      // Log the updated state
-      console.log('Liked state after:', likedPublications);
     } catch (error) {
       console.error('Erreur lors de la gestion de la réaction:', error);
     }
   };
-  
 
   const sortedPublications = publications.sort(
     (a, b) => new Date(b.date_publication).getTime() - new Date(a.date_publication).getTime()
@@ -247,7 +260,10 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                   </span>
                 </button>
 
-                <button className="flex items-center space-x-2 mx-auto">
+                <button
+                  className="flex items-center space-x-2 mx-auto"
+                  
+                >
                   <MessageCircle className="w-6 h-6 text-gray-500 hover:text-blue-500 cursor-pointer" />
                   <span className="text-sm text-gray-500">Commenter</span>
                 </button>
@@ -256,6 +272,48 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                   <BadgeAlert className="w-6 h-6 text-gray-500 hover:text-yellow-500 cursor-pointer" />
                   <span className="text-sm text-gray-500">Signaler</span>
                 </button>
+              </div>
+
+              <div className="mt-4">
+                {/* Safely access commentaires using publication.id */}
+                {commentaires[publication.id] && commentaires[publication.id].length > 0 && (
+                  <div className="mt-4">
+                    {commentaires[publication.id].map((commentaire: Commentaire) => (
+                      <div key={commentaire.id} className="mb-4">
+                        <div className="flex items-center space-x-2">
+                          <Avatar size="w-8 h-8" />
+                            <div>
+                              <h6 className="text-sm font-bold">{commentaire.etudiant.username}</h6>
+                              <p className="text-xs text-gray-400">
+                                {new Date(commentaire.date_commentaire).toLocaleDateString()}
+                              </p>
+                            
+                          </div>
+                            <p className="text-sm">{commentaire.contenu}</p> {/* Affiche le texte du commentaire */}
+                        </div>
+
+                        {/* Gestion des réponses */}
+                        {commentaire.reponses && Array.isArray(commentaire.reponses) && commentaire.reponses.length > 0 && (
+                          <div className="ml-6 mt-2">
+                            {commentaire.reponses.map((reponse: Commentaire) => (
+                              <div key={reponse.id} className="mb-2 flex items-center space-x-2">
+                                <Avatar size="w-8 h-8" />
+                                <div>
+                                  <h6 className="text-xs font-bold">{reponse.etudiant.username}</h6>
+                                  <p className="text-xs text-gray-400">
+                                    {new Date(reponse.date_commentaire).toLocaleDateString()}
+                                  </p>
+                                </div>
+                                <p className="text-xs">{reponse.contenu}</p> {/* Affiche le texte de la réponse */}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+
               </div>
             </div>
           );

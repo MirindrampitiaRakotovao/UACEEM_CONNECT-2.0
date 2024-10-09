@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Heart, MessageCircle, BadgeAlert, SendHorizonal, CircleX } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Heart, MessageCircle, BadgeAlert, CircleX } from 'lucide-react';
 import Avatar from './avatar';
 import ModalFile from './ModalFile';
-import axios from 'axios';  // Pour gérer les requêtes API
+import axios from 'axios';  // Ajouter axios pour la gestion des requêtes API
 
 type File = {
   id: number;
@@ -14,6 +14,14 @@ type Etudiant = {
   username: string;
   role: string;
   avatar_url: string | null;
+};
+
+type Commentaire = {
+  id: number;
+  texte: string;
+  date_commentaire: string;
+  etudiant: Etudiant;
+  reponses?: Commentaire[]; // Réponses aux commentaires
 };
 
 type Publication = {
@@ -34,28 +42,26 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
   const [isFileModalOpen, setIsFileModalOpen] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
   const [likedPublications, setLikedPublications] = useState<number[]>([]); // Ajouté pour les likes
+  const [commentaires, setCommentaires] = useState<{ [key: number]: Commentaire[] }>({}); // Stocker les commentaires pour chaque publication
 
-  // Fonction pour ouvrir le modal avec un fichier
   const openFileModal = (fileUrl: string) => {
     setSelectedFileUrl(fileUrl);
     setIsFileModalOpen(true);
   };
 
-  // Fonction pour fermer le modal
   const closeFileModal = () => {
     setIsFileModalOpen(false);
     setSelectedFileUrl(null);
   };
 
-  // Charger les réactions de l'utilisateur au chargement du composant
+  // Fetch reactions (aime)
   useEffect(() => {
     const fetchUserReactions = async () => {
       try {
         const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:4000/reactions', {
+        const response = await axios.get('http://localhost:4000/reaction', {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         const userLikedPublications = response.data.map((reaction: any) => reaction.publication_id);
         setLikedPublications(userLikedPublications);
       } catch (error) {
@@ -66,37 +72,52 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
     fetchUserReactions();
   }, []);
 
+  // Fetch commentaires pour chaque publication
+  const fetchCommentaires = async (publicationId: number) => {
+    try {
+      const response = await axios.get(`http://localhost:4000/commentaire/${publicationId}`);
+      setCommentaires((prev) => ({
+        ...prev,
+        [publicationId]: response.data,
+      }));
+    } catch (error) {
+      console.error('Erreur lors du chargement des commentaires:', error);
+    }
+  };
+
+  useEffect(() => {
+    publications.forEach((publication) => {
+      fetchCommentaires(publication.id);
+    });
+  }, [publications]);
+
   // Fonction pour gérer le like/délike
   const handleLikeToggle = async (publicationId: number) => {
     try {
       const isLiked = likedPublications.includes(publicationId);
       const token = localStorage.getItem('token');
-
-      // Envoyer la requête pour ajouter ou retirer la réaction
-      const response = await axios.post(
+      await axios.post(
         'http://localhost:4000/reaction',
         { publicationId },
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
-      // Mettre à jour l'état pour ajouter ou retirer le like
       setLikedPublications((prevLikedPublications) =>
         isLiked
-          ? prevLikedPublications.filter((id) => id !== publicationId) // Retirer si déjà liké
-          : [...prevLikedPublications, publicationId] // Ajouter si pas encore liké
+          ? prevLikedPublications.filter((id) => id !== publicationId)
+          : [...prevLikedPublications, publicationId]
       );
     } catch (error) {
       console.error('Erreur lors de la gestion de la réaction:', error);
     }
   };
 
-  // Trier les publications par date (les plus récentes en premier)
   const sortedPublications = publications.sort(
     (a, b) => new Date(b.date_publication).getTime() - new Date(a.date_publication).getTime()
   );
 
   return (
-    <div className="publication-list mt-8">
+    <div className="publication-list mt-8 ">
       {loading ? (
         <p>Chargement des publications...</p>
       ) : error ? (
@@ -106,7 +127,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
           const isLiked = likedPublications.includes(publication.id); // Vérifier si l'utilisateur a déjà aimé
 
           return (
-            <div key={publication.id} className="bg-white p-4 rounded-md shadow mb-4">
+            <div key={publication.id} className="bg-white p-4 rounded-md shadow mb-4 p-3">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex">
                   <Avatar />
@@ -138,52 +159,142 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                   </div>
                 )}
 
-                {/* Autres cas de gestion des fichiers */}
-                {/* ... (logique déjà présente dans ton code) */}
+                {publication.fichiers.length === 2 && (
+                  <div className="grid grid-cols-2 gap-2">
+                    {publication.fichiers.map((file, index) => (
+                      <img
+                        key={index}
+                        src={file.url_fichier}
+                        alt={`Fichier supplémentaire ${index + 1}`}
+                        className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
+                        onClick={() => openFileModal(file.url_fichier)}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {publication.fichiers.length === 3 && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="col-span-1">
+                      <img
+                        src={publication.fichiers[0].url_fichier}
+                        alt="Premier fichier"
+                        className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
+                        onClick={() => openFileModal(publication.fichiers[0].url_fichier)}
+                      />
+                    </div>
+                    <div className="grid grid-rows-2 gap-2">
+                      <img
+                        src={publication.fichiers[1].url_fichier}
+                        alt="Deuxième fichier"
+                        className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
+                        onClick={() => openFileModal(publication.fichiers[1].url_fichier)}
+                      />
+                      <img
+                        src={publication.fichiers[2].url_fichier}
+                        alt="Troisième fichier"
+                        className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
+                        onClick={() => openFileModal(publication.fichiers[2].url_fichier)}
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {publication.fichiers.length > 3 && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="col-span-1">
+                      <img
+                        src={publication.fichiers[0].url_fichier}
+                        alt="Premier fichier"
+                        className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
+                        onClick={() => openFileModal(publication.fichiers[0].url_fichier)}
+                      />
+                    </div>
+                    <div className="grid grid-rows-2 gap-2">
+                      <img
+                        src={publication.fichiers[1].url_fichier}
+                        alt="Deuxième fichier"
+                        className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
+                        onClick={() => openFileModal(publication.fichiers[1].url_fichier)}
+                      />
+                      <div
+                        className="relative w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5 bg-gray-200 flex items-center justify-center"
+                        onClick={() => openFileModal(publication.fichiers[3].url_fichier)}
+                      >
+                        <img
+                          src={publication.fichiers[2].url_fichier}
+                          alt="Troisième fichier"
+                          className="absolute top-0 left-0 w-full h-full object-cover rounded-2xl opacity-50"
+                        />
+                        {publication.fichiers.length > 4 && (
+                          <div className="absolute text-4xl text-white font-bold">
+                            +{publication.fichiers.length - 3}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
 
-              <div className="flex justify-between mt-6">
-                {/* Bouton J'aime avec changement de couleur */}
+              <div className="flex justify-between items-center mt-4">
                 <button
-                  className="flex items-center space-x-2"
-                  onClick={() => handleLikeToggle(publication.id)} // Appeler la fonction de like
+                  onClick={() => handleLikeToggle(publication.id)}
+                  className={`flex items-center space-x-2 ${isLiked ? 'text-red-500' : 'text-gray-500'}`}
                 >
-                  <Heart
-                    className={`w-6 h-6 cursor-pointer transition duration-200 ease-in-out ${
-                      isLiked ? 'text-red-500 fill-red-500' : 'text-gray-500'
-                    } hover:text-red-500 hover:fill-red-500`} // Changer la couleur si aimé
-                  />
-                  <span className={`text-sm transition duration-200 ease-in-out ${isLiked ? 'text-red-500' : 'text-gray-500'}`}>
-                    J'adore
-                  </span>
+                  <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
+                  <span>{isLiked ? 'Je n’aime plus' : 'J’aime'}</span>
                 </button>
-
-                <button className="flex items-center space-x-2 mx-auto">
-                  <MessageCircle className="w-6 h-6 text-gray-500 hover:text-blue-500 cursor-pointer" />
-                  <span className="text-sm text-gray-500">Commenter</span>
-                </button>
-
-                <button className="flex items-center space-x-2">
-                  <BadgeAlert className="w-6 h-6 text-gray-500 hover:text-yellow-500 cursor-pointer" />
-                  <span className="text-sm text-gray-500">Signaler</span>
+                <button className="flex items-center space-x-2 text-gray-500">
+                  <MessageCircle />
+                  <span>Commenter</span>
                 </button>
               </div>
 
-              <div className="flex mt-10">
-                <input
-                  type="text"
-                  placeholder="Commentaires..."
-                  className="w-full p-2 border rounded-full hover:outline-none focus:ring-2 focus:ring-blue-500 "
-                />
-                <SendHorizonal className="w-10 h-10 text-gray-500 hover:text-blue-500 cursor-pointer ml-5" />
-              </div>
+              {/* Affichage des commentaires */}
+              {commentaires[publication.id] && commentaires[publication.id].length > 0 && (
+                <div className="mt-4">
+                  {commentaires[publication.id].map((commentaire: Commentaire) => (
+                    <div key={commentaire.id} className="mb-4">
+                      <div className="flex items-center space-x-2">
+                        <Avatar />
+                        <div>
+                          <h6 className="text-sm font-bold">{commentaire.etudiant.username}</h6>
+                          <p className="text-xs text-gray-400">
+                            {new Date(commentaire.date_commentaire).toLocaleDateString()}
+                          </p>
+                          <p className="text-sm">{commentaire.texte}</p>
+                        </div>
+                      </div>
+
+                      {/* Gestion des réponses */}
+                      {commentaire.reponses?.length > 0 && (
+                        <div className="ml-6 mt-2">
+                          {commentaire.reponses.map((reponse: Commentaire) => (
+                            <div key={reponse.id} className="mb-2 flex items-center space-x-2">
+                              <Avatar />
+                              <div>
+                                <h6 className="text-xs font-bold">{reponse.etudiant.username}</h6>
+                                <p className="text-xs text-gray-400">
+                                  {new Date(reponse.date_commentaire).toLocaleDateString()}
+                                </p>
+                                <p className="text-xs">{reponse.texte}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           );
         })
       )}
 
-      {selectedFileUrl && (
-        <ModalFile isOpen={isFileModalOpen} onClose={closeFileModal} fileUrl={selectedFileUrl} />
+      {isFileModalOpen && selectedFileUrl && (
+        <ModalFile isOpen={isFileModalOpen} closeModal={closeFileModal} fileUrl={selectedFileUrl} />
       )}
     </div>
   );

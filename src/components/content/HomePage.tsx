@@ -5,19 +5,19 @@ import MainContent from './MainContent';
 
 const HomePage: React.FC = () => {
   return (
-    <div className="flex  h-screen">
+    <div className="flex bg-gray-100 overflow-hidden">
       {/* Sidebar gauche */}
-      <div className="flex-none w-1/3 bg-gray-100 h-full">
+      <div className="flex-none w-1/3 h-full">
         <SidebarLeft />
       </div>
 
       {/* Contenu principal avec scrollbar invisible */}
-      <div className="flex-grow bg-gray-50 h-full  ">
+      <div className="flex-grow  h-full  ">
         <MainContent />
       </div>
 
       {/* Sidebar droit */}
-      <div className="flex-none w-1/3 bg-gray-100 h-full">
+      <div className="flex-none w-1/3  h-full">
         <SidebarRight />
       </div>
     </div>
