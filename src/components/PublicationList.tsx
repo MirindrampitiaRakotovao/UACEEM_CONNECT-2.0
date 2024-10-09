@@ -82,7 +82,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                   <img
                     src={publication.fichiers[0].url_fichier}
                     alt="Fichier unique"
-                    className="w-full max-w-lg h-auto object-cover rounded-3xl cursor-pointer p-0.5"
+                    className="w-full max-w-lg h-auto object-cover rounded-2xl cursor-pointer p-0.5"
                     onClick={() => openFileModal(publication.fichiers[0].url_fichier)}
                   />
                 </div>
@@ -96,7 +96,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                       key={index}
                       src={file.url_fichier}
                       alt={`Fichier supplémentaire ${index + 1}`}
-                      className="w-full h-80 object-cover rounded-3xl cursor-pointer p-0.5"
+                      className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
                       onClick={() => openFileModal(file.url_fichier)}
                     />
                   ))}
@@ -110,7 +110,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                     <img
                       src={publication.fichiers[0].url_fichier}
                       alt="Premier fichier"
-                      className="w-full h-80 object-cover rounded-3xl cursor-pointer p-0.5"
+                      className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
                       onClick={() => openFileModal(publication.fichiers[0].url_fichier)}
                     />
                   </div>
@@ -118,13 +118,13 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                     <img
                       src={publication.fichiers[1].url_fichier}
                       alt="Deuxième fichier"
-                      className="w-full h-40 object-cover rounded-3xl cursor-pointer p-0.5"
+                      className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
                       onClick={() => openFileModal(publication.fichiers[1].url_fichier)}
                     />
                     <img
                       src={publication.fichiers[2].url_fichier}
                       alt="Troisième fichier"
-                      className="w-full h-40 object-cover rounded-3xl cursor-pointer p-0.5"
+                      className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
                       onClick={() => openFileModal(publication.fichiers[2].url_fichier)}
                     />
                   </div>
@@ -138,7 +138,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                     <img
                       src={publication.fichiers[0].url_fichier}
                       alt="Premier fichier"
-                      className="w-full h-80 object-cover rounded-3xl cursor-pointer p-0.5"
+                      className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
                       onClick={() => openFileModal(publication.fichiers[0].url_fichier)}
                     />
                   </div>
@@ -146,17 +146,17 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                     <img
                       src={publication.fichiers[1].url_fichier}
                       alt="Deuxième fichier"
-                      className="w-full h-40 object-cover rounded-3xl cursor-pointer p-0.5"
+                      className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
                       onClick={() => openFileModal(publication.fichiers[1].url_fichier)}
                     />
                     <div
-                      className="relative w-full h-40 object-cover rounded-3xl cursor-pointer p-0.5 bg-gray-200 flex items-center justify-center"
+                      className="relative w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5 bg-gray-200 flex items-center justify-center"
                       onClick={() => openFileModal(publication.fichiers[3].url_fichier)}
                     >
                       <img
                         src={publication.fichiers[2].url_fichier}
                         alt="Troisième fichier"
-                        className="absolute top-0 left-0 w-full h-full object-cover rounded-3xl opacity-50"
+                        className="absolute top-0 left-0 w-full h-full object-cover rounded-2xl opacity-50"
                       />
                       {publication.fichiers.length > 4 && (
                         <div className="absolute text-4xl text-white font-bold">

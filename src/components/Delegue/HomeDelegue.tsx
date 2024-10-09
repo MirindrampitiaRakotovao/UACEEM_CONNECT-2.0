@@ -13,10 +13,9 @@ const HomeDelegue: React.FC = () => {
 
   const { etudiant, loading, error } = useUserProfile();
 
-  const handleHomeClick = () => {
-    navigate('/homeDelegue'); // ou l'URL de la page que vous souhaitez rediriger
-  };
+  const currentPath = window.location.pathname; // Récupérer l'URL actuelle
 
+  
   const handleLogout = async () => {
     try {
       await logout();
@@ -40,8 +39,11 @@ const HomeDelegue: React.FC = () => {
       {/* Icones du menu principal */}
       <div className="flex justify-center flex-1">
         <ul className="flex space-x-20">
-          <li className="cursor-pointer" onClick={handleHomeClick}>
-            <Home size={25} />
+        <li
+              className={`relative flex flex-col items-center cursor-pointer ${currentPath === '/homeDelegue' ? 'border-b-4 border-blue-600 rounded-b-lg w-16' : 'w-12'}`}
+              onClick={() => navigate('/homeDelegue')}
+          >
+            <Home size={25} className={`${currentPath === '/homeDelegue' ? 'text-blue-600' : 'dark:text-white'}`} />
           </li>
           <li className="cursor-pointer">
             <Users size={25} />

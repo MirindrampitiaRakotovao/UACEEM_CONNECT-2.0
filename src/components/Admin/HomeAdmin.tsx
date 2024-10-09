@@ -14,6 +14,8 @@ const HomeAdmin: React.FC = () => {
 
   const { etudiant, loading, error } = useUserProfile();
 
+  const currentPath = window.location.pathname; // Récupérer l'URL actuelle
+
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
     if (storedTheme === 'dark') {
@@ -45,8 +47,11 @@ const HomeAdmin: React.FC = () => {
       {/* Icones du menu principal */}
       <div className="flex justify-center flex-1">
         <ul className="flex space-x-20">
-          <li className="cursor-pointer" onClick={() => navigate('/homeAdmin')}>
-            <Home size={25} className="dark:text-white" />
+          <li
+              className={`relative flex flex-col items-center cursor-pointer ${currentPath === '/homeAdmin' ? 'border-b-4 border-blue-600 rounded-b-lg w-16' : 'w-12'}`}
+              onClick={() => navigate('/homeAdmin')}
+          >
+            <Home size={25} className={`${currentPath === '/homeAdmin' ? 'text-blue-600' : 'dark:text-white'}`} />
           </li>
           <li className="cursor-pointer">
             <Users size={25} className="dark:text-white" />
