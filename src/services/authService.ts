@@ -29,13 +29,18 @@ export const login = async (username: string, password: string) => {
 
 // Méthode de déconnexion
 export const logout = async () => {
-  try {
-    await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
-    localStorage.removeItem('token');
-  } catch (error) {
-    console.error('Erreur lors de la déconnexion :', error);
-    throw new Error('Erreur lors de la déconnexion');
+  const token = localStorage.getItem('token');
+
+  if (token) {
+    try {
+      await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
+      localStorage.removeItem('token');
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion :', error);
+      throw new Error('Erreur lors de la déconnexion');
+    }
   }
+  
 };
 
 // Récupérer les informations de l'utilisateur à partir du token

@@ -1,1 +1,0 @@
-{commentairesVisibles[publication.id] && commentaires[publication.id] && commentaires[publication.id].length > 0 && (
