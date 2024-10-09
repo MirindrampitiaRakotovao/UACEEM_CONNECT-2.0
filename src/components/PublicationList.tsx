@@ -275,36 +275,65 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
               </div>
 
               <div className="mt-4">
-                {/* Safely access commentaires using publication.id */}
                 {commentaires[publication.id] && commentaires[publication.id].length > 0 && (
                   <div className="mt-4">
                     {commentaires[publication.id].map((commentaire: Commentaire) => (
-                      <div key={commentaire.id} className="mb-4">
-                        <div className="flex items-center space-x-2">
-                          <Avatar size="w-8 h-8" />
-                            <div>
-                              <h6 className="text-sm font-bold">{commentaire.etudiant.username}</h6>
+                      <div key={commentaire.id} className="mb-4 p-3 bg-white-100 rounded-lg shadow">
+                        <div className="flex items-start space-x-3">
+                          <Avatar size="w-10 h-10" />
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between">
+                              <h6 className="text-sm font-semibold">{commentaire.etudiant.username}</h6>
                               <p className="text-xs text-gray-400">
                                 {new Date(commentaire.date_commentaire).toLocaleDateString()}
                               </p>
-                            
+                            </div>
+                            <p className="text-sm mt-2">{commentaire.contenu}</p>
+                            {/* Action buttons */}
+                            <div className="flex items-center space-x-6 mt-4 text-gray-400">
+                              <button className="text-sm hover:text-gray-200" >
+                                J'adore
+                              </button>
+                              <button className="text-sm hover:text-gray-200" >
+                                Répondre
+                              </button>
+                              <button className="text-sm hover:text-gray-200" >
+                                Signaler
+                              </button>
+                            </div>
                           </div>
-                            <p className="text-sm">{commentaire.contenu}</p> {/* Affiche le texte du commentaire */}
                         </div>
 
-                        {/* Gestion des réponses */}
+                   
+                        {/* Separate container for replies */}
                         {commentaire.reponses && Array.isArray(commentaire.reponses) && commentaire.reponses.length > 0 && (
-                          <div className="ml-6 mt-2">
+                          <div className="mt-4">
                             {commentaire.reponses.map((reponse: Commentaire) => (
-                              <div key={reponse.id} className="mb-2 flex items-center space-x-2">
-                                <Avatar size="w-8 h-8" />
-                                <div>
-                                  <h6 className="text-xs font-bold">{reponse.etudiant.username}</h6>
-                                  <p className="text-xs text-gray-400">
-                                    {new Date(reponse.date_commentaire).toLocaleDateString()}
-                                  </p>
+                              <div key={reponse.id} className="ml-10 mb-6 p-3 bg-white-50  rounded-lg">
+                                <div className="flex items-start space-x-3">
+                                  <Avatar size="w-8 h-8" />
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between">
+                                      <h6 className="text-xs font-semibold">{reponse.etudiant.username}</h6>
+                                      <p className="text-xs text-gray-400">
+                                        {new Date(reponse.date_commentaire).toLocaleDateString()}
+                                      </p>
+                                    </div>
+                                    <p className="text-xs mt-1">{reponse.contenu}</p>
+                                    {/* Action buttons */}
+                                      <div className="flex items-center space-x-6 mt-4 text-gray-400">
+                                        <button className="text-sm hover:text-gray-200" >
+                                          J'adore
+                                        </button>
+                                        <button className="text-sm hover:text-gray-200" >
+                                          Répondre
+                                        </button>
+                                        <button className="text-sm hover:text-gray-200" >
+                                          Signaler
+                                        </button>
+                                      </div>
+                                  </div>
                                 </div>
-                                <p className="text-xs">{reponse.contenu}</p> {/* Affiche le texte de la réponse */}
                               </div>
                             ))}
                           </div>
@@ -313,8 +342,8 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                     ))}
                   </div>
                 )}
-
               </div>
+
             </div>
           );
         })
