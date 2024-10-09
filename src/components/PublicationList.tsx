@@ -76,7 +76,34 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
 
             {/* Gestion des fichiers */}
             <div className={`grid ${publication.fichiers.length === 1 ? 'grid-cols-1 justify-items-center' : ''}`}>
-              {/* Cas pour 3 images */}
+              {/* Cas pour une seule image (centrée) */}
+              {publication.fichiers.length === 1 && (
+                <div className="flex justify-center">
+                  <img
+                    src={publication.fichiers[0].url_fichier}
+                    alt="Image unique"
+                    className="w-full max-w-lg h-auto object-cover rounded-3xl cursor-pointer p-3"
+                    onClick={() => openFileModal(publication.fichiers[0].url_fichier)}
+                  />
+                </div>
+              )}
+
+              {/* Cas pour 2 images (côte à côte) */}
+              {publication.fichiers.length === 2 && (
+                <div className="grid grid-cols-2 gap-2">
+                  {publication.fichiers.map((file, index) => (
+                    <img
+                      key={index}
+                      src={file.url_fichier}
+                      alt={`Fichier ${index + 1}`}
+                      className="w-full h-80 object-cover rounded-3xl cursor-pointer p-3"
+                      onClick={() => openFileModal(file.url_fichier)}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* Cas pour 3 images (une à gauche, deux empilées à droite) */}
               {publication.fichiers.length === 3 && (
                 <div className="grid grid-cols-2 gap-2">
                   <div className="col-span-1">
@@ -104,7 +131,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                 </div>
               )}
 
-              {/* Cas pour 4 images ou plus */}
+              {/* Cas pour 4 images ou plus (trois affichées, une superposition pour les images restantes) */}
               {publication.fichiers.length > 3 && (
                 <div className="grid grid-cols-2 gap-2">
                   <div className="col-span-1">
