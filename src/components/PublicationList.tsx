@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Heart, MessageCircle, BadgeAlert, CircleX  } from 'lucide-react';
+import { Heart, MessageCircle, BadgeAlert, CircleX, SendHorizontal  } from 'lucide-react';
 import Avatar from './avatar';
 import ModalFile from './ModalFile';
 import axios from 'axios';  // Ajouter axios pour la gestion des requêtes API
+
 
 type File = {
   id: number;
@@ -44,6 +45,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
   const [likedPublications, setLikedPublications] = useState<number[]>([]); // Ajouté pour les likes
   const [commentaires, setCommentaires] = useState<{ [key: number]: Commentaire[] }>({}); // Stocker les commentaires pour chaque publication
   const [commentairesVisibles, setCommentairesVisibles] = useState<{ [key: number]: boolean }>({});
+  const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
 
   const openFileModal = (fileUrl: string) => {
     setSelectedFileUrl(fileUrl);
@@ -55,8 +57,45 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
     setSelectedFileUrl(null);
   };
 
+/* ajout de commentaire  */
+// Fonction pour afficher/masquer le champ de commentaire
+const handleVoirCommentaires = (publicationId: number) => {
+  setCommentairesVisibles((prev) => ({
+    ...prev,
+    [publicationId]: !prev[publicationId], 
+  }));
 
+  if (!commentaires[publicationId]) {
+    fetchCommentaires(publicationId);
+  }
+};
 
+// Fonction pour envoyer le commentaire
+const handleEnvoyerCommentaire = async (publicationId: number) => {
+  const token = localStorage.getItem('token');
+  const etudiantId = localStorage.getItem('etudiantId');
+
+  if (!etudiantId) {
+    console.error('Erreur: identifiant de l\'étudiant non disponible');
+    return;
+  }
+
+  if (newComment[publicationId]) {
+    try {
+      await axios.post(
+        'http://localhost:4000/commentaire',
+        { contenu: newComment[publicationId], publicationId, etudiantId },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setNewComment((prev) => ({ ...prev, [publicationId]: "" }));
+      fetchCommentaires(publicationId);
+    } catch (error : any) {
+      console.error("Erreur lors de l'envoi du commentaire:", error.response?.data || error.message);
+    }
+  }
+};
+
+/* jusque eto */
   // Fetch reactions (aime)
   useEffect(() => {
     const fetchUserReactions = async () => {
@@ -87,16 +126,6 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
     }
   };
 
-  const handleVoirCommentaires = (publicationId: number) => {
-    setCommentairesVisibles((prev) => ({
-      ...prev,
-      [publicationId]: !prev[publicationId], // Inverser l'état pour masquer ou afficher
-    }));
-
-    if (!commentaires[publicationId]) {
-      fetchCommentaires(publicationId);
-    }
-  };
 
   // Fonction pour gérer le like/délike
   const handleLikeToggle = async (publicationId: number) => {
@@ -269,7 +298,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
 
                 <button
                   className="flex items-center space-x-2 mx-auto"
-                  
+                  onClick={() => handleVoirCommentaires(publication.id)}
                 >
                   <MessageCircle className="w-6 h-6 text-gray-500 hover:text-blue-500 cursor-pointer" />
                   <span className="text-sm text-gray-500">Commenter</span>
@@ -280,7 +309,26 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                   <span className="text-sm text-gray-500">Signaler</span>
                 </button>
               </div>
+              {commentairesVisibles[publication.id] && (
+                <div className="mt-4">
+                  {/* Input pour le commentaire */}
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="text"
+                      className="border p-2 rounded-md w-full"
+                      placeholder="Écrivez un commentaire..."
+                      value={newComment[publication.id] || ""}
+                      onChange={(e) =>
+                        setNewComment((prev) => ({ ...prev, [publication.id]: e.target.value }))
+                      }
+                    />
+                    <button onClick={() => handleEnvoyerCommentaire(publication.id)}>
+                      <SendHorizontal className="w-6 h-6 text-blue-500 hover:text-blue-700 cursor-pointer" />
+                    </button>
+                  </div>
 
+                </div>
+              )}
               <div className="mt-4">
               <button
                   className="text-blue-500 text-sm underline"
