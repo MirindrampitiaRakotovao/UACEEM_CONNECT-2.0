@@ -43,6 +43,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
   const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
   const [likedPublications, setLikedPublications] = useState<number[]>([]); // Ajouté pour les likes
   const [commentaires, setCommentaires] = useState<{ [key: number]: Commentaire[] }>({}); // Stocker les commentaires pour chaque publication
+  const [commentairesVisibles, setCommentairesVisibles] = useState<{ [key: number]: boolean }>({});
 
   const openFileModal = (fileUrl: string) => {
     setSelectedFileUrl(fileUrl);
@@ -53,6 +54,8 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
     setIsFileModalOpen(false);
     setSelectedFileUrl(null);
   };
+
+
 
   // Fetch reactions (aime)
   useEffect(() => {
@@ -72,7 +75,6 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
     fetchUserReactions();
   }, []);
 
-  // Fetch commentaires pour chaque publication
   const fetchCommentaires = async (publicationId: number) => {
     try {
       const response = await axios.get(`http://localhost:4000/commentaire/${publicationId}`);
@@ -85,11 +87,16 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
     }
   };
 
-  useEffect(() => {
-    publications.forEach((publication) => {
-      fetchCommentaires(publication.id);
-    });
-  }, [publications]);
+  const handleVoirCommentaires = (publicationId: number) => {
+    setCommentairesVisibles((prev) => ({
+      ...prev,
+      [publicationId]: !prev[publicationId], // Inverser l'état pour masquer ou afficher
+    }));
+
+    if (!commentaires[publicationId]) {
+      fetchCommentaires(publicationId);
+    }
+  };
 
   // Fonction pour gérer le like/délike
   const handleLikeToggle = async (publicationId: number) => {
@@ -275,6 +282,12 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
               </div>
 
               <div className="mt-4">
+              <button
+                  className="text-blue-500 text-sm underline"
+                  onClick={() => handleVoirCommentaires(publication.id)}
+                >
+                  {commentairesVisibles[publication.id] ? "Masquer les commentaires" : "Voir commentaires..."}
+                </button>
                 {commentaires[publication.id] && commentaires[publication.id].length > 0 && (
                   <div className="mt-4">
                     {commentaires[publication.id].map((commentaire: Commentaire) => (
