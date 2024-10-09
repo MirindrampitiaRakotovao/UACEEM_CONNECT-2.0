@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Heart, MessageCircle, BadgeAlert, SendHorizonal, CircleX } from 'lucide-react';
+import { Heart, MessageCircle, BadgeAlert, CircleX } from 'lucide-react';
 import Avatar from './avatar';
 import ModalFile from './ModalFile';
 import axios from 'axios';  // Ajouter axios pour la gestion des requêtes API
@@ -104,7 +104,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
   );
 
   return (
-    <div className="publication-list mt-8">
+    <div className="publication-list mt-8 ">
       {loading ? (
         <p>Chargement des publications...</p>
       ) : error ? (
@@ -114,7 +114,7 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
           const isLiked = likedPublications.includes(publication.id); // Vérifier si l'utilisateur a déjà aimé
 
           return (
-            <div key={publication.id} className="bg-white p-4 rounded-md shadow mb-4">
+            <div key={publication.id} className="bg-white p-4 rounded-md shadow mb-4 p-3">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex">
                   <Avatar />
@@ -257,14 +257,6 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                   <span className="text-sm text-gray-500">Signaler</span>
                 </button>
               </div>
-              <div className="flex mt-10">
-              <input
-                type="text"
-                placeholder="Commentaires..."
-                className="w-full p-2 border rounded-full hover:outline-none focus:ring-2 focus:ring-blue-500 "
-              />
-              <SendHorizonal className="w-10 h-10 text-gray-500 hover:text-blue-500 cursor-pointer ml-5" />
-            </div>
             </div>
           );
         })
