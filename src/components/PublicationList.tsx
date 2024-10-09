@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Heart, MessageCircle, BadgeAlert, SendHorizonal, CircleX } from 'lucide-react';
 import Avatar from './avatar';
-import ModalFile from './ModalFile';  // Importation du composant ModalFile
+import ModalFile from './ModalFile';
 
 type File = {
   id: number;
@@ -33,21 +33,18 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
   const [isFileModalOpen, setIsFileModalOpen] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
 
-  // Fonction pour ouvrir le modal et définir l'URL du fichier sélectionné
   const openFileModal = (fileUrl: string) => {
     setSelectedFileUrl(fileUrl);
     setIsFileModalOpen(true);
   };
 
-  // Fonction pour fermer le modal
   const closeFileModal = () => {
     setIsFileModalOpen(false);
     setSelectedFileUrl(null);
   };
 
-  // Trier les publications de la plus récente à la plus ancienne
-  const sortedPublications = publications.sort((a, b) =>
-    new Date(b.date_publication).getTime() - new Date(a.date_publication).getTime()
+  const sortedPublications = publications.sort(
+    (a, b) => new Date(b.date_publication).getTime() - new Date(a.date_publication).getTime()
   );
 
   return (
@@ -68,7 +65,6 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
                   <span className="text-sm text-gray-400">
                     {new Date(publication.date_publication).toLocaleDateString()}
                   </span>
-
                 </div>
               </div>
               <button className="text-gray-500 hover:text-gray-700 ml-40">
@@ -78,41 +74,90 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
 
             <p className="mt-2 mb-4">{publication.legende}</p>
 
-            {/* Affichage des fichiers dans une grille */}
-            <div className={`grid ${publication.fichiers.length === 1 ? 'grid-cols-1 justify-items-center' : 'grid-cols-2'}`}>
-              {publication.fichiers.map((file, index) => (
-                <img
-                key={index}
-                src={file.url_fichier}
-                alt={`Fichier ${index + 1}`}
-                className={`w-80 h-80 object-cover rounded-3xl cursor-pointer p-3`}  // Fixe la taille à 256px (64x64 en rem)
-                onClick={() => openFileModal(file.url_fichier)}
-              />
-              
-              ))}
+            {/* Gestion des fichiers */}
+            <div className={`grid ${publication.fichiers.length === 1 ? 'grid-cols-1 justify-items-center' : ''}`}>
+              {/* Cas pour 3 images */}
+              {publication.fichiers.length === 3 && (
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="col-span-1">
+                    <img
+                      src={publication.fichiers[0].url_fichier}
+                      alt="Image principale"
+                      className="w-full h-80 object-cover rounded-3xl cursor-pointer p-3"
+                      onClick={() => openFileModal(publication.fichiers[0].url_fichier)}
+                    />
+                  </div>
+                  <div className="grid grid-rows-2 gap-2">
+                    <img
+                      src={publication.fichiers[1].url_fichier}
+                      alt="Image verticale 1"
+                      className="w-full h-40 object-cover rounded-3xl cursor-pointer p-3"
+                      onClick={() => openFileModal(publication.fichiers[1].url_fichier)}
+                    />
+                    <img
+                      src={publication.fichiers[2].url_fichier}
+                      alt="Image verticale 2"
+                      className="w-full h-40 object-cover rounded-3xl cursor-pointer p-3"
+                      onClick={() => openFileModal(publication.fichiers[2].url_fichier)}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Cas pour 4 images ou plus */}
+              {publication.fichiers.length > 3 && (
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="col-span-1">
+                    <img
+                      src={publication.fichiers[0].url_fichier}
+                      alt="Image principale"
+                      className="w-full h-80 object-cover rounded-3xl cursor-pointer p-3"
+                      onClick={() => openFileModal(publication.fichiers[0].url_fichier)}
+                    />
+                  </div>
+                  <div className="grid grid-rows-2 gap-2">
+                    <img
+                      src={publication.fichiers[1].url_fichier}
+                      alt="Image verticale 1"
+                      className="w-full h-40 object-cover rounded-3xl cursor-pointer p-3"
+                      onClick={() => openFileModal(publication.fichiers[1].url_fichier)}
+                    />
+                    <div
+                      className="relative w-full h-40 object-cover rounded-3xl cursor-pointer p-3 bg-gray-200 flex items-center justify-center"
+                      onClick={() => openFileModal(publication.fichiers[3].url_fichier)}
+                    >
+                      <img
+                        src={publication.fichiers[2].url_fichier}
+                        alt="Image verticale 2"
+                        className="absolute top-0 left-0 w-full h-full object-cover rounded-3xl opacity-50"
+                      />
+                      {publication.fichiers.length > 4 && (
+                        <div className="absolute text-4xl text-white font-bold">
+                          +{publication.fichiers.length - 3}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex justify-between mt-6">
-                
-                <button className="flex items-center space-x-2">
-                  <Heart className="w-6 h-6 text-gray-500 hover:text-red-500 cursor-pointer" />
-                  <span className="text-sm text-gray-500">J'adore</span>
-                </button>
+              <button className="flex items-center space-x-2">
+                <Heart className="w-6 h-6 text-gray-500 hover:text-red-500 cursor-pointer" />
+                <span className="text-sm text-gray-500">J'adore</span>
+              </button>
 
-                
-                <button className="flex items-center space-x-2 mx-auto">
-                  <MessageCircle className="w-6 h-6 text-gray-500 hover:text-blue-500 cursor-pointer" />
-                  <span className="text-sm text-gray-500">Commenter</span>
-                </button>
+              <button className="flex items-center space-x-2 mx-auto">
+                <MessageCircle className="w-6 h-6 text-gray-500 hover:text-blue-500 cursor-pointer" />
+                <span className="text-sm text-gray-500">Commenter</span>
+              </button>
 
-                
-                <button className="flex items-center space-x-2">
-                  <BadgeAlert className="w-6 h-6 text-gray-500 hover:text-yellow-500 cursor-pointer" />
-                  <span className="text-sm text-gray-500">Signaler</span>
-                </button>
-              </div>
-
-            
+              <button className="flex items-center space-x-2">
+                <BadgeAlert className="w-6 h-6 text-gray-500 hover:text-yellow-500 cursor-pointer" />
+                <span className="text-sm text-gray-500">Signaler</span>
+              </button>
+            </div>
 
             <div className="flex mt-10">
               <input
@@ -126,7 +171,6 @@ const PublicationList: React.FC<PublicationListProps> = ({ publications, loading
         ))
       )}
 
-      {/* ModalFile pour afficher le fichier sélectionné */}
       {selectedFileUrl && (
         <ModalFile isOpen={isFileModalOpen} onClose={closeFileModal} fileUrl={selectedFileUrl} />
       )}
