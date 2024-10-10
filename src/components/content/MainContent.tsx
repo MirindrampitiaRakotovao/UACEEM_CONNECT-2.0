@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Image, PackageOpen, CalendarDays } from 'lucide-react'; // Import icons
 import Avatar from '../avatar';
 import ModalPublication from '../ModalPublication';
 import PublicationList from '../PublicationList'; // Import de PublicationList
 import { getPublicPublications } from '../../services/publicationService';
+import socketService from '../../services/socketService';
 
 type File = {
   id: number;
@@ -32,6 +33,8 @@ const MainContent: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const socketRef = useRef<any>(null);
+  
 
   useEffect(() => {
     const fetchPublications = async () => {
@@ -50,7 +53,26 @@ const MainContent: React.FC = () => {
     };
 
     fetchPublications();
+
+    // Initialisation du WebSocket une seule fois au montage du composant
+    if (!socketRef.current) {
+      console.log('Tentative de connexion au WebSocket...');
+      socketRef.current = socketService.onNewPublication((newPublication: Publication) => {
+        console.log('Nouvelle publication reçue via WebSocket:', newPublication);
+        setPublications((prevPublications) => [newPublication, ...prevPublications]);
+      });
+    }
+
+    return () => {
+      if (socketRef.current) {
+        console.log('Déconnexion du WebSocket...');
+        socketService.disconnect();
+        socketRef.current = null; // Assurer la déconnexion
+      }
+    };
   }, [navigate]);
+  
+  
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);

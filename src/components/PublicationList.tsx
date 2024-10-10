@@ -39,14 +39,20 @@ interface PublicationListProps {
   error: string | null;
 }
 
-const PublicationList: React.FC<PublicationListProps> = ({ publications, loading, error }) => {
-  const [isFileModalOpen, setIsFileModalOpen] = useState(false);
-  const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
-  const [likedPublications, setLikedPublications] = useState<number[]>([]); // Ajouté pour les likes
-  const [commentaires, setCommentaires] = useState<{ [key: number]: Commentaire[] }>({}); // Stocker les commentaires pour chaque publication
+const PublicationList: React.FC<PublicationListProps> = ({
+  publications,
+  loading,
+  error,
+}) => {
+  const [likedPublications, setLikedPublications] = useState<number[]>([]);
+  const [commentaires, setCommentaires] = useState<{ [key: number]: Commentaire[] }>({});
   const [commentairesVisibles, setCommentairesVisibles] = useState<{ [key: number]: boolean }>({});
   const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
-
+  const [isFileModalOpen, setIsFileModalOpen] = useState(false);
+  const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
+  
+  
+  
   const openFileModal = (fileUrl: string) => {
     setSelectedFileUrl(fileUrl);
     setIsFileModalOpen(true);

@@ -42,10 +42,10 @@ const HomeDelegue: React.FC = () => {
       <div className="flex justify-center flex-1">
         <ul className="flex space-x-20">
         <li
-              className={`relative flex flex-col items-center cursor-pointer ${currentPath === '/homeEtudiant' ? 'border-b-2 border-blue-600 rounded-b-lg w-16' : 'w-15'}`}
+              className={`relative flex flex-col items-center cursor-pointer ${currentPath === '/homeEtudiant' ? 'border-b-2 border-[#1c3d6e] rounded-b-lg w-16' : 'w-15'}`}
               onClick={() => navigate('/homeEtudiant')}
           >
-            <Home size={25} className={`${currentPath === '/homeEtudiant' ? 'text-blue-600' : 'dark:text-white'}`} />
+            <Home size={25} className={`${currentPath === '/homeEtudiant' ? 'text-[#1c3d6e]' : 'dark:text-white'}`} />
           </li>
           <li className="cursor-pointer">
             <Users size={25} />

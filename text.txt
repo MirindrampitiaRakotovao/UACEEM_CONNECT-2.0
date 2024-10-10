@@ -1,138 +1,122 @@
-import React, { useState, useEffect } from "react";
-import { Heart, MessageCircle, BadgeAlert, CircleX, SendHorizontal } from 'lucide-react';
-import Avatar from './avatar';
-import ModalFile from './ModalFile';
-import { fetchUserReactions, fetchCommentaires, handleLikeToggle, sendComment } from '../services/publicationService';
+import React, { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Image, PackageOpen, CalendarDays } from 'lucide-react';
+import Avatar from '../avatar';
+import ModalPublication from '../ModalPublication';
+import PublicationList from '../PublicationList';
+import { getPublicPublications } from '../../services/publicationService';
+import socketService from '../../services/socketService';
 
-interface Publication {
+type File = {
   id: number;
-  contenu: string;
+  url_fichier: string;
+};
+
+type Etudiant = {
+  id: number;
+  username: string;
+  role: string;
+  avatar_url: string | null;
+};
+
+type Publication = {
+  id: number;
+  legende: string;
   date_publication: string;
-  nb_reactions: number;
-  etudiant: {
-    id: number;
-    nom: string;
-    photo_profil: string;
-  };
-}
+  etudiant: Etudiant;
+  fichiers: File[];
+};
 
-interface PublicationListProps {
-  publications: Publication[];
-  loading: boolean;
-  error: boolean;
-}
-
-const PublicationList: React.FC<PublicationListProps> = ({ publications, loading, error }) => {
-  const [likedPublications, setLikedPublications] = useState<number[]>([]);
-  const [commentairesVisibles, setCommentairesVisibles] = useState<{ [key: number]: boolean }>({});
-  const [commentaires, setCommentaires] = useState<{ [key: number]: any[] }>({});
-  const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
+const MainContent: React.FC = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [publications, setPublications] = useState<Publication[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const socketRef = useRef<any>(null); // Utiliser useRef pour la connexion WebSocket
 
   useEffect(() => {
-    const loadReactions = async () => {
+    const fetchPublications = async () => {
       try {
-        const userLikedPublications = await fetchUserReactions();
-        setLikedPublications(userLikedPublications);
-      } catch (error) {
-        console.error('Erreur lors du chargement des réactions:', error);
+        const data = await getPublicPublications();
+        setPublications(data);
+      } catch (err: any) {
+        if (err.message === 'Utilisateur non authentifié') {
+          navigate('/login');
+        } else {
+          setError('Erreur lors du chargement des publications.');
+        }
+      } finally {
+        setLoading(false);
       }
     };
 
-    loadReactions();
-  }, []);
+    fetchPublications();
 
-  const handleVoirCommentaires = async (publicationId: number) => {
-    setCommentairesVisibles((prev) => ({
-      ...prev,
-      [publicationId]: !prev[publicationId],
-    }));
+    // Initialisation du WebSocket une seule fois au montage du composant
+    if (!socketRef.current) {
+      console.log('Tentative de connexion au WebSocket...');
+      socketRef.current = socketService.onNewPublication((newPublication: Publication) => {
+        console.log('Nouvelle publication reçue via WebSocket:', newPublication);
+        setPublications((prevPublications) => [newPublication, ...prevPublications]);
+      });
+    }
 
-    if (!commentaires[publicationId]) {
-      try {
-        const data = await fetchCommentaires(publicationId);
-        setCommentaires((prev) => ({ ...prev, [publicationId]: data }));
-      } catch (error) {
-        console.error('Erreur lors du chargement des commentaires:', error);
+    return () => {
+      if (socketRef.current) {
+        console.log('Déconnexion du WebSocket...');
+        socketService.disconnect();
+        socketRef.current = null; // Assurer la déconnexion
       }
-    }
-  };
+    };
+  }, [navigate]);
 
-  const handleEnvoyerCommentaire = async (publicationId: number) => {
-    if (newComment[publicationId]) {
-      try {
-        await sendComment(publicationId, newComment[publicationId]);
-        setNewComment((prev) => ({ ...prev, [publicationId]: "" }));
-        handleVoirCommentaires(publicationId);
-      } catch (error) {
-        console.error('Erreur lors de l\'envoi du commentaire:', error);
-      }
-    }
-  };
-
-  const handleLike = async (publicationId: number) => {
-    try {
-      const updatedLikes = await handleLikeToggle(publicationId, likedPublications);
-      setLikedPublications(updatedLikes);
-    } catch (error) {
-      console.error('Erreur lors de la gestion de la réaction:', error);
-    }
-  };
-
-  if (loading) return <p>Chargement...</p>;
-  if (error) return <p>Erreur lors du chargement des publications</p>;
+  const openModal = () => setIsModalOpen(true);
+  const closeModal = () => setIsModalOpen(false);
 
   return (
-    <div className="publication-list">
-      {publications.map((publication) => (
-        <div key={publication.id} className="publication">
-          <div className="publication-header">
-            <Avatar imageUrl={publication.etudiant.photo_profil} alt={publication.etudiant.nom} />
-            <div>
-              <h3>{publication.etudiant.nom}</h3>
-              <p>{new Date(publication.date_publication).toLocaleString()}</p>
-            </div>
-          </div>
-          <div className="publication-content">
-            <p>{publication.contenu}</p>
-            <ModalFile publicationId={publication.id} />
-          </div>
-          <div className="publication-actions">
-            <button onClick={() => handleLike(publication.id)}>
-              <Heart
-                color={likedPublications.includes(publication.id) ? 'red' : 'black'}
-              />
-              {publication.nb_reactions}
-            </button>
-            <button onClick={() => handleVoirCommentaires(publication.id)}>
-              <MessageCircle />
-            </button>
-          </div>
-          {commentairesVisibles[publication.id] && (
-            <div className="publication-commentaires">
-              {commentaires[publication.id]?.map((commentaire) => (
-                <div key={commentaire.id} className="commentaire">
-                  <p>{commentaire.contenu}</p>
-                </div>
-              ))}
-              <div className="commentaire-input">
-                <input
-                  type="text"
-                  value={newComment[publication.id] || ""}
-                  onChange={(e) =>
-                    setNewComment((prev) => ({ ...prev, [publication.id]: e.target.value }))
-                  }
-                  placeholder="Ajouter un commentaire..."
-                />
-                <button onClick={() => handleEnvoyerCommentaire(publication.id)}>
-                  <SendHorizontal />
-                </button>
-              </div>
-            </div>
-          )}
+    <main className="relative flex-1 h-[90vh] overflow-y-scroll bg-gray-50 p-6 scrollbar-hidden">
+      {/* Section de création de publication */}
+      <div className="bg-white p-4 rounded-md shadow mb-6 top-0 z-10">
+        <div className="flex mb-6">
+          <Avatar />
+          <input
+            type="text"
+            placeholder="Que voulez-vous faire aujourd'hui ?"
+            className="w-full p-2 border rounded-full hover:outline-none hover:ring-2 hover:ring-blue-500 mb-1 ml-3"
+            onClick={openModal}
+          />
         </div>
-      ))}
-    </div>
+
+        <hr className="w-full my-4 border-gray-300" />
+
+        <div className="flex justify-around w-full">
+          <div className="flex flex-col items-center">
+            <Image className="w-6 h-6" />
+            <span className="text-sm text-gray-700">Photo / Vidéo</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <PackageOpen className="w-6 h-6" />
+            <span className="text-sm text-gray-700">Fichier</span>
+          </div>
+          <div className="flex flex-col items-center">
+            <CalendarDays className="w-6 h-6" />
+            <span className="text-sm text-gray-700">Événement</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Utilisation du composant PublicationList */}
+      <PublicationList
+        publications={publications}
+        loading={loading}
+        error={error}
+      />
+
+      {/* Modal pour la création de publication */}
+      <ModalPublication isOpen={isModalOpen} onClose={closeModal} />
+    </main>
   );
 };
 
-export default PublicationList;
+export default MainContent;

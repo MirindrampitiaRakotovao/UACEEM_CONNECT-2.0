@@ -3,6 +3,7 @@ import axios from 'axios';
 import { PackageOpen , LucideTrash} from 'lucide-react';
 import AudienceSelector from './ModalVisibilite';
 import { useAudience } from '../services/audienceService';
+import socketService from '../services/socketService';
 
 interface ModalProps {
   isOpen: boolean;
@@ -69,6 +70,9 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           Authorization: `Bearer ${localStorage.getItem('token')}`,
         },
       });
+
+      // Émettre l'événement de nouvelle publication via WebSocket
+      socketService.emitNewPublication(response.data);
 
       console.log('Publication créée avec succès:', response.data);
       onClose();
