@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { PackageOpen , LucideTrash} from 'lucide-react';
+import { PackageOpen , LucideTrash , Smile} from 'lucide-react';
 import AudienceSelector from './ModalVisibilite';
 import { useAudience } from '../services/audienceService';
 import socketService from '../services/socketService';
+import EmojiPicker , { EmojiClickData } from 'emoji-picker-react';
 
 interface ModalProps {
   isOpen: boolean;
@@ -30,6 +31,7 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [files, setFiles] = useState<File[]>([]); // Fichiers stockés dans un tableau
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,6 +99,13 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
     setFiles(files.filter((_, i) => i !== index)); // Retirer un fichier par son index
   };
 
+  // Fonction pour ajouter un emoji à la légende
+  const handleEmojiClick = (emojiObject: EmojiClickData) => {
+    setLegende((prev) => prev + emojiObject.emoji); // Ajoutez l'emoji à la légende
+    setShowEmojiPicker(false); // Ferme le sélecteur d'emojis après sélection
+  };
+  
+
   if (!isOpen) return null;
 
   return (
@@ -134,8 +143,9 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           />
 
           {/* Boutons pour les fichiers et autres éléments */}
+          <div className="flex items-center">
           <div
-            className="flex justify-between items-center space-x-4 mt-4 p-3 border border-transparent rounded-lg hover:bg-gray-100 cursor-pointer"
+            className="flex justify-between items-center space-x-4 mt-4 p-3 border border-transparent rounded-lg hover:bg-gray-100 cursor-pointer w-full mr-3"
             onClick={() => document.getElementById('file-input')?.click()} // Ouvrir l'input file sur le clic du div entier
           >
             <label className="flex items-center">
@@ -150,6 +160,18 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
               <span className="ml-2 text-blue-600 hover:text-blue-800 font-medium">Ajouter des fichiers</span>
             </label>
           </div>
+          <Smile
+              className="ml-auto mt-3 cursor-pointer"
+              size={32}
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          />
+          </div>
+
+          {showEmojiPicker && (
+            <div className="emoji-picker-container mt-2">
+              <EmojiPicker onEmojiClick={handleEmojiClick} />
+            </div>
+          )}
 
           {/* Liste des fichiers sélectionnés */}
           {files.length > 0 && (

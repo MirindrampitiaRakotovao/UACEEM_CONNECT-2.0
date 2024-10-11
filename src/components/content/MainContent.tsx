@@ -87,6 +87,7 @@ const MainContent: React.FC = () => {
             placeholder="Que voulez-vous faire aujourd'hui ?"
             className="w-full p-2 border rounded-full hover:outline-none hover:ring-2 hover:ring-blue-500 mb-1 ml-3"
             onClick={openModal}
+            readOnly
           />
         </div>
 
