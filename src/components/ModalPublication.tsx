@@ -30,6 +30,7 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [legende, setLegende] = useState('');
   const [files, setFiles] = useState<File[]>([]); // Fichiers stockés dans un tableau
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedFileIndex, setSelectedFileIndex] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
@@ -82,7 +83,8 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
       console.log('Publication créée avec succès:', response.data);
       onClose();
       setLegende('');
-      setFiles([]); // Réinitialiser les fichiers après soumission
+      setFiles([]); 
+      setSelectedFileIndex(null);
     } catch (error: any) {
       console.error('Erreur lors de la création de la publication:', error);
       setErrorMessage(error.response?.data?.message || 'Erreur inconnue');
@@ -92,14 +94,23 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      // Utiliser un tableau pour les fichiers sélectionnés
-      setFiles(Array.from(e.target.files)); // Remplacer avec la nouvelle sélection
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      // Use Array.from only when files is not null
+      setFiles(Array.from(files));
     }
   };
 
+  const handleFileClick = (index: number) => {
+    // Sélectionner ou désélectionner un fichier
+    setSelectedFileIndex(index === selectedFileIndex ? null : index);
+  };
+  
   const removeFile = (index: number) => {
-    setFiles(files.filter((_, i) => i !== index)); // Retirer un fichier par son index
+    setFiles(files.filter((_, i) => i !== index));
+    if (selectedFileIndex === index) {
+      setSelectedFileIndex(null); // Réinitialiser si le fichier supprimé est sélectionné
+    }
   };
 
   // Fonction pour ajouter un emoji à la légende
@@ -197,27 +208,53 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             </div>
           )}
 
-
-          {/* Liste des fichiers sélectionnés */}
-          {files.length > 0 && (
+         {/* Liste des fichiers sélectionnés */}
+         {files.length > 0 && (
             <div className="mt-2">
-              <h3 className="text-sm font-semibold">Fichiers sélectionnés :</h3>
-              <ul className="list-disc list-inside">
+              <div className="flex -space-x-4 overflow-x-auto">
                 {files.map((file, index) => (
-                  <li key={index} className="text-sm flex justify-between items-center">
-                    {file.name}
-                    <button
-                      type="button"
-                      className="text-red-500 hover:text-red-700 ml-4"
-                      onClick={() => removeFile(index)} // Bouton pour retirer le fichier
-                    >
-                      <LucideTrash size={15} />
-                    </button>
-                  </li>
+                  <div
+                    key={index}
+                    className={`relative transition-transform duration-300 ${
+                      selectedFileIndex === index ? 'transform scale-150 z-10' : ''
+                    }`}
+                    onClick={() => handleFileClick(index)}
+                  >
+                    {file.type.startsWith('image/') ? (
+                      <img
+                        src={URL.createObjectURL(file)}
+                        alt={`Aperçu du fichier ${file.name}`}
+                        className={`w-8 h-8 rounded-full object-cover border-2 border-white transition-transform duration-300 ${
+                          selectedFileIndex === index ? 'w-16 h-16' : ''
+                        }`}
+                      />
+                    ) : (
+                      <div
+                        className={`w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center text-gray-500 border-2 border-white transition-transform duration-300 ${
+                          selectedFileIndex === index ? 'w-32 h-32' : ''
+                        }`}
+                      >
+                        <span className="text-sm">Fichier</span>
+                      </div>
+                    )}
+
+                    {/* Afficher l'icône de suppression uniquement si le fichier est sélectionné */}
+                    {selectedFileIndex === index && (
+                      <button
+                        type="button"
+                        className="absolute top-0 right-0 p-1 bg-white rounded-full shadow-md text-red-500 hover:text-red-700"
+                        onClick={() => removeFile(index)}
+                      >
+                        <LucideTrash size={16} />
+                      </button>
+                    )}
+                  </div>
                 ))}
-              </ul>
+              </div>
             </div>
           )}
+
+
 
           {/* Message d'erreur */}
           {errorMessage && <div className="text-red-500">{errorMessage}</div>}
