@@ -22,13 +22,14 @@ const Avatar: React.FC<AvatarProps> = ({ size = "w-10 h-10" , userId }) => {
     api
       .get(`/etudiant/pourAvatar/${userId}`)
       .then((response) => {
-        setPhoto(response.data.photo);
-        console.log(response.data.photo);
+        console.log("Réponse complète de l'API:", response.data); // Affiche la réponse complète
+        setPhoto(response.data.utilisateur.photo); 
       })
       .catch((error) => {
         console.error("Erreur lors de la récupération de la photo:", error);
       });
   }, [userId]);
+  
 
   return (
     <div
