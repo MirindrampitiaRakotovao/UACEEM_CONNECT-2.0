@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Heart, MessageCircle, BadgeAlert, CircleX,  Eye , SendHorizontal, LucideAlignHorizontalDistributeStart } from 'lucide-react';
+import { Heart, MessageCircle, BadgeAlert, CircleX,  Eye , SendHorizontal } from 'lucide-react';
 import Avatar from './avatar';
 import ModalFile from './ModalFile';
 import axios from 'axios';  // Ajouter axios pour la gestion des requêtes API
@@ -46,7 +46,6 @@ const PublicationList: React.FC<PublicationListProps> = ({
     [key: number]: boolean;
   }>({});
   
-
   const openFileModal = (fileUrl: string) => {
     setSelectedFileUrl(fileUrl);
     setIsFileModalOpen(true);
@@ -126,7 +125,12 @@ const PublicationList: React.FC<PublicationListProps> = ({
           ...prev,
           [publicationId]: "",
         }));
-        // Après l'envoi du commentaire, on pourrait recharger les commentaires si nécessaire.
+        
+        setIsCommentModalOpen((prev) => ({
+          ...prev,
+          [publicationId]: true,
+        }));
+
       } catch (error: any) {
         console.error("Erreur lors de l'envoi du commentaire:", error.response?.data || error.message);
       }
@@ -302,7 +306,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
                   className="flex items-center space-x-2"
                   onClick={() => handleShowCommentInput(publication.id)}
                 >
-                  <MessageCircle className="w-6 h-6 text-gray-500" />
+                  <MessageCircle className="w-6 h-6 text-gray-500 hover:text-blue-500 cursor-pointer" />
                   <span className="text-sm text-gray-500">Commenter</span>
                 </button>
 
@@ -315,25 +319,25 @@ const PublicationList: React.FC<PublicationListProps> = ({
               {/* Afficher l'input pour le commentaire */}
               {showCommentInput[publication.id] && (
                 <div className="mt-4 flex items-center">
-                  <input
-                    type="text"
-                    value={newComment[publication.id] || ""}
-                    onChange={(e) =>
-                      setNewComment((prev) => ({
-                        ...prev,
-                        [publication.id]: e.target.value,
-                      }))
-                    }
-                    placeholder="Ajouter un commentaire..."
-                    className="border border-gray-300 rounded-md p-2 flex-grow mr-2"
-                  />
-                  <button
-                    onClick={() => handleEnvoyerCommentaire(publication.id)}
-                    className="p-2 bg-blue-500 text-white rounded-md"
-                  >
-                    <SendHorizontal/>
-                  </button>
-                </div>
+                <input
+                  type="text"
+                  value={newComment[publication.id] || ""}
+                  onChange={(e) =>
+                    setNewComment((prev) => ({
+                      ...prev,
+                      [publication.id]: e.target.value,
+                    }))
+                  }
+                  placeholder="Ajouter un commentaire..."
+                  className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3 text-gray" 
+                />
+                <button
+                  onClick={() => handleEnvoyerCommentaire(publication.id)}
+                >
+                  <SendHorizontal size={35} className=" text-gray-500 hover:text-blue-500 cursor-pointer"/>
+                </button>
+              </div>
+              
               )}
               <div className="mt-4">
               
@@ -342,8 +346,8 @@ const PublicationList: React.FC<PublicationListProps> = ({
                   className="flex items-center space-x-2"
                   onClick={() => handleOpenCommentModal(publication.id)}
                 >
-                  <Eye className="w-6 h-6 text-gray-500" />
-                  <span className="text-sm text-gray-500">Voir les commentaires</span>
+                  <Eye className="w-4 h-4 text-blue-400" />
+                  <span className="text-blue-400 text-sm underline hover:text-blue-500">Voir les commentaires</span>
                 </button>
                 {/* Afficher le modal de commentaires */}
               {isCommentModalOpen[publication.id] && (

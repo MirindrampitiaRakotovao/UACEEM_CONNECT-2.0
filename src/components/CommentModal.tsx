@@ -1,10 +1,12 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { SendHorizontal, CircleX } from "lucide-react";
 import axios from "axios";
+import Avatar from './avatar';
 
 type Etudiant = {
   id: number;
   username: string;
+  role: string;
 };
 
 type Commentaire = {
@@ -12,6 +14,7 @@ type Commentaire = {
   contenu: string;
   date_commentaire: string;
   etudiant: Etudiant;
+  reponses?: Commentaire[];
 };
 
 interface CommentModalProps {
@@ -33,7 +36,13 @@ const CommentModal: React.FC<CommentModalProps> = ({
       const response = await axios.get(
         `http://localhost:4000/commentaire/${publicationId}`
       );
-      setCommentaires(response.data);
+      // Trier les commentaires par date décroissante
+      const sortedCommentaires = response.data.sort(
+        (a: Commentaire, b: Commentaire) => 
+          new Date(b.date_commentaire).getTime() - new Date(a.date_commentaire).getTime()
+      );
+
+      setCommentaires(sortedCommentaires);
     } catch (error) {
       console.error("Erreur lors du chargement des commentaires:", error);
     }
@@ -87,14 +96,67 @@ const CommentModal: React.FC<CommentModalProps> = ({
         <div className="max-h-96 overflow-y-auto mb-4">
           {commentaires.length > 0 ? (
             commentaires.map((commentaire) => (
-              <div key={commentaire.id} className="mb-4">
-                <h4 className="font-semibold">
-                  {commentaire.etudiant.username}
-                </h4>
-                <p className="text-sm text-gray-600">{commentaire.contenu}</p>
-                <span className="text-xs text-gray-400">
-                  {new Date(commentaire.date_commentaire).toLocaleDateString()}
-                </span>
+              <div key={commentaire.id} className="mb-4 p-3 bg-white-100 rounded-lg shadow">
+                <div className="flex items-start space-x-3">
+                  <Avatar userId={commentaire.etudiant.id} size="w-10 h-10" />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h6 className="text-sm font-semibold">{commentaire.etudiant.username}</h6>
+                        <p className="text-xs text-gray-400">
+                          {new Date(commentaire.date_commentaire).toLocaleDateString()}
+                        </p>
+                      </div>
+
+                      <p className="text-sm mt-2">{commentaire.contenu}</p>
+
+                      {/* Action buttons */}
+                      <div className="flex items-center space-x-6 mt-4 text-gray-400">
+                        <button className="text-sm hover:text-gray-200" >
+                          J'adore
+                        </button>
+                        <button className="text-sm hover:text-gray-200" >
+                          Répondre
+                        </button>
+                        <button className="text-sm hover:text-gray-200" >
+                          Signaler
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                {/* Separate container for replies */}
+                {commentaire.reponses && Array.isArray(commentaire.reponses) && commentaire.reponses.length > 0 && (
+                          <div className="mt-4">
+                            {commentaire.reponses.map((reponse: Commentaire) => (
+                              <div key={reponse.id} className="ml-10 mb-6 p-3 bg-white-50  rounded-lg">
+                                <div className="flex items-start space-x-3">
+                                  <Avatar userId={reponse.etudiant.id} size="w-8 h-8" />
+                                  <div className="flex-1">
+                                    <div className="flex items-center justify-between">
+                                      <h6 className="text-xs font-semibold">{reponse.etudiant.username}</h6>
+                                      <p className="text-xs text-gray-400">
+                                        {new Date(reponse.date_commentaire).toLocaleDateString()}
+                                      </p>
+                                    </div>
+                                    <p className="text-xs mt-1">{reponse.contenu}</p>
+                                    {/* Action buttons */}
+                                      <div className="flex items-center space-x-6 mt-4 text-gray-400">
+                                        <button className="text-sm hover:text-gray-200" >
+                                          J'adore
+                                        </button>
+                                        <button className="text-sm hover:text-gray-200" >
+                                          Répondre
+                                        </button>
+                                        <button className="text-sm hover:text-gray-200" >
+                                          Signaler
+                                        </button>
+                                      </div>
+                                  </div>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
               </div>
             ))
           ) : (
@@ -102,19 +164,18 @@ const CommentModal: React.FC<CommentModalProps> = ({
           )}
         </div>
 
-        <div className="flex items-center">
+        <div className="mt-4 flex items-center">
           <input
             type="text"
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Ajouter un commentaire..."
-            className="border border-gray-300 rounded-md p-2 flex-grow mr-2"
+            className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3 text-gray"
           />
           <button
             onClick={handleEnvoyerCommentaire}
-            className="p-2 bg-blue-500 text-white rounded-md"
           >
-            <SendHorizontal className="w-5 h-5" />
+            <SendHorizontal size={35} className=" text-gray-500 hover:text-blue-500 cursor-pointer" />
           </button>
         </div>
       </div>
