@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { PackageOpen , LucideTrash , Smile} from 'lucide-react';
 import AudienceSelector from './ModalVisibilite';
@@ -32,6 +32,9 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // Ref pour le conteneur de l'emoji picker
+  const emojiPickerRef = useRef<HTMLDivElement | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,10 +104,27 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
   // Fonction pour ajouter un emoji à la légende
   const handleEmojiClick = (emojiObject: EmojiClickData) => {
-    setLegende((prev) => prev + emojiObject.emoji); // Ajoutez l'emoji à la légende
-    setShowEmojiPicker(false); // Ferme le sélecteur d'emojis après sélection
+    setLegende((prev) => prev + emojiObject.emoji);
   };
   
+  // Fonction pour détecter le clic en dehors du sélecteur d'emojis
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   if (!isOpen) return null;
 
@@ -168,10 +188,15 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           </div>
 
           {showEmojiPicker && (
-            <div className="emoji-picker-container mt-2">
+            <div
+              className="emoji-picker-container mt-2"
+              ref={emojiPickerRef}
+              onMouseLeave={() => setShowEmojiPicker(false)} // Ferme le sélecteur d'emojis lorsque la souris quitte la zone
+            >
               <EmojiPicker onEmojiClick={handleEmojiClick} />
             </div>
           )}
+
 
           {/* Liste des fichiers sélectionnés */}
           {files.length > 0 && (
