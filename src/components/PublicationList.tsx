@@ -13,7 +13,6 @@ type Etudiant = {
   id: number;
   username: string;
   role: string;
-  avatar_url: string | null;
 };
 
 type Commentaire = {

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Home, Users, Shield, Lightbulb, MessageCircle, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import logo from "../../assets/Logo ACEEMM.png";
-//import Avatar from "../avatar";
+import Avatar from "../avatar";
 import {  showDropdown, hideDropdown, goToProfile } from "../../services/homeService";
 import { logout } from '../../services/authService';
 import { useUserProfile } from "../../services/profileService"; 
@@ -75,7 +75,7 @@ const HomeDelegue: React.FC = () => {
           <div className="relative" 
             onMouseEnter={() => showDropdown(setDropdownVisible)} 
           >
-             {/*<Avatar /> */} 
+            {etudiant?.id ? <Avatar userId={etudiant.id} /> : null}
             {isDropdownVisible && (
               <div className="absolute right-0 mt-2 w-60 bg-white border border-gray-300 rounded-md shadow-lg"
               onMouseEnter={() => showDropdown(setDropdownVisible)}
@@ -90,7 +90,7 @@ const HomeDelegue: React.FC = () => {
                 }}
               >
                 <div className="flex p-4 space-x-5 cursor-pointer" onClick={() => goToProfile(navigate)}>
-                   {/*<Avatar /> */} 
+                {etudiant?.id ? <Avatar userId={etudiant.id} /> : null}
                   <p className="text-gray-700">
                   {loading ? "Chargement..." : error ? "Erreur" : etudiant?.username}
                   </p>

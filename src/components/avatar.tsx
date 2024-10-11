@@ -4,7 +4,7 @@ import classNames from "classnames"; // Pour gérer les classes conditionnelles
 import api from "../axios/axiosConfig";
 
 interface AvatarProps {
-  size?: string; // Taille optionnelle pour l'avatar (par défaut "w-16 h-16")
+  size?: string; 
   userId: number;
 }
 
