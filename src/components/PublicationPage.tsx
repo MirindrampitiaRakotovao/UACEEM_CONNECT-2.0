@@ -11,7 +11,6 @@ type Publication = {
     id: number;
     username: string;
     role: string;
-    avatar_url: string | null;
   };
   fichiers: {
     id: number;
