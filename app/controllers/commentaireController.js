@@ -25,37 +25,47 @@ exports.createCommentaire = async (req, res) => {
 };
 
 
-// Récupérer tous les commentaires d'une publication
 exports.getCommentairesEtReponses = async (req, res) => {
   try {
     const { publicationId } = req.params;
 
+    // Récupérer tous les commentaires de la publication
     const commentaires = await Commentaire.findAll({
-      where: { publication_id: publicationId, parent_id: null }, // Commentaires principaux
+      where: { publication_id: publicationId },
       include: [
         {
-          model: Commentaire,
-          as: 'reponses', // Alias pour les sous-commentaires (réponses)
-          include: [
-            {
-              model: Etudiant,
-              attributes: ['id','nom', 'username'],
-            },
-          ],
-        },
-        {
           model: Etudiant,
-          attributes: ['id','nom', 'username'],
-        },
-      ],
+          attributes: ['id', 'nom', 'username'],
+        }
+      ]
     });
 
-    res.status(200).json(commentaires);
+    // Construire la structure hiérarchique des commentaires
+    const commentairesAvecReponses = construireArbreCommentaires(commentaires);
+
+    res.status(200).json(commentairesAvecReponses);
   } catch (error) {
-    console.error('Erreur lors de la récupération des commentaires:', error); // Log the actual error
-    res.status(500).json({ error: 'Erreur lors de la récupération des commentaires.' });
+    res.status(500).json({ error: 'Erreur lors de la récupération des commentaires' });
   }
 };
+
+// Fonction récursive pour construire l'arbre des commentaires
+const construireArbreCommentaires = (commentaires, parentId = null) => {
+  const arbre = [];
+
+  commentaires
+    .filter(commentaire => commentaire.parent_id === parentId)
+    .forEach(commentaire => {
+      const enfants = construireArbreCommentaires(commentaires, commentaire.id);
+      if (enfants.length) {
+        commentaire.dataValues.reponses = enfants;
+      }
+      arbre.push(commentaire);
+    });
+
+  return arbre;
+};
+
 
 
 // Supprimer un commentaire

@@ -117,6 +117,15 @@ Commentaires.belongsTo(Commentaires, {
     foreignKey: 'parent_id' 
   });
 
+//Commentaire et etudiant
+Commentaires.belongsTo(Etudiants, {
+  foreignKey: 'etudiant_id' 
+});
+Etudiants.hasMany(Commentaires, {
+  foreignKey: 'etudiant_id' 
+});
+
+
 module.exports = {
   Groupes,
   Etudiants,
@@ -130,7 +139,5 @@ module.exports = {
   Reactions,
   Commentaires,
 };
-
-
 
 
