@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import { SendHorizontal, CircleX } from "lucide-react";
 import axios from "axios";
 import Avatar from './avatar';
+//import EmojiPicker , { EmojiClickData } from 'emoji-picker-react';
 
 type Etudiant = {
   id: number;
@@ -30,6 +31,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
 }) => {
   const [commentaires, setCommentaires] = useState<Commentaire[]>([]);
   const [newComment, setNewComment] = useState("");
+  const [likedCommentaires, setLikedCommentaires] = useState<number[]>([]);
 
   const fetchCommentaires = useCallback(async () => {
     try {
@@ -37,7 +39,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
         `http://localhost:4000/commentaire/${publicationId}`
       );
       const sortedCommentaires = response.data.sort(
-        (a: Commentaire, b: Commentaire) => 
+        (a: Commentaire, b: Commentaire) =>
           new Date(b.date_commentaire).getTime() - new Date(a.date_commentaire).getTime()
       );
       setCommentaires(sortedCommentaires);
@@ -79,36 +81,90 @@ const CommentModal: React.FC<CommentModalProps> = ({
     }
   };
 
+  // Fonction pour gérer le like/délike
+  const handleLikeToggle = async (CommentaireId: number) => {
+    try {
+      const isLiked = likedCommentaires.includes(CommentaireId);
+      const token = localStorage.getItem('token');
+      await axios.post(
+        'http://localhost:4000/reaction',
+        { commentaireId: CommentaireId }, // Correction de la clé
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setLikedCommentaires((prevLikedCommentaires) =>
+        isLiked
+          ? prevLikedCommentaires.filter((id) => id !== CommentaireId)
+          : [...prevLikedCommentaires, CommentaireId]
+      );
+    } catch (error) {
+      console.error('Erreur lors de la gestion de la réaction:', error);
+    }
+  };
+
+  // Fetch reactions (aime)
+  useEffect(() => {
+    const fetchUserReactions = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:4000/reaction', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const userLikedCommentaires = response.data.map((reaction: any) => reaction.publication_id);
+        setLikedCommentaires(userLikedCommentaires);
+      } catch (error) {
+        console.error('Erreur lors du chargement des réactions:', error);
+      }
+    };
+
+    fetchUserReactions();
+  }, []);
+
   if (!isOpen) return null;
 
   // Fonction récursive pour afficher les réponses imbriquées
-  const renderCommentaires = (commentaire: Commentaire, depth = 0) => (
-    <div key={commentaire.id} className={`mb-4 p-3 bg-white rounded-lg shadow ml-${depth * 5}`}>
-      <div className="flex items-start space-x-3">
-        <Avatar userId={commentaire.etudiant.id} size="w-10 h-10" />
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <h6 className="text-sm font-semibold">{commentaire.etudiant.username}</h6>
-            <p className="text-xs text-gray-400">
-              {new Date(commentaire.date_commentaire).toLocaleDateString()}
-            </p>
-          </div>
-          <p className="text-sm mt-2">{commentaire.contenu}</p>
-          <div className="flex items-center space-x-6 mt-4 text-gray-400">
-            <button className="text-sm hover:text-gray-200">J'adore</button>
-            <button className="text-sm hover:text-gray-200">Répondre</button>
-            <button className="text-sm hover:text-gray-200">Signaler</button>
+  const renderCommentaires = (commentaire: Commentaire, depth = 0) => {
+    const isLiked = likedCommentaires.includes(commentaire.id); // Check if the comment is liked
+
+    return (
+      <div key={commentaire.id} className={`mb-4 p-3 bg-white rounded-lg shadow ml-${depth * 5}`}>
+        <div className="flex items-start space-x-3">
+          <Avatar userId={commentaire.etudiant.id} size="w-10 h-10" />
+          <div className="flex-1">
+            <div className="flex items-center justify-between">
+              <h6 className="text-sm font-semibold">{commentaire.etudiant.username}</h6>
+              <p className="text-xs text-gray-400">
+                {new Date(commentaire.date_commentaire).toLocaleDateString()}
+              </p>
+            </div>
+            <p className="text-sm mt-2">{commentaire.contenu}</p>
+            <div className="flex items-center space-x-6 mt-4 text-gray-400">
+              <button 
+                className="flex items-center space-x-2"
+                onClick={() => handleLikeToggle(commentaire.id)}
+              >
+                <span
+                  className={`text-sm transition duration-200 ease-in-out ${
+                    isLiked ? 'text-blue-500' : 'text-gray-400'
+                  } hover:text-blue-500`}
+                >
+                  J'adore
+                </span>
+              </button>
+              <button className="text-sm hover:text-gray-200">Répondre</button>
+              <button className="text-sm hover:text-gray-200">Signaler</button>
+            </div>
           </div>
         </div>
+        {/* Réponses imbriquées */}
+        {commentaire.reponses && commentaire.reponses.length > 0 && (
+          <div className="mt-4">
+            {commentaire.reponses.map((reponse) => renderCommentaires(reponse, depth + 1))}
+          </div>
+        )}
       </div>
-      {/* Réponses imbriquées */}
-      {commentaire.reponses && commentaire.reponses.length > 0 && (
-        <div className="mt-4">
-          {commentaire.reponses.map((reponse) => renderCommentaires(reponse, depth + 1))}
-        </div>
-      )}
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
@@ -120,7 +176,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
           </button>
         </div>
 
-        <div className="max-h-96 overflow-y-auto mb-4">
+        <div className="max-h-96 overflow-y-auto scrollbar-hidden mb-4">
           {commentaires.length > 0 ? (
             commentaires.map((commentaire) => renderCommentaires(commentaire))
           ) : (
