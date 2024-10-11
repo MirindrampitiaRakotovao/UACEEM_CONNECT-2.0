@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { Heart, MessageCircle, BadgeAlert, CircleX, SendHorizontal  } from 'lucide-react';
+import { Heart, MessageCircle, BadgeAlert, CircleX,  Eye , SendHorizontal, LucideAlignHorizontalDistributeStart } from 'lucide-react';
 import Avatar from './avatar';
 import ModalFile from './ModalFile';
 import axios from 'axios';  // Ajouter axios pour la gestion des requêtes API
+import CommentModal from "./CommentModal";
 
 type File = {
   id: number;
@@ -13,14 +14,6 @@ type Etudiant = {
   id: number;
   username: string;
   role: string;
-};
-
-type Commentaire = {
-  id: number;
-  contenu: string;
-  date_commentaire: string;
-  etudiant: Etudiant;
-  reponses?: Commentaire[]; // Réponses aux commentaires
 };
 
 type Publication = {
@@ -43,11 +36,15 @@ const PublicationList: React.FC<PublicationListProps> = ({
   error,
 }) => {
   const [likedPublications, setLikedPublications] = useState<number[]>([]);
-  const [commentaires, setCommentaires] = useState<{ [key: number]: Commentaire[] }>({});
-  const [commentairesVisibles, setCommentairesVisibles] = useState<{ [key: number]: boolean }>({});
+  const [isCommentModalOpen, setIsCommentModalOpen] = useState<{
+    [key: number]: boolean;
+  }>({});
   const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
   const [isFileModalOpen, setIsFileModalOpen] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
+  const [showCommentInput, setShowCommentInput] = useState<{
+    [key: number]: boolean;
+  }>({});
   
 
   const openFileModal = (fileUrl: string) => {
@@ -59,76 +56,6 @@ const PublicationList: React.FC<PublicationListProps> = ({
     setIsFileModalOpen(false);
     setSelectedFileUrl(null);
   };
-
-/* ajout de commentaire  */
-// Fonction pour afficher/masquer le champ de commentaire
-const handleVoirCommentaires = (publicationId: number) => {
-  setCommentairesVisibles((prev) => ({
-    ...prev,
-    [publicationId]: !prev[publicationId], 
-  }));
-
-  if (!commentaires[publicationId]) {
-    fetchCommentaires(publicationId);
-  }
-};
-
-// Fonction pour envoyer le commentaire
-const handleEnvoyerCommentaire = async (publicationId: number) => {
-  const token = localStorage.getItem('token');
-  const etudiantId = localStorage.getItem('etudiantId');
-
-  if (!etudiantId) {
-    console.error('Erreur: identifiant de l\'étudiant non disponible');
-    return;
-  }
-
-  if (newComment[publicationId]) {
-    try {
-      await axios.post(
-        'http://localhost:4000/commentaire',
-        { contenu: newComment[publicationId], publicationId, etudiantId },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setNewComment((prev) => ({ ...prev, [publicationId]: "" }));
-      fetchCommentaires(publicationId);
-    } catch (error : any) {
-      console.error("Erreur lors de l'envoi du commentaire:", error.response?.data || error.message);
-    }
-  }
-};
-
-/* jusque eto */
-  // Fetch reactions (aime)
-  useEffect(() => {
-    const fetchUserReactions = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const response = await axios.get('http://localhost:4000/reaction', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const userLikedPublications = response.data.map((reaction: any) => reaction.publication_id);
-        setLikedPublications(userLikedPublications);
-      } catch (error) {
-        console.error('Erreur lors du chargement des réactions:', error);
-      }
-    };
-
-    fetchUserReactions();
-  }, []);
-
-  const fetchCommentaires = async (publicationId: number) => {
-    try {
-      const response = await axios.get(`http://localhost:4000/commentaire/${publicationId}`);
-      setCommentaires((prev) => ({
-        ...prev,
-        [publicationId]: response.data,
-      }));
-    } catch (error) {
-      console.error('Erreur lors du chargement des commentaires:', error);
-    }
-  };
-
 
   // Fonction pour gérer le like/délike
   const handleLikeToggle = async (publicationId: number) => {
@@ -149,6 +76,77 @@ const handleEnvoyerCommentaire = async (publicationId: number) => {
     } catch (error) {
       console.error('Erreur lors de la gestion de la réaction:', error);
     }
+  };
+
+  // Fetch reactions (aime)
+  useEffect(() => {
+    const fetchUserReactions = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await axios.get('http://localhost:4000/reaction', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const userLikedPublications = response.data.map((reaction: any) => reaction.publication_id);
+        setLikedPublications(userLikedPublications);
+      } catch (error) {
+        console.error('Erreur lors du chargement des réactions:', error);
+      }
+    };
+
+    fetchUserReactions();
+  }, []);
+
+
+  // Gérer l'affichage de l'input de commentaire
+  const handleShowCommentInput = (publicationId: number) => {
+    setShowCommentInput((prev) => ({
+      ...prev,
+      [publicationId]: !prev[publicationId],
+    }));
+  };
+
+  // Envoyer un nouveau commentaire
+  const handleEnvoyerCommentaire = async (publicationId: number) => {
+    const token = localStorage.getItem("token");
+    const etudiantId = localStorage.getItem("etudiantId");
+
+    if (!etudiantId) {
+      console.error("Erreur: identifiant de l'étudiant non disponible");
+      return;
+    }
+
+    if (newComment[publicationId]) {
+      try {
+        await axios.post(
+          "http://localhost:4000/commentaire",
+          { contenu: newComment[publicationId], publicationId, etudiantId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setNewComment((prev) => ({
+          ...prev,
+          [publicationId]: "",
+        }));
+        // Après l'envoi du commentaire, on pourrait recharger les commentaires si nécessaire.
+      } catch (error: any) {
+        console.error("Erreur lors de l'envoi du commentaire:", error.response?.data || error.message);
+      }
+    }
+  };
+
+  // Ouvrir le modal de commentaires
+  const handleOpenCommentModal = (publicationId: number) => {
+    setIsCommentModalOpen((prev) => ({
+      ...prev,
+      [publicationId]: true,
+    }));
+  };
+
+   // Fermer le modal de commentaires
+   const handleCloseCommentModal = (publicationId: number) => {
+    setIsCommentModalOpen((prev) => ({
+      ...prev,
+      [publicationId]: false,
+    }));
   };
 
   const sortedPublications = publications.sort(
@@ -299,11 +297,12 @@ const handleEnvoyerCommentaire = async (publicationId: number) => {
                   </span>
                 </button>
 
+                {/* Bouton pour afficher/masquer l'input de commentaire */}
                 <button
-                  className="flex items-center space-x-2 mx-auto"
-                  onClick={() => handleVoirCommentaires(publication.id)}
+                  className="flex items-center space-x-2"
+                  onClick={() => handleShowCommentInput(publication.id)}
                 >
-                  <MessageCircle className="w-6 h-6 text-gray-500 hover:text-blue-500 cursor-pointer" />
+                  <MessageCircle className="w-6 h-6 text-gray-500" />
                   <span className="text-sm text-gray-500">Commenter</span>
                 </button>
 
@@ -312,100 +311,48 @@ const handleEnvoyerCommentaire = async (publicationId: number) => {
                   <span className="text-sm text-gray-500">Signaler</span>
                 </button>
               </div>
-              {commentairesVisibles[publication.id] && (
-                <div className="mt-4">
-                  {/* Input pour le commentaire */}
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="text"
-                      className="border p-2 rounded-md w-full"
-                      placeholder="Écrivez un commentaire..."
-                      value={newComment[publication.id] || ""}
-                      onChange={(e) =>
-                        setNewComment((prev) => ({ ...prev, [publication.id]: e.target.value }))
-                      }
-                    />
-                    <button onClick={() => handleEnvoyerCommentaire(publication.id)}>
-                      <SendHorizontal className="w-6 h-6 text-blue-500 hover:text-blue-700 cursor-pointer" />
-                    </button>
-                  </div>
 
+              {/* Afficher l'input pour le commentaire */}
+              {showCommentInput[publication.id] && (
+                <div className="mt-4 flex items-center">
+                  <input
+                    type="text"
+                    value={newComment[publication.id] || ""}
+                    onChange={(e) =>
+                      setNewComment((prev) => ({
+                        ...prev,
+                        [publication.id]: e.target.value,
+                      }))
+                    }
+                    placeholder="Ajouter un commentaire..."
+                    className="border border-gray-300 rounded-md p-2 flex-grow mr-2"
+                  />
+                  <button
+                    onClick={() => handleEnvoyerCommentaire(publication.id)}
+                    className="p-2 bg-blue-500 text-white rounded-md"
+                  >
+                    <SendHorizontal/>
+                  </button>
                 </div>
               )}
               <div className="mt-4">
+              
+              {/*Boutton pour afficher le commentaire */}
               <button
-                  className="text-blue-500 text-sm underline"
-                  onClick={() => handleVoirCommentaires(publication.id)}
+                  className="flex items-center space-x-2"
+                  onClick={() => handleOpenCommentModal(publication.id)}
                 >
-                  {commentairesVisibles[publication.id] ? "Masquer les commentaires" : "Voir commentaires..."}
+                  <Eye className="w-6 h-6 text-gray-500" />
+                  <span className="text-sm text-gray-500">Voir les commentaires</span>
                 </button>
-                {commentaires[publication.id] && commentaires[publication.id].length > 0 && (
-                  <div className="mt-4">
-                    {commentaires[publication.id].map((commentaire: Commentaire) => (
-                      <div key={commentaire.id} className="mb-4 p-3 bg-white-100 rounded-lg shadow">
-                        <div className="flex items-start space-x-3">
-                          {/*<Avatar size="w-10 h-10"/> */} 
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between">
-                              <h6 className="text-sm font-semibold">{commentaire.etudiant.username}</h6>
-                              <p className="text-xs text-gray-400">
-                                {new Date(commentaire.date_commentaire).toLocaleDateString()}
-                              </p>
-                            </div>
-                            <p className="text-sm mt-2">{commentaire.contenu}</p>
-                            {/* Action buttons */}
-                            <div className="flex items-center space-x-6 mt-4 text-gray-400">
-                              <button className="text-sm hover:text-gray-200" >
-                                J'adore
-                              </button>
-                              <button className="text-sm hover:text-gray-200" >
-                                Répondre
-                              </button>
-                              <button className="text-sm hover:text-gray-200" >
-                                Signaler
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                   
-                        {/* Separate container for replies */}
-                        {commentaire.reponses && Array.isArray(commentaire.reponses) && commentaire.reponses.length > 0 && (
-                          <div className="mt-4">
-                            {commentaire.reponses.map((reponse: Commentaire) => (
-                              <div key={reponse.id} className="ml-10 mb-6 p-3 bg-white-50  rounded-lg">
-                                <div className="flex items-start space-x-3">
-                                  {/*<Avatar  size="w-8 h-8" /> */} 
-                                  <div className="flex-1">
-                                    <div className="flex items-center justify-between">
-                                      <h6 className="text-xs font-semibold">{reponse.etudiant.username}</h6>
-                                      <p className="text-xs text-gray-400">
-                                        {new Date(reponse.date_commentaire).toLocaleDateString()}
-                                      </p>
-                                    </div>
-                                    <p className="text-xs mt-1">{reponse.contenu}</p>
-                                    {/* Action buttons */}
-                                      <div className="flex items-center space-x-6 mt-4 text-gray-400">
-                                        <button className="text-sm hover:text-gray-200" >
-                                          J'adore
-                                        </button>
-                                        <button className="text-sm hover:text-gray-200" >
-                                          Répondre
-                                        </button>
-                                        <button className="text-sm hover:text-gray-200" >
-                                          Signaler
-                                        </button>
-                                      </div>
-                                  </div>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                )}
+                {/* Afficher le modal de commentaires */}
+              {isCommentModalOpen[publication.id] && (
+                <CommentModal
+                  publicationId={publication.id}
+                  isOpen={isCommentModalOpen[publication.id]}
+                  onClose={() => handleCloseCommentModal(publication.id)}
+                />
+              )}
               </div>
 
             </div>

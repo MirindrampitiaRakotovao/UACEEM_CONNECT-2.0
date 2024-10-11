@@ -18,12 +18,18 @@ export const handleLogin = async (
       });
   
       const data = response.data;
+      console.log(data.etudiant.id);
   
       // Stocker le token JWT dans le localStorage ou dans un state manager comme Redux
       localStorage.setItem('token', data.token);
   
       // Décoder le token JWT pour obtenir le rôle
       const decodedToken = jwtDecode<{ role: string }>(data.token);
+
+      // Vérifier si la réponse contient également l'identifiant de l'étudiant
+      if (data.etudiant && data.etudiant.id) {
+        localStorage.setItem('etudiantId', data.etudiant.id); // Stocker l'ID de l'étudiant
+      }
   
       // Rediriger en fonction du rôle de l'utilisateur
       switch (decodedToken.role) {
