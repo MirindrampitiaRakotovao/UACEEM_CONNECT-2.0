@@ -28,15 +28,21 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({
   return (
     <div>
       <div className="flex items-center mb-2">
-        <Avatar />
-        <div className="flex flex-col ml-5">
-          <span className="text-gray-700 dark:text-gray-300 text-xl font-bold ">
-            {loading ? "Chargement..." : error ? "Erreur" : etudiant?.username}
-          </span>
-          <span className='text-sm text-gray-500'>
-            role
-          </span>
-        </div>
+            {etudiant ? ( // Vérification que etudiant n'est pas null
+          <>
+            <Avatar userId={etudiant.id} /> {/* Utilisation de l'ID de l'utilisateur */}
+            <div className="flex flex-col ml-5">
+              <span className="text-gray-700 dark:text-gray-300 text-xl font-bold">
+                {loading ? "Chargement..." : error ? "Erreur" :etudiant.username}
+              </span>
+              <span className="text-sm text-gray-500">
+                {etudiant.role || "Role non défini"}
+              </span>
+            </div>
+          </>
+        ) : (
+          <span>Chargement...</span> // Affichage d'un état de chargement si etudiant est null
+        )}
         <button
           type="button"
           onClick={handleOpenAudienceModal}

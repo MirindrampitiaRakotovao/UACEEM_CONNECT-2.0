@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Image, PackageOpen, CalendarDays } from 'lucide-react'; // Import icons
-import Avatar from '../avatar';
+//import Avatar from '../avatar';
 import ModalPublication from '../ModalPublication';
 import PublicationList from '../PublicationList'; // Import de PublicationList
 import { getPublicPublications } from '../../services/publicationService';
@@ -82,7 +82,7 @@ const MainContent: React.FC = () => {
       {/* Section de création de publication */}
       <div className="bg-white p-4 rounded-md shadow mb-6 top-0 z-10">
         <div className="flex mb-6">
-          <Avatar />
+           {/*<Avatar /> */} 
           <input
             type="text"
             placeholder="Que voulez-vous faire aujourd'hui ?"

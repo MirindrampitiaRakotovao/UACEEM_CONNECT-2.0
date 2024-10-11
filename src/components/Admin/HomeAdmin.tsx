@@ -83,7 +83,7 @@ const HomeAdmin: React.FC = () => {
           <div className="relative" 
             onMouseEnter={() => showDropdown(setDropdownVisible)} 
           >
-            <Avatar />
+             {etudiant?.id ? <Avatar userId={etudiant.id} /> : null}
             {isDropdownVisible && (
               <div className="absolute right-0 mt-2 w-60 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg"
                 onMouseEnter={() => showDropdown(setDropdownVisible)}
@@ -97,7 +97,7 @@ const HomeAdmin: React.FC = () => {
                 }}
               >
                 <div className="flex p-4 space-x-5 cursor-pointer" onClick={() => goToProfile(navigate)}>
-                  <Avatar />
+                {etudiant?.id ? <Avatar userId={etudiant.id} /> : null}
                   <p className="text-gray-700 dark:text-gray-300">
                       {loading ? "Chargement..." : error ? "Erreur" : etudiant?.username}
                   </p>

@@ -5,9 +5,10 @@ import api from "../axios/axiosConfig";
 
 interface AvatarProps {
   size?: string; // Taille optionnelle pour l'avatar (par défaut "w-16 h-16")
+  userId: number;
 }
 
-const Avatar: React.FC<AvatarProps> = ({ size = "w-10 h-10" }) => {
+const Avatar: React.FC<AvatarProps> = ({ size = "w-10 h-10" , userId }) => {
   const [photo, setPhoto] = useState<string | null>(null);
 
   // Fonction pour calculer la taille de l'icône en fonction du cercle
@@ -19,7 +20,7 @@ const Avatar: React.FC<AvatarProps> = ({ size = "w-10 h-10" }) => {
   useEffect(() => {
     // Appel API pour récupérer la photo de profil de l'utilisateur
     api
-      .get(`etudiant/photo`)
+      .get(`/etudiant/pourAvatar/${userId}`)
       .then((response) => {
         setPhoto(response.data.photo);
         console.log(response.data.photo);
@@ -27,7 +28,7 @@ const Avatar: React.FC<AvatarProps> = ({ size = "w-10 h-10" }) => {
       .catch((error) => {
         console.error("Erreur lors de la récupération de la photo:", error);
       });
-  });
+  }, [userId]);
 
   return (
     <div
@@ -38,7 +39,7 @@ const Avatar: React.FC<AvatarProps> = ({ size = "w-10 h-10" }) => {
     >
       {photo ? (
         <img
-          src={`http://localhost:4000/../uploads/${photo}`}
+          src={`http://localhost:4000/uploads/${photo}`}
           alt="Profile"
           className="object-cover w-full h-full"
         />

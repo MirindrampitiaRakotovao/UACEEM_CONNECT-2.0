@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import HomeAdmin from './Admin/HomeAdmin';
 import HomeEtudiant from './Etudiant/HomeEtudiant';
 import HomeDelegue from './Delegue/HomeDelegue';
-import Avatar from "./avatar";
+//import Avatar from "./avatar";
 import EditProfileModal from './EditProfileModal';
 import { useUserProfile } from '../services/profileService';
 import { getPublicPublicationMe } from '../services/publicationService';
@@ -90,7 +90,7 @@ const UserProfile: React.FC = () => {
               <p className="text-sm text-gray-400">@{etudiant.username}</p>
               <p className="text-sm mt-2">{etudiant.email}</p>
             </div>
-            <Avatar size="w-36 h-36" />
+            {/*<Avatar size="w-36 h-36"/> */}
           </div>
 
           {/* Bouton pour éditer le profil */}

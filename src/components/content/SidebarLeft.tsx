@@ -4,11 +4,13 @@ import { Link } from 'react-router-dom';
 import Avatar from '../avatar';
 
 interface DecodedToken {
+  id: number;
   username: string;
   role: string;
 }
 
 const SidebarLeft: React.FC = () => {
+  const [id, setId] = useState<number | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
 
@@ -20,6 +22,7 @@ const SidebarLeft: React.FC = () => {
       try {
         // Décoder le token JWT pour récupérer le nom d'utilisateur
         const decodedToken = jwtDecode<DecodedToken>(token);
+        setId(decodedToken.id);
         setUsername(decodedToken.username);
         setRole(decodedToken.role);
       } catch (error) {
@@ -32,7 +35,7 @@ const SidebarLeft: React.FC = () => {
     <div className="max-w-sm bg-white shadow-lg rounded-lg overflow-hidden mx-auto my-4 p-6">
       <div className="flex space-x-5">
         {/* Avatar et nom de l'utilisateur */}
-        < Avatar />
+        { id !== null && <Avatar userId={id} /> }
         <div className="div">
         <h2 className="text-xl font-bold">
             {username ? (

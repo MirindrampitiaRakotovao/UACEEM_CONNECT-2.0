@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { fetchStudentProfile } from './authService';
 
 interface Etudiant {
+  id: number;
   nom: string;
   email: string;
   photo: string | null;

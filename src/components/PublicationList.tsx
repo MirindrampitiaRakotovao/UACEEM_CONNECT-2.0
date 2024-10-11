@@ -4,7 +4,6 @@ import Avatar from './avatar';
 import ModalFile from './ModalFile';
 import axios from 'axios';  // Ajouter axios pour la gestion des requêtes API
 
-
 type File = {
   id: number;
   url_fichier: string;
@@ -51,8 +50,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
   const [isFileModalOpen, setIsFileModalOpen] = useState(false);
   const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
   
-  
-  
+
   const openFileModal = (fileUrl: string) => {
     setSelectedFileUrl(fileUrl);
     setIsFileModalOpen(true);
@@ -172,7 +170,7 @@ const handleEnvoyerCommentaire = async (publicationId: number) => {
             <div key={publication.id} className="bg-white p-4 rounded-md shadow mb-4 p-3">
               <div className="flex justify-between items-center mb-4">
                 <div className="flex">
-                  <Avatar />
+                  <Avatar userId={publication.etudiant.id}/>  
                   <div className="ml-4">
                     <h4 className="text-lg font-bold">{publication.etudiant.username}</h4>
                     <p className="text-sm text-gray-400">{publication.etudiant.role}</p>
@@ -347,7 +345,7 @@ const handleEnvoyerCommentaire = async (publicationId: number) => {
                     {commentaires[publication.id].map((commentaire: Commentaire) => (
                       <div key={commentaire.id} className="mb-4 p-3 bg-white-100 rounded-lg shadow">
                         <div className="flex items-start space-x-3">
-                          <Avatar size="w-10 h-10" />
+                          {/*<Avatar size="w-10 h-10"/> */} 
                           <div className="flex-1">
                             <div className="flex items-center justify-between">
                               <h6 className="text-sm font-semibold">{commentaire.etudiant.username}</h6>
@@ -378,7 +376,7 @@ const handleEnvoyerCommentaire = async (publicationId: number) => {
                             {commentaire.reponses.map((reponse: Commentaire) => (
                               <div key={reponse.id} className="ml-10 mb-6 p-3 bg-white-50  rounded-lg">
                                 <div className="flex items-start space-x-3">
-                                  <Avatar size="w-8 h-8" />
+                                  {/*<Avatar  size="w-8 h-8" /> */} 
                                   <div className="flex-1">
                                     <div className="flex items-center justify-between">
                                       <h6 className="text-xs font-semibold">{reponse.etudiant.username}</h6>
