@@ -77,7 +77,7 @@ exports.getPublicPublications = async () => {
       include: [
         {
           model: require('../models/etudiants'),
-          attributes: ['nom', 'username'],
+          attributes: ['id','nom', 'username'],
         },
         {
           model: Fichiers,
@@ -105,7 +105,7 @@ exports.getPublicPublicationsByUser = async (etudiant_id) => {
       include: [
         {
           model: require('../models/etudiants'),
-          attributes: ['nom', 'username'],
+          attributes: ['id','nom', 'username'],
         },
         {
           model: Fichiers,

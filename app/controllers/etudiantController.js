@@ -274,3 +274,26 @@ exports.getAllUsersWithPhotos = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs', error });
   }
 };
+
+/* Fonction pour récupérer un utilisateur par son ID avec sa photo de profil */
+exports.getUserByIdWithPhoto = async (req, res) => {
+  try {
+    const { id } = req.params; // Récupérer l'ID à partir des paramètres de la requête
+
+    // Récupérer un utilisateur avec son ID, sans inclure le mot de passe
+    const utilisateur = await Etudiant.findOne({
+      where: { id }, // Condition pour filtrer par ID
+      attributes: ['id', 'username', 'photo'] // Inclure uniquement l'ID, le nom d'utilisateur et la photo de profil
+    });
+
+    if (!utilisateur) {
+      return res.status(404).json({ message: 'Utilisateur non trouvé' });
+    }
+
+    res.status(200).json({ utilisateur });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur lors de la récupération de l\'utilisateur', error });
+  }
+};
+

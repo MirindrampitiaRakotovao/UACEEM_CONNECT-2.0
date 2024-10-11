@@ -19,25 +19,38 @@ const commentaireRoutes = require('./app/routes/commentaireRoutes');
 /*association*/
 require('./app/models/association');
 
+// Initialisation de l'application express
 const app = express();
 
+// Création du serveur HTTP
+const server = http.createServer(app);
+
+// Initialisation de Socket.io avec le serveur HTTP
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:3000',  // Ton front-end
+    methods: ['GET', 'POST'], // Méthodes HTTP autorisées
+    credentials: true
+  }
+});
+
+// Middleware pour injecter io dans les requêtes
+app.use((req, res, next) => {
+  req.io = io;
+  next();
+});
+
+// Configuration de cors et des middlewares
 app.use(cors({
-  origin: 'http://localhost:3000',  // Specify the frontend origin
-  methods: ['GET', 'POST', 'PUT', 'DELETE'], // Specify allowed HTTP methods
-  credentials: true // Enable credentials (cookies, etc.)
+  origin: 'http://localhost:3000', 
+  methods: ['GET', 'POST', 'PUT', 'DELETE'], 
+  credentials: true 
 }));
+
 app.use(cookieParser());
-
-// Pour les données encodées dans l'URL (formulaires)
 app.use(express.urlencoded({ extended: true }));
-
-// Si tu utilises body-parser (optionnel)
 app.use(bodyParser.json());
-
-// Middleware pour parser les requêtes JSON
 app.use(express.json());
-
-// Middleware pour servir les fichiers statiques (photos de profil, etc.)
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Gestion des erreurs globales
@@ -60,7 +73,7 @@ async function startServer() {
     console.log('Synchronisation des modèles avec la base de données réussie.');
     
     const PORT = process.env.PORT || 4000;
-    app.listen(PORT, () => {
+    server.listen(PORT, () => {
       console.log(`Le serveur tourne sur le port ${PORT}`);
     });
     
@@ -85,3 +98,4 @@ app.use('/partageGroupe' , groupePartageRoutes);
 app.use('/publication', publicationsRoutes);
 app.use('/reaction' , reactionRoutes);
 app.use('/commentaire' , commentaireRoutes);
+

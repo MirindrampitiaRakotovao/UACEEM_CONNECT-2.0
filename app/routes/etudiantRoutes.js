@@ -35,6 +35,9 @@ router.get('/afficherBio', authenticateToken, etudiantController.getBio);
 //afficher tout les photo de profil des etudiants
 router.get('/toutPhotodeProfil' , etudiantController.getAllUsersWithPhotos);
 
+//afficher tout les photo de profil d'un  etudiants
+router.get('/pourAvatar/:id' , etudiantController.getUserByIdWithPhoto);
+
 
 
 module.exports = router;

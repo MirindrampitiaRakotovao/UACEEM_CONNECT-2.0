@@ -25,6 +25,13 @@ exports.createPublication = async (req, res) => {
     // Call the service to create the publication
     const publication = await publicationService.createPublication(req, req.files['fichiers'], photo);
 
+    req.io.emit('newPublication', { 
+      message: 'Nouvelle publication créée', 
+      publication 
+    });
+    console.log('Événement WebSocket émis : nouvelle publication', publication);
+    
+
     return res.status(200).json({ message: 'Publication créée avec succès', publication });
   } catch (error) {
     return res.status(400).json({ message: error.message });

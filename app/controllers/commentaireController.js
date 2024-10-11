@@ -39,13 +39,13 @@ exports.getCommentairesEtReponses = async (req, res) => {
           include: [
             {
               model: Etudiant,
-              attributes: ['nom', 'username'],
+              attributes: ['id','nom', 'username'],
             },
           ],
         },
         {
           model: Etudiant,
-          attributes: ['nom', 'username'],
+          attributes: ['id','nom', 'username'],
         },
       ],
     });
