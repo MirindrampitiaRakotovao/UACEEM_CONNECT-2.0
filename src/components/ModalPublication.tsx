@@ -211,7 +211,7 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
                       className="text-red-500 hover:text-red-700 ml-4"
                       onClick={() => removeFile(index)} // Bouton pour retirer le fichier
                     >
-                      <LucideTrash />
+                      <LucideTrash size={15} />
                     </button>
                   </li>
                 ))}
