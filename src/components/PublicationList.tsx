@@ -83,9 +83,13 @@ const PublicationList: React.FC<PublicationListProps> = ({
   };
 
   // Fonction pour ajouter un emoji à la légende
-  const handleEmojiClick = (emojiObject: EmojiClickData) => {
-    setNewComment((prev) => prev + emojiObject.emoji);
+  const handleEmojiClick = (emojiObject: EmojiClickData, publicationId: number) => {
+    setNewComment((prevComments) => ({
+      ...prevComments,
+      [publicationId]: (prevComments[publicationId] || '') + emojiObject.emoji,
+    }));
   };
+  
 
   // Fetch reactions (aime)
   useEffect(() => {
@@ -360,7 +364,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
                   placeholder="Ajouter un commentaire..."
                   className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3 text-gray" 
                 />
-                <button >
+                <button className="emoji-picker-button">
                   <Smile 
                     size={35} 
                     className=" text-gray-500 hover:text-blue-500 cursor-pointer" 
@@ -373,7 +377,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
                     ref={emojiPickerRef}
                     onMouseLeave={() => setShowEmojiPicker(false)} // Ferme le sélecteur d'emojis lorsque la souris quitte la zone
                   >
-                    <EmojiPicker onEmojiClick={handleEmojiClick} />
+                    <EmojiPicker onEmojiClick={(emojiObject) => handleEmojiClick(emojiObject, publication.id)} />
                   </div>
                 )}
 
