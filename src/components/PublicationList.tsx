@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Heart, MessageCircle, BadgeAlert, CircleX,  Eye , SendHorizontal } from 'lucide-react';
+import React, { useState, useRef, useEffect } from "react";
+import { Heart, MessageCircle, BadgeAlert, CircleX,  Eye , SendHorizontal, Smile } from 'lucide-react';
 import Avatar from './avatar';
 import ModalFile from './ModalFile';
 import axios from 'axios';  // Ajouter axios pour la gestion des requêtes API
 import CommentModal from "./CommentModal";
+import EmojiPicker , { EmojiClickData } from 'emoji-picker-react';
 
 type File = {
   id: number;
@@ -45,6 +46,10 @@ const PublicationList: React.FC<PublicationListProps> = ({
   const [showCommentInput, setShowCommentInput] = useState<{
     [key: number]: boolean;
   }>({});
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // Ref pour le conteneur de l'emoji picker
+  const emojiPickerRef = useRef<HTMLDivElement | null>(null);
   
   const openFileModal = (fileUrl: string) => {
     setSelectedFileUrl(fileUrl);
@@ -75,6 +80,11 @@ const PublicationList: React.FC<PublicationListProps> = ({
     } catch (error) {
       console.error('Erreur lors de la gestion de la réaction:', error);
     }
+  };
+
+  // Fonction pour ajouter un emoji à la légende
+  const handleEmojiClick = (emojiObject: EmojiClickData) => {
+    setNewComment((prev) => prev + emojiObject.emoji);
   };
 
   // Fetch reactions (aime)
@@ -156,6 +166,25 @@ const PublicationList: React.FC<PublicationListProps> = ({
   const sortedPublications = publications.sort(
     (a, b) => new Date(b.date_publication).getTime() - new Date(a.date_publication).getTime()
   );
+
+  // Fonction pour détecter le clic en dehors du sélecteur d'emojis
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   return (
     <div className="publication-list mt-8 ">
@@ -331,6 +360,23 @@ const PublicationList: React.FC<PublicationListProps> = ({
                   placeholder="Ajouter un commentaire..."
                   className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3 text-gray" 
                 />
+                <button >
+                  <Smile 
+                    size={35} 
+                    className=" text-gray-500 hover:text-blue-500 cursor-pointer" 
+                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                  />
+                </button>
+                {showEmojiPicker && (
+                  <div
+                    className="emoji-picker-container mt-2"
+                    ref={emojiPickerRef}
+                    onMouseLeave={() => setShowEmojiPicker(false)} // Ferme le sélecteur d'emojis lorsque la souris quitte la zone
+                  >
+                    <EmojiPicker onEmojiClick={handleEmojiClick} />
+                  </div>
+                )}
+
                 <button
                   onClick={() => handleEnvoyerCommentaire(publication.id)}
                 >

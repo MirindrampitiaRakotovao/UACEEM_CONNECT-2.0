@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { SendHorizontal, CircleX } from "lucide-react";
+import React, { useState,useRef, useEffect, useCallback } from "react";
+import { SendHorizontal, CircleX, Smile } from "lucide-react";
 import axios from "axios";
 import Avatar from './avatar';
-//import EmojiPicker , { EmojiClickData } from 'emoji-picker-react';
+import EmojiPicker , { EmojiClickData } from 'emoji-picker-react';
 
 type Etudiant = {
   id: number;
@@ -32,6 +32,10 @@ const CommentModal: React.FC<CommentModalProps> = ({
   const [commentaires, setCommentaires] = useState<Commentaire[]>([]);
   const [newComment, setNewComment] = useState("");
   const [likedCommentaires, setLikedCommentaires] = useState<number[]>([]);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // Ref pour le conteneur de l'emoji picker
+  const emojiPickerRef = useRef<HTMLDivElement | null>(null);
 
   const fetchCommentaires = useCallback(async () => {
     try {
@@ -102,6 +106,11 @@ const CommentModal: React.FC<CommentModalProps> = ({
     }
   };
 
+  // Fonction pour ajouter un emoji à la légende
+  const handleEmojiClick = (emojiObject: EmojiClickData) => {
+    setNewComment((prev) => prev + emojiObject.emoji);
+  };
+  
   // Fetch reactions (aime)
   useEffect(() => {
     const fetchUserReactions = async () => {
@@ -119,6 +128,25 @@ const CommentModal: React.FC<CommentModalProps> = ({
 
     fetchUserReactions();
   }, []);
+
+  // Fonction pour détecter le clic en dehors du sélecteur d'emojis
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
 
   if (!isOpen) return null;
 
@@ -183,7 +211,6 @@ const CommentModal: React.FC<CommentModalProps> = ({
             <p>Aucun commentaire pour cette publication.</p>
           )}
         </div>
-
         <div className="mt-4 flex items-center">
           <input
             type="text"
@@ -192,9 +219,27 @@ const CommentModal: React.FC<CommentModalProps> = ({
             placeholder="Ajouter un commentaire..."
             className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3 text-gray"
           />
+          <button >
+            <Smile 
+              size={35} 
+              className=" text-gray-500 hover:text-blue-500 cursor-pointer" 
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            />
+          </button>
+          {showEmojiPicker && (
+            <div
+              className="emoji-picker-container mt-2"
+              ref={emojiPickerRef}
+              onMouseLeave={() => setShowEmojiPicker(false)} // Ferme le sélecteur d'emojis lorsque la souris quitte la zone
+            >
+              <EmojiPicker onEmojiClick={handleEmojiClick} />
+            </div>
+          )}
+
           <button onClick={handleEnvoyerCommentaire}>
             <SendHorizontal size={35} className=" text-gray-500 hover:text-blue-500 cursor-pointer" />
           </button>
+
         </div>
       </div>
     </div>
