@@ -1,7 +1,5 @@
-<div className="mt-4">
-              <button
-                  className="text-blue-500 text-sm underline"
-                  onClick={() => handleVoirCommentaires(publication.id)}
-                >
-                  {commentairesVisibles[publication.id] ? "Masquer les commentaires" : "Voir commentaires..."}
-                </button>
+<Smile
+              className="ml-auto mt-3 cursor-pointer"
+              size={32}
+              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          />

@@ -33,6 +33,9 @@ const CommentModal: React.FC<CommentModalProps> = ({
   const [newComment, setNewComment] = useState("");
   const [likedCommentaires, setLikedCommentaires] = useState<number[]>([]);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showReplyEmojiPicker, setShowReplyEmojiPicker] = useState(false); // Track for specific replies
+  const [replyingToCommentId, setReplyingToCommentId] = useState<number | null>(null);
+  const [newReply, setNewReply] = useState<string>("");
 
   // Ref pour le conteneur de l'emoji picker
   const emojiPickerRef = useRef<HTMLDivElement | null>(null);
@@ -106,11 +109,15 @@ const CommentModal: React.FC<CommentModalProps> = ({
     }
   };
 
-  // Fonction pour ajouter un emoji à la légende
+  // Fonction pour ajouter un emoji 
   const handleEmojiClick = (emojiObject: EmojiClickData) => {
     setNewComment((prev) => prev + emojiObject.emoji);
   };
   
+  const handleReplyEmojiClick = (emojiObject: EmojiClickData) => {
+    setNewReply((prev) => prev + emojiObject.emoji);
+  };
+
   // Fetch reactions (aime)
   useEffect(() => {
     const fetchUserReactions = async () => {
@@ -147,12 +154,61 @@ const CommentModal: React.FC<CommentModalProps> = ({
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [showEmojiPicker]);
+    
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowReplyEmojiPicker(false);
+      }
+    };
+
+    if (showReplyEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  },[showReplyEmojiPicker]);
 
   if (!isOpen) return null;
 
+  //Fonction pour répondre à un commentaire
+  const handleEnvoyerReponse = async (commentaireId: number) => {
+    const token = localStorage.getItem("token");
+    const etudiantId = localStorage.getItem("etudiantId");
+  
+    if (!etudiantId) {
+      console.error("Erreur: identifiant de l'étudiant non disponible");
+      return;
+    }
+  
+    if (newReply) {
+      try {
+        await axios.post(
+          `http://localhost:4000/commentaire/reponse`, // URL de la route pour envoyer une réponse
+          { contenu: newReply, commentaireId, etudiantId },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        setNewReply("");
+        setReplyingToCommentId(null);  // Masquer l'input après l'envoi
+        fetchCommentaires();
+      } catch (error: any) {
+        console.error(
+          "Erreur lors de l'envoi de la réponse:",
+          error.response?.data || error.message
+        );
+      }
+    }
+  };
+  
+
   // Fonction récursive pour afficher les réponses imbriquées
   const renderCommentaires = (commentaire: Commentaire, depth = 0) => {
-    const isLiked = likedCommentaires.includes(commentaire.id); // Check if the comment is liked
+    const isLiked = likedCommentaires.includes(commentaire.id);
+    const isReplying = replyingToCommentId === commentaire.id;
 
     return (
       <div key={commentaire.id} className={`mb-4 p-3 bg-white rounded-lg shadow ml-${depth * 5}`}>
@@ -173,15 +229,55 @@ const CommentModal: React.FC<CommentModalProps> = ({
               >
                 <span
                   className={`text-sm transition duration-200 ease-in-out ${
-                    isLiked ? 'text-blue-500' : 'text-gray-400'
-                  } hover:text-blue-500`}
+                    isLiked ? 'text-red-500' : 'text-gray-400'
+                  } hover:text-red-500`}
                 >
                   J'adore
                 </span>
               </button>
-              <button className="text-sm hover:text-gray-200">Répondre</button>
+              <button 
+                className="text-sm hover:text-gray-200"
+                onClick={() => setReplyingToCommentId(commentaire.id)} // Affiche l'input pour ce commentaire
+              >
+                Répondre
+              </button>
               <button className="text-sm hover:text-gray-200">Signaler</button>
             </div>
+            {/* Afficher l'input de réponse si l'utilisateur a cliqué sur "Répondre" */}
+            {isReplying && (
+              <div className="mt-3 flex items-center">
+                <input
+                  type="text"
+                  value={newReply}
+                  onChange={(e) => setNewReply(e.target.value)}
+                  placeholder="Votre réponse..."
+                  className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3"
+                />
+                <div className="flex items-center space-x-2">
+                  <div className="relative">
+                    <Smile 
+                      size={25} 
+                      className="text-gray-500 hover:text-blue-500 cursor-pointer" 
+                      onClick={() => setShowReplyEmojiPicker(!showReplyEmojiPicker)}
+                    />
+                    {showReplyEmojiPicker && (
+                      <div
+                        className="emoji-picker-container mt-2 absolute right-0"
+                        ref={emojiPickerRef}
+                        onMouseLeave={() => setShowReplyEmojiPicker(false)} // Hide when the mouse leaves
+                      >
+                        <EmojiPicker onEmojiClick={handleReplyEmojiClick} />
+                      </div>
+                    )}
+                  </div>
+                  <button onClick={() => handleEnvoyerReponse(commentaire.id)}>
+                    <SendHorizontal size={25} className="text-gray-500 hover:text-blue-500 cursor-pointer" />
+                  </button>
+                </div>
+              </div>
+            )}
+
+
           </div>
         </div>
         {/* Réponses imbriquées */}
@@ -210,6 +306,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
           ) : (
             <p>Aucun commentaire pour cette publication.</p>
           )}
+
         </div>
         <div className="mt-4 flex items-center">
           <input
@@ -219,13 +316,11 @@ const CommentModal: React.FC<CommentModalProps> = ({
             placeholder="Ajouter un commentaire..."
             className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3 text-gray"
           />
-          <button >
             <Smile 
               size={35} 
               className=" text-gray-500 hover:text-blue-500 cursor-pointer" 
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             />
-          </button>
           {showEmojiPicker && (
             <div
               className="emoji-picker-container mt-2"
