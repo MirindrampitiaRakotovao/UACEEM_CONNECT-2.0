@@ -42,7 +42,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
   }>({});
   const [newComment, setNewComment] = useState<{ [key: number]: string }>({});
   const [isFileModalOpen, setIsFileModalOpen] = useState(false);
-  const [selectedFileUrl, setSelectedFileUrl] = useState<string | null>(null);
+  const [selectedFiles, setSelectedFiles] = useState<File[] | null>(null);
   const [showCommentInput, setShowCommentInput] = useState<{
     [key: number]: boolean;
   }>({});
@@ -51,14 +51,14 @@ const PublicationList: React.FC<PublicationListProps> = ({
   // Ref pour le conteneur de l'emoji picker
   const emojiPickerRef = useRef<HTMLDivElement | null>(null);
   
-  const openFileModal = (fileUrl: string) => {
-    setSelectedFileUrl(fileUrl);
+  const openFileModal = (files: File[]) => {
+    setSelectedFiles(files);
     setIsFileModalOpen(true);
   };
 
   const closeFileModal = () => {
     setIsFileModalOpen(false);
-    setSelectedFileUrl(null);
+    setSelectedFiles(null);
   };
 
   // Fonction pour gérer le like/délike
@@ -228,7 +228,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
                     src={publication.fichiers[0].url_fichier}
                     alt="Fichier unique"
                     className="w-full max-w-lg h-auto object-cover rounded-2xl cursor-pointer p-0.5"
-                    onClick={() => openFileModal(publication.fichiers[0].url_fichier)}
+                    onClick={() => openFileModal(publication.fichiers)}
                   />
                 </div>
               )}
@@ -242,7 +242,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
                       src={file.url_fichier}
                       alt={`Fichier supplémentaire ${index + 1}`}
                       className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
-                      onClick={() => openFileModal(file.url_fichier)}
+                      onClick={() => openFileModal(publication.fichiers)}
                     />
                   ))}
                 </div>
@@ -256,7 +256,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
                       src={publication.fichiers[0].url_fichier}
                       alt="Premier fichier"
                       className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
-                      onClick={() => openFileModal(publication.fichiers[0].url_fichier)}
+                      onClick={() => openFileModal(publication.fichiers)}
                     />
                   </div>
                   <div className="grid grid-rows-2 gap-2">
@@ -264,13 +264,13 @@ const PublicationList: React.FC<PublicationListProps> = ({
                       src={publication.fichiers[1].url_fichier}
                       alt="Deuxième fichier"
                       className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
-                      onClick={() => openFileModal(publication.fichiers[1].url_fichier)}
+                      onClick={() => openFileModal(publication.fichiers)}
                     />
                     <img
                       src={publication.fichiers[2].url_fichier}
                       alt="Troisième fichier"
                       className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
-                      onClick={() => openFileModal(publication.fichiers[2].url_fichier)}
+                      onClick={() => openFileModal(publication.fichiers)}
                     />
                   </div>
                 </div>
@@ -284,7 +284,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
                       src={publication.fichiers[0].url_fichier}
                       alt="Premier fichier"
                       className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
-                      onClick={() => openFileModal(publication.fichiers[0].url_fichier)}
+                      onClick={() => openFileModal(publication.fichiers)}
                     />
                   </div>
                   <div className="grid grid-rows-2 gap-2">
@@ -292,11 +292,11 @@ const PublicationList: React.FC<PublicationListProps> = ({
                       src={publication.fichiers[1].url_fichier}
                       alt="Deuxième fichier"
                       className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
-                      onClick={() => openFileModal(publication.fichiers[1].url_fichier)}
+                      onClick={() => openFileModal(publication.fichiers)}
                     />
                     <div
                       className="relative w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5 bg-gray-200 flex items-center justify-center"
-                      onClick={() => openFileModal(publication.fichiers[3].url_fichier)}
+                      onClick={() => openFileModal(publication.fichiers)}
                     >
                       <img
                         src={publication.fichiers[2].url_fichier}
@@ -413,8 +413,8 @@ const PublicationList: React.FC<PublicationListProps> = ({
         })
       )}
 
-      {selectedFileUrl && (
-        <ModalFile isOpen={isFileModalOpen} onClose={closeFileModal} fileUrl={selectedFileUrl} />
+      {selectedFiles && (
+        <ModalFile isOpen={isFileModalOpen} onClose={closeFileModal} files={selectedFiles} />
       )}
     </div>
   );
