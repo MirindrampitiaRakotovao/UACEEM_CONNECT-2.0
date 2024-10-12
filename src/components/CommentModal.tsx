@@ -223,18 +223,18 @@ const CommentModal: React.FC<CommentModalProps> = ({
             </div>
             <p className="text-sm mt-2">{commentaire.contenu}</p>
             <div className="flex items-center space-x-6 mt-4 text-gray-400">
-              <button 
-                className="flex items-center space-x-2"
-                onClick={() => handleLikeToggle(commentaire.id)}
+            <button 
+              className="flex items-center space-x-2"
+              onClick={() => handleLikeToggle(commentaire.id)}
+            >
+              <span
+                className={`text-sm transition duration-200 ease-in-out ${
+                  isLiked ? 'text-red-500' : 'text-gray-400'
+                } hover:text-red-500`}
               >
-                <span
-                  className={`text-sm transition duration-200 ease-in-out ${
-                    isLiked ? 'text-red-500' : 'text-gray-400'
-                  } hover:text-red-500`}
-                >
-                  J'adore
-                </span>
-              </button>
+                J'adore
+              </span>
+            </button>
               <button 
                 className="text-sm hover:text-gray-200"
                 onClick={() => setReplyingToCommentId(commentaire.id)} // Affiche l'input pour ce commentaire
@@ -316,21 +316,22 @@ const CommentModal: React.FC<CommentModalProps> = ({
             placeholder="Ajouter un commentaire..."
             className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3 text-gray"
           />
-            <Smile 
+          <div className="relative">
+          <Smile 
               size={35} 
               className=" text-gray-500 hover:text-blue-500 cursor-pointer" 
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
             />
-          {showEmojiPicker && (
-            <div
-              className="emoji-picker-container mt-2"
-              ref={emojiPickerRef}
-              onMouseLeave={() => setShowEmojiPicker(false)} // Ferme le sélecteur d'emojis lorsque la souris quitte la zone
-            >
-              <EmojiPicker onEmojiClick={handleEmojiClick} />
-            </div>
-          )}
-
+            {showEmojiPicker && (
+              <div
+                className="emoji-picker-container mt-2 absolute right-0"
+                ref={emojiPickerRef}
+                onMouseLeave={() => setShowEmojiPicker(false)} // Ferme le sélecteur d'emojis lorsque la souris quitte la zone
+              >
+                <EmojiPicker onEmojiClick={handleEmojiClick} />
+              </div>
+            )}
+          </div>
           <button onClick={handleEnvoyerCommentaire}>
             <SendHorizontal size={35} className=" text-gray-500 hover:text-blue-500 cursor-pointer" />
           </button>

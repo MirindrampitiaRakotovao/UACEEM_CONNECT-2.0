@@ -1,5 +1,12 @@
-<Smile
-              className="ml-auto mt-3 cursor-pointer"
-              size={32}
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-          />
+<button 
+  className="flex items-center space-x-2"
+  onClick={() => handleLikeToggle(commentaire.id)}
+>
+  <span
+    className={`text-sm transition duration-200 ease-in-out ${
+      isLiked ? 'text-red-500' : 'text-gray-400'
+    } hover:text-red-500`}
+  >
+    J'adore
+  </span>
+</button>

@@ -364,23 +364,22 @@ const PublicationList: React.FC<PublicationListProps> = ({
                   placeholder="Ajouter un commentaire..."
                   className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3 text-gray" 
                 />
-                <button className="emoji-picker-button">
+                <div className="relative">
                   <Smile 
-                    size={35} 
-                    className=" text-gray-500 hover:text-blue-500 cursor-pointer" 
-                    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                  />
-                </button>
-                {showEmojiPicker && (
-                  <div
-                    className="emoji-picker-container mt-2"
-                    ref={emojiPickerRef}
-                    onMouseLeave={() => setShowEmojiPicker(false)} // Ferme le sélecteur d'emojis lorsque la souris quitte la zone
-                  >
-                    <EmojiPicker onEmojiClick={(emojiObject) => handleEmojiClick(emojiObject, publication.id)} />
-                  </div>
-                )}
-
+                      size={35} 
+                      className=" text-gray-500 hover:text-blue-500 cursor-pointer" 
+                      onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+                    />
+                  {showEmojiPicker && (
+                    <div
+                      className="emoji-picker-container mt-2 absolute right-0"
+                      ref={emojiPickerRef}
+                      onMouseLeave={() => setShowEmojiPicker(false)} // Ferme le sélecteur d'emojis lorsque la souris quitte la zone
+                    >
+                      <EmojiPicker onEmojiClick={(emojiObject) => handleEmojiClick(emojiObject, publication.id)} />
+                    </div>
+                  )}
+                </div>
                 <button
                   onClick={() => handleEnvoyerCommentaire(publication.id)}
                 >
