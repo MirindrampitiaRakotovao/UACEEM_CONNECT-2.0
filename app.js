@@ -15,6 +15,7 @@ const groupePartageRoutes = require('./app/routes/groupePartageRoutes')
 const publicationsRoutes = require('./app/routes/publicationRoutes');
 const reactionRoutes = require('./app/routes/reactionRoutes');
 const commentaireRoutes = require('./app/routes/commentaireRoutes');
+const messagePriveeRoutes = require('./app/routes/messagePriveeRoutes');
 
 /*association*/
 require('./app/models/association');
@@ -98,4 +99,5 @@ app.use('/partageGroupe' , groupePartageRoutes);
 app.use('/publication', publicationsRoutes);
 app.use('/reaction' , reactionRoutes);
 app.use('/commentaire' , commentaireRoutes);
+app.use('/messagePrivee' , messagePriveeRoutes);
 
