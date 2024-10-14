@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Heart, MessageCircle, BadgeAlert, CircleX,  Eye , SendHorizontal, Smile, Paperclip} from 'lucide-react';
+import { Heart, MessageCircle, BadgeAlert, CircleX,  Eye , SendHorizontal, Smile} from 'lucide-react';
 import Avatar from './avatar';
 import ModalFile from './ModalFile';
 import axios from 'axios';  // Ajouter axios pour la gestion des requêtes API
@@ -190,10 +190,6 @@ const PublicationList: React.FC<PublicationListProps> = ({
     };
   }, [showEmojiPicker]);
 
-  // Fonction pour vérifier si le fichier est une image
-const isImage = (url: string) => {
-  return /\.(jpg|jpeg|png|gif|bmp|svg)$/.test(url);
-};
 
   return (
     <div className="publication-list mt-8 ">
@@ -317,26 +313,6 @@ const isImage = (url: string) => {
                     </div>
                   </div>
                 )}
-
-                {/* Cas pour les autre files */}
-                {publication.fichiers.map((file, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    {/* Vérifie si le fichier est une image ou non */}
-                    {isImage(file.url_fichier) ? (
-                      <img
-                        src={file.url_fichier}
-                        alt={`Fichier ${index + 1}`}
-                        className="w-full max-w-lg h-auto object-cover rounded-2xl cursor-pointer"
-                        onClick={() => openFileModal([file])}
-                      />
-                    ) : (
-                      <div className="flex items-center">
-                        <Paperclip className="w-6 h-6 text-gray-500" />
-                        <span className="text-sm text-gray-500 ml-2">{`Fichier ${index + 1}`}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
             </div>
 
               <div className="flex justify-between mt-6">
