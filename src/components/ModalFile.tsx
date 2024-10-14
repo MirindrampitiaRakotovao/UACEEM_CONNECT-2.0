@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { CircleX } from 'lucide-react';
+import { CircleX, Download } from 'lucide-react';
 
 interface File {
   url_fichier: string;
@@ -54,13 +54,23 @@ const ModalFile: React.FC<ModalFileProps> = ({ isOpen, onClose, files }) => {
 
           <div className="p-6 flex flex-col space-y-4 justify-center">
             {files.map((file, index) => (
-              <img
-                key={index}
-                src={file.url_fichier}
-                alt={`Fichier ${index + 1}`}
-                className="w-full max-w-lg h-auto object-cover rounded-2xl cursor-pointer p-0.5"
-                onClick={() => setFullscreenImage(file.url_fichier)} // Click pour afficher en plein écran
-              />
+              <div key={index} className="flex flex-col items-center">
+                <img
+                  src={file.url_fichier}
+                  alt={`Fichier ${index + 1}`}
+                  className="w-full max-w-lg h-auto object-cover rounded-2xl cursor-pointer p-0.5"
+                  onClick={() => setFullscreenImage(file.url_fichier)} // Click pour afficher en plein écran
+                />
+                {/* Ajouter un bouton de téléchargement */}
+                <a
+                  href={file.url_fichier}
+                  download={`image_${index + 1}`}
+                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                >
+                  <Download className="inline mr-2" size={20} />
+                  Télécharger
+                </a>
+              </div>
             ))}
           </div>
         </div>
