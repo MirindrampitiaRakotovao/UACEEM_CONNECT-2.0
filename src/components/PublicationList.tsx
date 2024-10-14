@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Heart, MessageCircle, BadgeAlert, CircleX,  Eye , SendHorizontal, Smile } from 'lucide-react';
+import { Heart, MessageCircle, BadgeAlert, CircleX,  Eye , SendHorizontal, Smile, Paperclip} from 'lucide-react';
 import Avatar from './avatar';
 import ModalFile from './ModalFile';
 import axios from 'axios';  // Ajouter axios pour la gestion des requêtes API
@@ -190,6 +190,11 @@ const PublicationList: React.FC<PublicationListProps> = ({
     };
   }, [showEmojiPicker]);
 
+  // Fonction pour vérifier si le fichier est une image
+const isImage = (url: string) => {
+  return /\.(jpg|jpeg|png|gif|bmp|svg)$/.test(url);
+};
+
   return (
     <div className="publication-list mt-8 ">
       {loading ? (
@@ -219,99 +224,119 @@ const PublicationList: React.FC<PublicationListProps> = ({
               </div>
 
               <p className="mt-2 mb-4">{publication.legende}</p>
-            {/* Gestion des fichiers */}
-            <div className={`grid ${publication.fichiers.length === 1 ? 'grid-cols-1 justify-items-center' : ''}`}>
-              {/* Cas pour une seule image (centrée) */}
-              {publication.fichiers.length === 1 && (
-                <div className="flex justify-center">
-                  <img
-                    src={publication.fichiers[0].url_fichier}
-                    alt="Fichier unique"
-                    className="w-full max-w-lg h-auto object-cover rounded-2xl cursor-pointer p-0.5"
-                    onClick={() => openFileModal(publication.fichiers)}
-                  />
-                </div>
-              )}
-
-              {/* Cas pour 2 images (côte à côte) */}
-              {publication.fichiers.length === 2 && (
-                <div className="grid grid-cols-2 gap-2">
-                  {publication.fichiers.map((file, index) => (
-                    <img
-                      key={index}
-                      src={file.url_fichier}
-                      alt={`Fichier supplémentaire ${index + 1}`}
-                      className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
-                      onClick={() => openFileModal(publication.fichiers)}
-                    />
-                  ))}
-                </div>
-              )}
-
-              {/* Cas pour 3 images (une à gauche, deux empilées à droite) */}
-              {publication.fichiers.length === 3 && (
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="col-span-1">
+              {/* Gestion des fichiers */}
+              <div className={`grid ${publication.fichiers.length === 1 ? 'grid-cols-1 justify-items-center' : ''}`}>
+                {/* Cas pour une seule image (centrée) */}
+                {publication.fichiers.length === 1 && (
+                  <div className="flex justify-center">
                     <img
                       src={publication.fichiers[0].url_fichier}
-                      alt="Premier fichier"
-                      className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
+                      alt=""
+                      className="w-full max-w-lg h-auto object-cover rounded-2xl cursor-pointer p-0.5"
                       onClick={() => openFileModal(publication.fichiers)}
                     />
                   </div>
-                  <div className="grid grid-rows-2 gap-2">
-                    <img
-                      src={publication.fichiers[1].url_fichier}
-                      alt="Deuxième fichier"
-                      className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
-                      onClick={() => openFileModal(publication.fichiers)}
-                    />
-                    <img
-                      src={publication.fichiers[2].url_fichier}
-                      alt="Troisième fichier"
-                      className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
-                      onClick={() => openFileModal(publication.fichiers)}
-                    />
-                  </div>
-                </div>
-              )}
+                )}
 
-              {/* Cas pour 4 images ou plus (trois affichées, une superposition pour les images restantes) */}
-              {publication.fichiers.length > 3 && (
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="col-span-1">
-                    <img
-                      src={publication.fichiers[0].url_fichier}
-                      alt="Premier fichier"
-                      className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
-                      onClick={() => openFileModal(publication.fichiers)}
-                    />
+                {/* Cas pour 2 images (côte à côte) */}
+                {publication.fichiers.length === 2 && (
+                  <div className="grid grid-cols-2 gap-2">
+                    {publication.fichiers.map((file, index) => (
+                      <img
+                        key={index}
+                        src={file.url_fichier}
+                        alt=""
+                        className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
+                        onClick={() => openFileModal(publication.fichiers)}
+                      />
+                    ))}
                   </div>
-                  <div className="grid grid-rows-2 gap-2">
-                    <img
-                      src={publication.fichiers[1].url_fichier}
-                      alt="Deuxième fichier"
-                      className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
-                      onClick={() => openFileModal(publication.fichiers)}
-                    />
-                    <div
-                      className="relative w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5 bg-gray-200 flex items-center justify-center"
-                      onClick={() => openFileModal(publication.fichiers)}
-                    >
+                )}
+
+                {/* Cas pour 3 images (une à gauche, deux empilées à droite) */}
+                {publication.fichiers.length === 3 && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="col-span-1">
+                      <img
+                        src={publication.fichiers[0].url_fichier}
+                        alt=""
+                        className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
+                        onClick={() => openFileModal(publication.fichiers)}
+                      />
+                    </div>
+                    <div className="grid grid-rows-2 gap-2">
+                      <img
+                        src={publication.fichiers[1].url_fichier}
+                        alt=""
+                        className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
+                        onClick={() => openFileModal(publication.fichiers)}
+                      />
                       <img
                         src={publication.fichiers[2].url_fichier}
-                        alt="Troisième fichier"
-                        className="absolute top-0 left-0 w-full h-full object-cover rounded-2xl opacity-50"
+                        alt=""
+                        className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
+                        onClick={() => openFileModal(publication.fichiers)}
                       />
-                      {publication.fichiers.length > 4 && (
-                        <div className="absolute text-4xl text-white font-bold">
-                          +{publication.fichiers.length - 3}
-                        </div>
-                      )}
                     </div>
                   </div>
-                </div>
-              )}
+                )}
+
+                {/* Cas pour 4 images ou plus (trois affichées, une superposition pour les images restantes) */}
+                {publication.fichiers.length > 3 && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="col-span-1">
+                      <img
+                        src={publication.fichiers[0].url_fichier}
+                        alt=""
+                        className="w-full h-80 object-cover rounded-2xl cursor-pointer p-0.5"
+                        onClick={() => openFileModal(publication.fichiers)}
+                      />
+                    </div>
+                    <div className="grid grid-rows-2 gap-2">
+                      <img
+                        src={publication.fichiers[1].url_fichier}
+                        alt=""
+                        className="w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5"
+                        onClick={() => openFileModal(publication.fichiers)}
+                      />
+                      <div
+                        className="relative w-full h-40 object-cover rounded-2xl cursor-pointer p-0.5 bg-gray-200 flex items-center justify-center"
+                        onClick={() => openFileModal(publication.fichiers)}
+                      >
+                        <img
+                          src={publication.fichiers[2].url_fichier}
+                          alt=""
+                          className="absolute top-0 left-0 w-full h-full object-cover rounded-2xl opacity-50"
+                        />
+                        {publication.fichiers.length > 4 && (
+                          <div className="absolute text-4xl text-white font-bold">
+                            +{publication.fichiers.length - 3}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Cas pour les autre files */}
+                {publication.fichiers.map((file, index) => (
+                  <div key={index} className="flex items-center space-x-2">
+                    {/* Vérifie si le fichier est une image ou non */}
+                    {isImage(file.url_fichier) ? (
+                      <img
+                        src={file.url_fichier}
+                        alt={`Fichier ${index + 1}`}
+                        className="w-full max-w-lg h-auto object-cover rounded-2xl cursor-pointer"
+                        onClick={() => openFileModal([file])}
+                      />
+                    ) : (
+                      <div className="flex items-center">
+                        <Paperclip className="w-6 h-6 text-gray-500" />
+                        <span className="text-sm text-gray-500 ml-2">{`Fichier ${index + 1}`}</span>
+                      </div>
+                    )}
+                  </div>
+                ))}
             </div>
 
               <div className="flex justify-between mt-6">

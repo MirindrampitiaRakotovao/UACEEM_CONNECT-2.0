@@ -44,8 +44,8 @@ const ModalFile: React.FC<ModalFileProps> = ({ isOpen, onClose, files }) => {
           </button>
         </div>
       ) : (
-        // Contenu du modal
-        <div className="relative bg-white rounded-lg shadow-lg max-w-xl mx-auto w-full max-h-[90vh] overflow-y-auto">
+        // Contenu du modal avec scrollbar cachée
+        <div className="relative bg-white rounded-lg shadow-lg max-w-xl mx-auto w-full max-h-[90vh] overflow-y-auto no-scrollbar">
           <div className="flex justify-between items-center mb-4">
             <button onClick={onClose} className="absolute top-2 right-2 text-gray-500 hover:text-gray-700">
               <CircleX />
