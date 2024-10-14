@@ -54,21 +54,21 @@ const ModalFile: React.FC<ModalFileProps> = ({ isOpen, onClose, files }) => {
 
           <div className="p-6 flex flex-col space-y-4 justify-center">
             {files.map((file, index) => (
-              <div key={index} className="flex flex-col items-center">
+              <div key={index} className="relative w-full max-w-lg">
                 <img
                   src={file.url_fichier}
                   alt={`Fichier ${index + 1}`}
-                  className="w-full max-w-lg h-auto object-cover rounded-2xl cursor-pointer p-0.5"
+                  className="w-full h-auto object-cover rounded-2xl cursor-pointer p-0.5"
                   onClick={() => setFullscreenImage(file.url_fichier)} // Click pour afficher en plein écran
                 />
-                {/* Ajouter un bouton de téléchargement */}
+                {/* Bouton de téléchargement placé en bas à droite de l'image */}
                 <a
                   href={file.url_fichier}
                   download={`image_${index + 1}`}
-                  className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                  className="absolute bottom-2 right-2 px-2 py-2 bg-gray-700 text-white rounded-full hover:bg-gray-600"
+                  title="Télécharger"
                 >
-                  <Download className="inline mr-2" size={20} />
-                  Télécharger
+                  <Download className="inline" size={20} />
                 </a>
               </div>
             ))}
