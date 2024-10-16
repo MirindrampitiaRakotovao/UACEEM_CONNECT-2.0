@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useEditProfileModal } from '../services/editProfilService';
+import { useEditProfileModal } from '../../services/editProfilService';
 import { useNavigate } from 'react-router-dom';  // Ajout pour la navigation
 import { UserRoundPenIcon } from 'lucide-react';
 

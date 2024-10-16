@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import HomeAdmin from './Admin/HomeAdmin';
-import HomeEtudiant from './Etudiant/HomeEtudiant';
-import HomeDelegue from './Delegue/HomeDelegue';
-import Avatar from "./avatar";
+import HomeAdmin from '../Admin/HomeAdmin';
+import HomeEtudiant from '../Etudiant/HomeEtudiant';
+import HomeDelegue from '../Delegue/HomeDelegue';
+import Avatar from "../avatar";
 import EditProfileModal from './EditProfileModal';
-import { useUserProfile } from '../services/profileService';
-import { getPublicPublicationMe } from '../services/publicationService';
-import PublicationList from './PublicationList'; // Importation du nouveau composant
+import { useUserProfile } from '../../services/profileService';
+import { getPublicPublicationMe } from '../../services/publicationService';
+import PublicationList from '../publication/PublicationList'; // Importation du nouveau composant
 
 // Définition des types
 type Etudiant = {

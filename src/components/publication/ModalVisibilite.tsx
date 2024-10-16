@@ -1,7 +1,7 @@
 import React from 'react';
-import Avatar from './avatar';
+import Avatar from '../avatar';
 import { Globe, UsersRound } from 'lucide-react';
-import { useUserProfile } from "../services/profileService"; 
+import { useUserProfile } from "../../services/profileService"; 
 
 interface AudienceSelectorProps {
   selectedAudience: 'Public' | 'Groupe';

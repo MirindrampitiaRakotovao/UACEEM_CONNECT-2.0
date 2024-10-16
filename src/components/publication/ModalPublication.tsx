@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import axios from 'axios';
 import { PackageOpen , LucideTrash , Smile} from 'lucide-react';
 import AudienceSelector from './ModalVisibilite';
-import { useAudience } from '../services/audienceService';
-import socketService from '../services/socketService';
+import { useAudience } from '../../services/audienceService';
+import socketService from '../../services/socketService';
 import EmojiPicker , { EmojiClickData } from 'emoji-picker-react';
 
 interface ModalProps {

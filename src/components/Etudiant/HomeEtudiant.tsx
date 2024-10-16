@@ -70,7 +70,11 @@ const HomeDelegue: React.FC = () => {
 
         {/* Autres icônes (messages, notifications, avatar) */}
         <div className="flex items-center space-x-4">
-          <MessageCircle size={25} className="cursor-pointer" />
+          <MessageCircle 
+            size={25} 
+            className="cursor-pointer"
+            onClick={() => navigate('/messages')} 
+          />
           <Bell size={25} className="cursor-pointer" />
           
           {/* Avatar avec gestion du clic pour afficher le dropdown */}

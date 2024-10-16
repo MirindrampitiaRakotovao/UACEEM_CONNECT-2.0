@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Image, PackageOpen, CalendarDays } from 'lucide-react'; // Import icons
 import Avatar from '../avatar';
-import ModalPublication from '../ModalPublication';
-import PublicationList from '../PublicationList'; // Import de PublicationList
+import ModalPublication from '../publication/ModalPublication';
+import PublicationList from '../publication/PublicationList'; // Import de PublicationList
 import { getPublicPublications } from '../../services/publicationService';
 import socketService from '../../services/socketService';
 

@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Heart, MessageCircle, BadgeAlert, CircleX,  Eye , SendHorizontal, Smile} from 'lucide-react';
-import Avatar from './avatar';
-import ModalFile from './ModalFile';
+import Avatar from '../avatar';
+import ModalFile from '../ModalFile';
 import axios from 'axios';  // Ajouter axios pour la gestion des requêtes API
-import CommentModal from "./CommentModal";
+import CommentModal from "../CommentModal";
 import EmojiPicker , { EmojiClickData } from 'emoji-picker-react';
 
 type File = {

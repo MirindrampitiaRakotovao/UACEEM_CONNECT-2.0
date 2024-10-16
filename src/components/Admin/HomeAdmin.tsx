@@ -14,7 +14,7 @@ const HomeAdmin: React.FC = () => {
 
   const { etudiant, loading, error } = useUserProfile();
 
-  const currentPath = window.location.pathname; // Récupérer l'URL actuelle
+  const currentPath = window.location.pathname;
 
   useEffect(() => {
     const storedTheme = localStorage.getItem('theme');
@@ -36,7 +36,6 @@ const HomeAdmin: React.FC = () => {
   return (
     <div className="flex-none">
       <nav className="flex justify-between items-center px-5 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
-      {/* Logo */}
       <div className="flex items-center space-x-2">
         <img src={logo} alt="Logo" className="h-10" />
         <span className="font-bold text-3xl tracking-wide text-[#1c3d6e] dark:text-white">
@@ -44,7 +43,6 @@ const HomeAdmin: React.FC = () => {
         </span>
       </div>
 
-      {/* Icones du menu principal */}
       <div className="flex justify-center flex-1">
         <ul className="flex space-x-20">
           <li
@@ -65,7 +63,6 @@ const HomeAdmin: React.FC = () => {
         </ul>
       </div>
       <div className="flex space-x-5">
-        { /* Barre de recherche */}
         <div className="flex justify-center items-center">
           <input
             type="text"
@@ -74,16 +71,18 @@ const HomeAdmin: React.FC = () => {
           />
         </div>
 
-        {/* Autres icônes (messages, notifications, avatar) */}
         <div className="flex items-center space-x-4">
-          <MessageCircle size={25} className="cursor-pointer dark:text-white" />
+          <MessageCircle 
+            size={25} 
+            className="cursor-pointer dark:text-white" 
+            onClick={() => navigate('/messages')}
+          />
           <Bell size={25} className="cursor-pointer dark:text-white" />
           
-          {/* Avatar avec gestion du clic pour afficher le dropdown */}
           <div className="relative" 
             onMouseEnter={() => showDropdown(setDropdownVisible)} 
           >
-             {etudiant?.id ? <Avatar userId={etudiant.id} /> : null}
+            {etudiant?.id ? <Avatar userId={etudiant.id} /> : null}
             {isDropdownVisible && (
               <div className="absolute right-0 mt-2 w-60 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg"
                 onMouseEnter={() => showDropdown(setDropdownVisible)}
@@ -97,9 +96,9 @@ const HomeAdmin: React.FC = () => {
                 }}
               >
                 <div className="flex p-4 space-x-5 cursor-pointer" onClick={() => goToProfile(navigate)}>
-                {etudiant?.id ? <Avatar userId={etudiant.id} /> : null}
+                  {etudiant?.id ? <Avatar userId={etudiant.id} /> : null}
                   <p className="text-gray-700 dark:text-gray-300">
-                      {loading ? "Chargement..." : error ? "Erreur" : etudiant?.username}
+                    {loading ? "Chargement..." : error ? "Erreur" : etudiant?.username}
                   </p>
                 </div>
                 <ul>
