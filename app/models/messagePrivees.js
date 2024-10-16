@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../../config/database');
 
-const MessagePrivee = sequelize.define('messagePrivee', {
+const MessagePrivee = sequelize.define('messagePrivees', {
     id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
@@ -34,3 +34,4 @@ const MessagePrivee = sequelize.define('messagePrivee', {
 });
 
 module.exports = MessagePrivee;
+

@@ -9,6 +9,7 @@ const GroupePartages = require('./groupePartage');
 const GroupePartageEtudiants = require('./groupePartageEtudiant');
 const Reactions = require('./reactions');
 const Commentaires = require('./commentaires');
+const MessagePrivee = require('./messagePrivees');
 
 // Associations entre groupes et étudiants
 Groupes.hasMany(Etudiants, {
@@ -125,6 +126,29 @@ Etudiants.hasMany(Commentaires, {
   foreignKey: 'etudiant_id' 
 });
 
+// Association dans MessagePrivee
+MessagePrivee.belongsTo(Etudiants, {
+  as: 'expediteur', 
+  foreignKey: 'expediteur_id' 
+});
+MessagePrivee.belongsTo(Etudiants, {
+  as: 'destinataire', 
+  foreignKey: 'destinataire_id' 
+});
+
+Etudiants.hasMany(MessagePrivee, {
+   foreignKey: 'expediteur_id', 
+   as: 'sentMessages' 
+});
+
+Etudiants.hasMany(MessagePrivee, { 
+  foreignKey: 'destinataire_id', 
+  as: 'receivedMessages' 
+});
+
+
+
+
 
 module.exports = {
   Groupes,
@@ -138,6 +162,7 @@ module.exports = {
   GroupePartageEtudiants,
   Reactions,
   Commentaires,
+  MessagePrivee,
 };
 
 

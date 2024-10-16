@@ -1,15 +1,16 @@
 const express = require('express');
 const router = express.Router();
-const messageController = require('../controllers/messagePriveeController');
+const messagePriveeController = require('../controllers/messagePriveeController');
 const authenticateToken = require('../middlewares/authenticateToken'); // Middleware pour vérifier le JWT
 
 // Route pour envoyer un message privé
-router.post('/', authenticateToken, messageController.envoyerMessage);
+router.post('/',authenticateToken, messagePriveeController.sendMessage);
 
 // Route pour récupérer les messages entre deux utilisateurs
-router.get('/:destinataire_id', authenticateToken, messageController.getMessages);
+router.get('/me/:destinataire_id', authenticateToken ,messagePriveeController.getMessagesBetween);
 
-// Route pour marquer un message comme lu
-router.put('/:id/lu', authenticateToken, messageController.marquerCommeLu);
+// Récupérer tous les messages pour un utilisateur
+router.get('/', authenticateToken ,messagePriveeController.getMessagesForUser);
+
 
 module.exports = router;
