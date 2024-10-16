@@ -12,5 +12,7 @@ router.get('/me/:destinataire_id', authenticateToken ,messagePriveeController.ge
 // Récupérer tous les messages pour un utilisateur
 router.get('/', authenticateToken ,messagePriveeController.getMessagesForUser);
 
+// Route pour obtenir les discussions récentes et les autres utilisateurs
+router.get('/discussions', authenticateToken, messagePriveeController.getUsersWithDiscussions);
 
 module.exports = router;

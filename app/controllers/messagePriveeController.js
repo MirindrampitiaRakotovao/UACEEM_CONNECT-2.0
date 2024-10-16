@@ -36,7 +36,21 @@ class MessageController {
         }
     }
     
+    async getUsersWithDiscussions(req, res) {
+        console.log('getUsersWithDiscussions called');
+        try {
+            const userId = req.user.id;
+            const { discussionsRecentes, etudiantsRestants } = await messageService.getRecentDiscussionsWithMessages(userId);
     
+            return res.status(200).json({
+                discussionsRecentes,
+                etudiantsRestants
+            });
+        } catch (error) {
+            console.error('Erreur dans getUsersWithDiscussions:', error);
+            return res.status(500).json({ error: 'Erreur lors de la récupération des utilisateurs.' });
+        }
+    }
     
 }
 
