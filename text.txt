@@ -1,62 +1,97 @@
-import { File as FileIcon } from 'lucide-react';
+// Conversations.tsx
+import React from 'react';
+import Avatar from '../avatar';
+import ChatWindow from './ChatWindow';  // Importez le composant ChatWindow
 
-// Fonction pour vérifier si le fichier est une image
-const isImage = (url: string) => {
-  return /\.(jpg|jpeg|png|gif|bmp|svg)$/.test(url);
-};
+interface Discussion {
+  id: number;
+  photo: string;
+  username: string;
+  lastMessage: string | null;
+}
 
-const PublicationList: React.FC<PublicationListProps> = ({
-  publications,
-  loading,
-  error,
-}) => {
-  // ... tout le reste du code
+interface Etudiant {
+  id: number;
+  photo: string;
+  username: string;
+}
+
+interface ConversationsProps {
+  onSelectUser: (user: Discussion | Etudiant) => void;  // Define the onSelectUser prop
+}
+
+const Conversations: React.FC<ConversationsProps> = ({ onSelectUser }) => {
+  const [discussionsRecentes, setDiscussionsRecentes] = useState<Discussion[]>([]);
+  const [etudiantsRestants, setEtudiantsRestants] = useState<Etudiant[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchDiscussions = async () => {
+      try {
+        const response = await axios.get('http://localhost:4000/messagePrivee/discussions', {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem('token')}`, 
+          },
+        });
+        
+        const { discussionsRecentes, etudiantsRestants } = response.data;
+        setDiscussionsRecentes(discussionsRecentes);
+        setEtudiantsRestants(etudiantsRestants);
+      } catch (err) {
+        setError('Erreur lors du chargement des données.');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDiscussions();
+  }, []);
+
+  const handleSelectUser = (user: Discussion | Etudiant) => {
+    onSelectUser(user);  // Call the passed onSelectUser function
+  };
+
+  if (loading) return <p>Chargement...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
-    <div className="publication-list mt-8 ">
-      {loading ? (
-        <p>Chargement des publications...</p>
-      ) : error ? (
-        <p>{error}</p>
-      ) : (
-        sortedPublications.map((publication) => {
-          const isLiked = likedPublications.includes(publication.id);
+    <div className="flex">
+      <div className="max-w-sm bg-white shadow-lg rounded-lg overflow-hidden mx-auto my-4 p-6">
+        <input
+          type="text"
+          placeholder="Rechercher dans Messenger"
+          className="mb-4 p-2 rounded bg-gray-200 focus:outline-none"
+        />
 
-          return (
-            <div key={publication.id} className="bg-white p-4 rounded-md shadow mb-4 p-3">
-              {/* ... tout le reste du code */}
-              
-              {/* Gestion des fichiers */}
-              <div className={`grid ${publication.fichiers.length === 1 ? 'grid-cols-1 justify-items-center' : ''}`}>
-                {publication.fichiers.map((file, index) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    {/* Vérifie si le fichier est une image ou non */}
-                    {isImage(file.url_fichier) ? (
-                      <img
-                        src={file.url_fichier}
-                        alt={`Fichier ${index + 1}`}
-                        className="w-full max-w-lg h-auto object-cover rounded-2xl cursor-pointer"
-                        onClick={() => openFileModal([file])}
-                      />
-                    ) : (
-                      <div className="flex items-center">
-                        <FileIcon className="w-6 h-6 text-gray-500" />
-                        <span className="text-sm text-gray-500 ml-2">{`Fichier ${index + 1}`}</span>
-                      </div>
-                    )}
-                  </div>
-                ))}
+        <div className="space-y-4">
+          {discussionsRecentes.map((discussion) => (
+            <div key={discussion.id} 
+                 className="flex items-center space-x-2 cursor-pointer hover:bg-gray-200 p-2 rounded"
+                 onClick={() => handleSelectUser(discussion)}  // Pass user to parent component
+            >
+              <Avatar userId={discussion.id} size="w-10 h-10" />
+              <div>
+                <p className="font-bold">{discussion.username}</p>
+                <p className="text-sm text-gray-500">{discussion.lastMessage || 'Aucun message'}</p>
               </div>
-              
-              {/* ... tout le reste du code */}
             </div>
-          );
-        })
-      )}
+          ))}
 
-      {selectedFiles && (
-        <ModalFile isOpen={isFileModalOpen} onClose={closeFileModal} files={selectedFiles} />
-      )}
+          {etudiantsRestants.map((etudiant) => (
+            <div key={etudiant.id} 
+                 className="flex items-center space-x-2 cursor-pointer hover:bg-gray-200 p-2 rounded"
+                 onClick={() => handleSelectUser(etudiant)}  // Pass student to parent component
+            >
+              <Avatar userId={etudiant.id} size="w-10 h-10" />
+              <div>
+                <p className="font-bold">{etudiant.username}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
+
+export default Conversations;
