@@ -72,7 +72,6 @@ const Conversations: React.FC = () => {
         className="mb-4 p-2 rounded bg-gray-200 focus:outline-none"
       />
 
-      <h2 className="font-bold mb-4">Discussions récentes</h2>
       <div className="space-y-4">
         {discussionsRecentes.length > 0 ? (
           discussionsRecentes.map((discussion) => (
@@ -87,10 +86,7 @@ const Conversations: React.FC = () => {
         ) : (
           <p>Aucune discussion récente.</p>
         )}
-      </div>
 
-      <h2 className="font-bold mt-6 mb-4">Étudiants restants</h2>
-      <div className="space-y-4">
         {etudiantsRestants.length > 0 ? (
           etudiantsRestants.map((etudiant) => (
             <div key={etudiant.id} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-200 p-2 rounded">
