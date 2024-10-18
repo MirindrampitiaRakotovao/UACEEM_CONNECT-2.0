@@ -4,7 +4,9 @@ import Avatar from '../avatar';
 import ModalFile from '../ModalFile';
 import axios from 'axios';  // Ajouter axios pour la gestion des requêtes API
 import CommentModal from "../CommentModal";
-import EmojiPicker , { EmojiClickData } from 'emoji-picker-react';
+import EmojiPicker , { EmojiClickData , Theme } from 'emoji-picker-react';
+import { useDarkMode } from '../../contexts/DarkModeContext';
+import classNames from 'classnames';
 
 type File = {
   id: number;
@@ -36,6 +38,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
   loading,
   error,
 }) => {
+  const { isDarkMode } = useDarkMode(); 
   const [likedPublications, setLikedPublications] = useState<number[]>([]);
   const [isCommentModalOpen, setIsCommentModalOpen] = useState<{
     [key: number]: boolean;
@@ -192,7 +195,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
 
 
   return (
-    <div className="publication-list mt-8 ">
+    <div className={`publication-list mt-8 ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
       {loading ? (
         <p>Chargement des publications...</p>
       ) : error ? (
@@ -202,7 +205,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
           const isLiked = likedPublications.includes(publication.id); // Vérifier si l'utilisateur a déjà aimé
 
           return (
-            <div key={publication.id} className="bg-white p-4 rounded-md shadow mb-4 p-3">
+            <div key={publication.id} className={`p-4 rounded-md shadow mb-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <div className="flex justify-between items-center mb-4">
                 <div className="flex">
                   <Avatar userId={publication.etudiant.id}/>  
@@ -214,7 +217,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
                     </span>
                   </div>
                 </div>
-                <button className="text-gray-500 hover:text-gray-700 ml-40">
+                <button className={`ml-40 ${isDarkMode ? 'text-white' : 'text-gray-500 hover:text-gray-700'}`}>
                   <CircleX />
                 </button>
               </div>
@@ -363,7 +366,13 @@ const PublicationList: React.FC<PublicationListProps> = ({
                     }))
                   }
                   placeholder="Ajouter un commentaire..."
-                  className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3 text-gray" 
+                  className={classNames(
+                    "w-full p-2 border rounded-full focus:outline-none focus:ring-2 mr-3",
+                    {
+                      "focus:ring-blue-500 text-gray-700 border-gray-300 bg-white": !isDarkMode, // Mode clair
+                      "focus:ring-blue-300 text-gray-300 border-gray-600 bg-gray-800": isDarkMode, // Mode sombre
+                    }
+                  )}
                 />
                 <div className="relative">
                   <Smile 
@@ -373,11 +382,14 @@ const PublicationList: React.FC<PublicationListProps> = ({
                     />
                   {showEmojiPicker && (
                     <div
-                      className="emoji-picker-container mt-2 absolute right-0"
-                      ref={emojiPickerRef}
-                      onMouseLeave={() => setShowEmojiPicker(false)} // Ferme le sélecteur d'emojis lorsque la souris quitte la zone
-                    >
-                      <EmojiPicker onEmojiClick={(emojiObject) => handleEmojiClick(emojiObject, publication.id)} />
+                    className="emoji-picker-container absolute bottom-full mb-2 right-0"
+                    ref={emojiPickerRef}
+                    onMouseLeave={() => setShowEmojiPicker(false)} // Ferme le sélecteur d'emojis lorsque la souris quitte la zone
+                  >
+                      <EmojiPicker 
+                        onEmojiClick={(emojiObject) => handleEmojiClick(emojiObject, publication.id)}
+                        theme={isDarkMode ? Theme.DARK : Theme.LIGHT}
+                      />
                     </div>
                   )}
                 </div>
