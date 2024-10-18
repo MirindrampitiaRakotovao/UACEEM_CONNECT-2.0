@@ -2,14 +2,16 @@ import React, { useEffect, useState } from "react";
 import { User } from "lucide-react"; // L'icône user round
 import classNames from "classnames"; // Pour gérer les classes conditionnelles
 import api from "../axios/axiosConfig";
+import { useDarkMode } from "../contexts/DarkModeContext"; // Importer le hook du mode sombre
 
 interface AvatarProps {
   size?: string; 
   userId: number;
 }
 
-const Avatar: React.FC<AvatarProps> = ({ size = "w-10 h-10" , userId }) => {
+const Avatar: React.FC<AvatarProps> = ({ size = "w-10 h-10", userId }) => {
   const [photo, setPhoto] = useState<string | null>(null);
+  const { isDarkMode } = useDarkMode(); // Utiliser le hook pour détecter le mode sombre
 
   // Fonction pour calculer la taille de l'icône en fonction du cercle
   const calculateIconSize = (size: string) => {
@@ -28,13 +30,17 @@ const Avatar: React.FC<AvatarProps> = ({ size = "w-10 h-10" , userId }) => {
         console.error("Erreur lors de la récupération de la photo:", error);
       });
   }, [userId]);
-  
 
   return (
     <div
       className={classNames(
-        "rounded-full overflow-hidden bg-gray-200 flex justify-center items-center",
-        size
+        "rounded-full overflow-hidden flex justify-center items-center",
+        size,
+        {
+          // Appliquer différentes classes selon le mode sombre ou clair
+          "bg-gray-200": !isDarkMode, // Couleur de fond en mode clair
+          "bg-gray-600": isDarkMode,  // Couleur de fond en mode sombre
+        }
       )}
     >
       {photo ? (
@@ -45,7 +51,7 @@ const Avatar: React.FC<AvatarProps> = ({ size = "w-10 h-10" , userId }) => {
         />
       ) : (
         <User
-          className="text-gray-500"
+          className={isDarkMode ? "text-gray-400" : "text-gray-500"} // Couleur de l'icône selon le mode sombre ou clair
           style={{ width: calculateIconSize(size), height: calculateIconSize(size) }} // Appliquer la taille dynamique
         />
       )}
