@@ -62,9 +62,9 @@ const Conversations: React.FC<ConversationsProps> = ({ onSelectUser }) => {
   if (error) return <p>{error}</p>;
 
   return (
-    <div className={`flex ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
+    <div className={`flex ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-white text-black'}`}>
       {/* Liste des discussions */}
-      <div className={`max-w-sm shadow-lg rounded-lg overflow-hidden mx-auto my-4 p-6 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+      <div className={`max-w-sm shadow-lg rounded-lg overflow-hidden mx-auto my-4 p-6 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
         <input
           type="text"
           placeholder="Rechercher dans Messenger"
