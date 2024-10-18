@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import PublicationList from './PublicationList';
+import { useDarkMode } from '../../contexts/DarkModeContext'; // Import du mode sombre
 
-const io = require('socket.io-client').io;  // Utilisation de require pour vérifier si l'erreur persiste
+const io = require('socket.io-client').io;
 
 type Publication = {
   id: number;
@@ -18,15 +19,15 @@ type Publication = {
   }[];
 };
 
-const socket = io('http://localhost:4000');  // Connexion au serveur Socket.io
+const socket = io('http://localhost:4000'); // Connexion au serveur Socket.io
 
 const PublicationsPage = () => {
+  const { isDarkMode } = useDarkMode(); // Utilisation du mode sombre
   const [publications, setPublications] = useState<Publication[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    // Charger les publications existantes au montage
     const fetchPublications = async () => {
       try {
         const response = await fetch('http://localhost:4000/publication/public');
@@ -41,20 +42,22 @@ const PublicationsPage = () => {
 
     fetchPublications();
 
-    // Écouter les événements Socket.io
     socket.on('nouvelle_publication', (nouvellePublication: Publication) => {
       setPublications((prevPublications) => [nouvellePublication, ...prevPublications]);
     });
 
     return () => {
-      // Nettoyer les écouteurs d'événements Socket.io lors du démontage
       socket.off('nouvelle_publication');
     };
   }, []);
 
   return (
-    <div>
-      <h1>Publications</h1>
+    <div
+      className={`min-h-screen p-5 ${
+        isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'
+      }`}
+    >
+      <h1 className="text-2xl font-bold mb-4">Publications</h1>
       <PublicationList publications={publications} loading={loading} error={error} />
     </div>
   );
