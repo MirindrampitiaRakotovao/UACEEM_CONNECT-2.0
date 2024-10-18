@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Avatar from '../avatar';
-//import ChatWindow from './ChatWindow';  // Importez le composant ChatWindow
+import { useDarkMode } from '../../contexts/DarkModeContext'; // Importer le hook pour le mode sombre
 
 interface Discussion {
   id: number;
@@ -19,22 +19,22 @@ interface Etudiant {
 }
 
 interface ConversationsProps {
-  onSelectUser: (user: Discussion | Etudiant) => void;  // Define the onSelectUser prop
+  onSelectUser: (user: Discussion | Etudiant) => void;
 }
 
 const Conversations: React.FC<ConversationsProps> = ({ onSelectUser }) => {
+  const { isDarkMode } = useDarkMode(); // Utiliser le hook pour savoir si le mode sombre est activé
   const [discussionsRecentes, setDiscussionsRecentes] = useState<Discussion[]>([]);
   const [etudiantsRestants, setEtudiantsRestants] = useState<Etudiant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Récupérer les discussions et les étudiants restants
   useEffect(() => {
     const fetchDiscussions = async () => {
       try {
         const response = await axios.get('http://localhost:4000/messagePrivee/discussions', {
           headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`, // Assure-toi que le token est bien stocké
+            Authorization: `Bearer ${localStorage.getItem('token')}`, 
           },
         });
         
@@ -55,28 +55,28 @@ const Conversations: React.FC<ConversationsProps> = ({ onSelectUser }) => {
   }, []);
 
   const handleSelectUser = (user: Discussion | Etudiant) => {
-    onSelectUser(user);  // Call the passed onSelectUser function
+    onSelectUser(user);
   };
 
   if (loading) return <p>Chargement...</p>;
   if (error) return <p>{error}</p>;
 
   return (
-    <div className="flex">
+    <div className={`flex ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
       {/* Liste des discussions */}
-      <div className="max-w-sm bg-white shadow-lg rounded-lg overflow-hidden mx-auto my-4 p-6">
+      <div className={`max-w-sm shadow-lg rounded-lg overflow-hidden mx-auto my-4 p-6 ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
         <input
           type="text"
           placeholder="Rechercher dans Messenger"
-          className="mb-4 p-2 rounded bg-gray-200 focus:outline-none"
+          className={`mb-4 p-2 rounded ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-black'} focus:outline-none`}
         />
 
         <div className="space-y-4">
           {discussionsRecentes.length > 0 ? (
             discussionsRecentes.map((discussion) => (
               <div key={discussion.id} 
-                   className="flex items-center space-x-2 cursor-pointer hover:bg-gray-200 p-2 rounded"
-                   onClick={() => handleSelectUser(discussion)}  // Sélectionner l'utilisateur
+                   className={`flex items-center space-x-2 cursor-pointer p-2 rounded ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}
+                   onClick={() => handleSelectUser(discussion)}
               >
                 <Avatar userId={discussion.id} size="w-10 h-10" />
                 <div>
@@ -92,8 +92,8 @@ const Conversations: React.FC<ConversationsProps> = ({ onSelectUser }) => {
           {etudiantsRestants.length > 0 ? (
             etudiantsRestants.map((etudiant) => (
               <div key={etudiant.id} 
-                   className="flex items-center space-x-2 cursor-pointer hover:bg-gray-200 p-2 rounded"
-                   onClick={() => handleSelectUser(etudiant)}  // Sélectionner l'étudiant
+                   className={`flex items-center space-x-2 cursor-pointer p-2 rounded ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}
+                   onClick={() => handleSelectUser(etudiant)}
               >
                 <Avatar userId={etudiant.id} size="w-10 h-10" />
                 <div>
@@ -106,7 +106,6 @@ const Conversations: React.FC<ConversationsProps> = ({ onSelectUser }) => {
           )}
         </div>
       </div>
-
     </div>
   );
 };
