@@ -263,22 +263,34 @@ const CommentModal: React.FC<CommentModalProps> = ({
                   value={newReply}
                   onChange={(e) => setNewReply(e.target.value)}
                   placeholder="Votre réponse..."
-                  className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3"
+                  className={classNames(
+                    "w-full p-2 border rounded-full focus:outline-none focus:ring-2 mr-3",
+                    {
+                      "focus:ring-blue-500 text-gray-700 border-gray-300 bg-white": !isDarkMode, // Mode clair
+                      "focus:ring-blue-300 text-gray-300 border-gray-600 bg-gray-800": isDarkMode, // Mode sombre
+                    }
+                  )}
                 />
                 <div className="flex items-center space-x-2">
                   <div className="relative">
                     <Smile 
                       size={25} 
-                      className="text-gray-500 hover:text-blue-500 cursor-pointer" 
+                      className={classNames("cursor-pointer", {
+                        "text-gray-500 hover:text-blue-500": !isDarkMode, // Mode clair
+                        "text-gray-300 hover:text-blue-400": isDarkMode,  // Mode sombre
+                      })} 
                       onClick={() => setShowReplyEmojiPicker(!showReplyEmojiPicker)}
                     />
                     {showReplyEmojiPicker && (
                       <div
-                        className="emoji-picker-container mt-2 absolute right-0"
+                        className="emoji-picker-container absolute bottom-full mb-2 right-0"
                         ref={emojiPickerRef}
                         onMouseLeave={() => setShowReplyEmojiPicker(false)} // Hide when the mouse leaves
                       >
-                        <EmojiPicker onEmojiClick={handleReplyEmojiClick} />
+                        <EmojiPicker 
+                          onEmojiClick={handleReplyEmojiClick} 
+                          theme={isDarkMode ? Theme.DARK : Theme.LIGHT}  // Utiliser les valeurs de l'énumération `Theme`
+                        />
                       </div>
                     )}
                   </div>

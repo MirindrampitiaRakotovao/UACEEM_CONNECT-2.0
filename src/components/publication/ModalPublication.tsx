@@ -4,7 +4,8 @@ import { PackageOpen , LucideTrash , Smile} from 'lucide-react';
 import AudienceSelector from './ModalVisibilite';
 import { useAudience } from '../../services/audienceService';
 import socketService from '../../services/socketService';
-import EmojiPicker , { EmojiClickData } from 'emoji-picker-react';
+import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
+import { useDarkMode } from '../../contexts/DarkModeContext';
 
 interface ModalProps {
   isOpen: boolean;
@@ -17,6 +18,7 @@ const autoResizeTextarea = (textarea: HTMLTextAreaElement) => {
 };
 
 const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
+  const { isDarkMode } = useDarkMode();
   const {
     selectedAudience,
     designGroupePartage,
@@ -141,7 +143,11 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-lg p-6 shadow-lg max-w-md w-full">
+      <div
+        className={`rounded-lg p-6 shadow-lg max-w-md w-full ${
+          isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'
+        }`}
+      >
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-semibold">Créer une publication</h2>
           <button onClick={onClose} className="text-gray-500 hover:text-gray-700">✖</button>
@@ -159,12 +165,16 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             setDesignGroupePartage={setDesignGroupePartage}
           />
 
-          <hr className="w-full my-4 border-gray-300" />
+          <hr className={`w-full my-4 ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`} />
 
           {/* Textarea */}
           <textarea
             rows={1}
-            className="form-textarea w-full p-2 border-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className={`form-textarea w-full p-2 rounded-lg focus:outline-none focus:ring-2 ${
+              isDarkMode
+                ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-500'
+                : 'bg-white text-black border-gray-300 focus:ring-blue-500'
+            }`}
             placeholder="Ajouter une légende..."
             value={legende}
             onChange={(e) => {
@@ -192,7 +202,9 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
             </label>
           </div>
           <Smile
-              className="ml-auto mt-3 cursor-pointer"
+              className={`ml-auto mt-3 cursor-pointer ${
+                isDarkMode ? 'text-gray-400 hover:text-white' : 'text-gray-500 hover:text-blue-500'
+              }`}
               size={32}
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
           />
@@ -204,7 +216,10 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
               ref={emojiPickerRef}
               onMouseLeave={() => setShowEmojiPicker(false)} // Ferme le sélecteur d'emojis lorsque la souris quitte la zone
             >
-              <EmojiPicker onEmojiClick={handleEmojiClick} />
+              <EmojiPicker 
+                onEmojiClick={handleEmojiClick} 
+                theme={isDarkMode ? Theme.DARK : Theme.LIGHT}  // Utiliser les valeurs de l'énumération `Theme`
+              />
             </div>
           )}
 
@@ -263,7 +278,11 @@ const ModalPublication: React.FC<ModalProps> = ({ isOpen, onClose }) => {
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`form-button w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 transition duration-300 ${isSubmitting ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`w-full mt-4 py-2 rounded-lg ${
+              isDarkMode
+                ? 'bg-blue-600 text-white hover:bg-blue-500'
+                : 'bg-blue-500 text-white hover:bg-blue-400'
+            }`}
           >
             {isSubmitting ? 'Publier...' : 'Publier'}
           </button>
