@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { Link } from 'react-router-dom';
 import Avatar from '../avatar';
+import { useDarkMode } from '../../contexts/DarkModeContext'; // Import the dark mode context
 
 interface DecodedToken {
   id: number;
@@ -13,14 +14,15 @@ const SidebarLeft: React.FC = () => {
   const [id, setId] = useState<number | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const { isDarkMode } = useDarkMode(); // Get the dark mode state
 
   useEffect(() => {
-    // Récupérer le token JWT depuis localStorage
+    // Get the JWT token from localStorage
     const token = localStorage.getItem('token');
     
     if (token) {
       try {
-        // Décoder le token JWT pour récupérer le nom d'utilisateur
+        // Decode the JWT token to retrieve username, role, and id
         const decodedToken = jwtDecode<DecodedToken>(token);
         setId(decodedToken.id);
         setUsername(decodedToken.username);
@@ -32,32 +34,32 @@ const SidebarLeft: React.FC = () => {
   }, []);
 
   return (
-    <div className="max-w-sm bg-white shadow-lg rounded-lg overflow-hidden mx-auto my-4 p-6">
+    <div className={`max-w-sm shadow-lg rounded-lg overflow-hidden mx-auto my-4 p-6 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-700'}`}>
       <div className="flex space-x-5">
-        {/* Avatar et nom de l'utilisateur */}
+        {/* User's avatar and name */}
         { id !== null && <Avatar userId={id} /> }
-        <div className="div">
-        <h2 className="text-xl font-bold">
+        <div>
+          <h2 className="text-xl font-bold">
             {username ? (
               <Link to={`/profile/${username}`}>{username}</Link>
             ) : 'Utilisateur'}
           </h2>
-            <p className="text-sm text-gray-500">{role ? role : 'Utilisateur'}</p>
+          <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{role ? role : 'Utilisateur'}</p>
         </div>
       </div>
 
-      {/* Menu de navigation sous forme de carte */}
+      {/* Navigation menu */}
       <div className="mt-6 space-y-4">
-        <button className="w-full text-gray-700 bg-gray-100 p-2 rounded-lg hover:bg-gray-200">
+        <button className={`w-full p-2 rounded-lg ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
           Fil d'actualité
         </button>
-        <button className="w-full text-gray-700 bg-gray-100 p-2 rounded-lg hover:bg-gray-200">
+        <button className={`w-full p-2 rounded-lg ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
           Groupes
         </button>
-        <button className="w-full text-gray-700 bg-gray-100 p-2 rounded-lg hover:bg-gray-200">
+        <button className={`w-full p-2 rounded-lg ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
           Messages
         </button>
-        <button className="w-full text-gray-700 bg-gray-100 p-2 rounded-lg hover:bg-gray-200">
+        <button className={`w-full p-2 rounded-lg ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
           Paramètres
         </button>
       </div>
