@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Avatar from '../avatar';
 import { SendHorizonal, Smile } from 'lucide-react';
-import EmojiPicker, { EmojiClickData } from 'emoji-picker-react';
+import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
 import { useDarkMode } from '../../contexts/DarkModeContext'; // Import du hook pour le mode sombre
 
 interface Message {
@@ -143,7 +143,10 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user }) => {
               ref={emojiPickerRef}
               onMouseLeave={() => setShowEmojiPicker(false)}
             >
-              <EmojiPicker onEmojiClick={handleEmojiClick} />
+              <EmojiPicker 
+                onEmojiClick={handleEmojiClick} 
+                theme={isDarkMode ? Theme.DARK : Theme.LIGHT}
+              />
             </div>
           )}
         </div>

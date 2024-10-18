@@ -2,7 +2,9 @@ import React, { useState,useRef, useEffect, useCallback } from "react";
 import { SendHorizontal, CircleX, Smile } from "lucide-react";
 import axios from "axios";
 import Avatar from './avatar';
-import EmojiPicker , { EmojiClickData } from 'emoji-picker-react';
+import EmojiPicker, { EmojiClickData, Theme } from 'emoji-picker-react';
+import { useDarkMode } from "../contexts/DarkModeContext"; 
+import classNames from 'classnames';
 
 type Etudiant = {
   id: number;
@@ -29,6 +31,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
   isOpen,
   onClose,
 }) => {
+  const { isDarkMode } = useDarkMode();
   const [commentaires, setCommentaires] = useState<Commentaire[]>([]);
   const [newComment, setNewComment] = useState("");
   const [likedCommentaires, setLikedCommentaires] = useState<number[]>([]);
@@ -211,7 +214,16 @@ const CommentModal: React.FC<CommentModalProps> = ({
     const isReplying = replyingToCommentId === commentaire.id;
 
     return (
-      <div key={commentaire.id} className={`mb-4 p-3 bg-white rounded-lg shadow ml-${depth * 5}`}>
+      <div
+        key={commentaire.id}
+        className={classNames(
+          `mb-4 p-3 rounded-lg shadow ml-${depth * 5}`,
+          {
+            "bg-white": !isDarkMode, // Fond clair
+            "bg-gray-800": isDarkMode, // Fond sombre
+          }
+        )}
+      >
         <div className="flex items-start space-x-3">
           <Avatar userId={commentaire.etudiant.id} size="w-10 h-10" />
           <div className="flex-1">
@@ -221,7 +233,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
                 {new Date(commentaire.date_commentaire).toLocaleDateString()}
               </p>
             </div>
-            <p className="text-sm mt-2">{commentaire.contenu}</p>
+            <p className={`text-sm mt-2 ${isDarkMode ? "text-gray-200" : "text-black"}`}>{commentaire.contenu}</p>
             <div className="flex items-center space-x-6 mt-4 text-gray-400">
             <button 
               className="flex items-center space-x-2"
@@ -292,7 +304,15 @@ const CommentModal: React.FC<CommentModalProps> = ({
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded-lg shadow-lg max-w-lg w-full">
+      <div
+        className={classNames(
+          "p-6 rounded-lg shadow-lg max-w-lg w-full",
+          {
+            "bg-white": !isDarkMode,
+            "bg-gray-900 text-gray-200": isDarkMode, // Fond et texte pour le mode sombre
+          }
+        )}
+      >
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-xl font-bold">Commentaires</h3>
           <button onClick={onClose}>
@@ -309,34 +329,54 @@ const CommentModal: React.FC<CommentModalProps> = ({
 
         </div>
         <div className="mt-4 flex items-center">
-          <input
-            type="text"
-            value={newComment}
-            onChange={(e) => setNewComment(e.target.value)}
-            placeholder="Ajouter un commentaire..."
-            className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3 text-gray"
-          />
-          <div className="relative">
-            <Smile 
-              size={35} 
-              className=" text-gray-500 hover:text-blue-500 cursor-pointer" 
-              onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            />
-            {showEmojiPicker && (
-              <div
-                className="emoji-picker-container mt-2 absolute right-0"
-                ref={emojiPickerRef}
-                onMouseLeave={() => setShowEmojiPicker(false)} // Ferme le sélecteur d'emojis lorsque la souris quitte la zone
-              >
-                <EmojiPicker onEmojiClick={handleEmojiClick} />
-              </div>
-            )}
-          </div>
-          <button onClick={handleEnvoyerCommentaire}>
-            <SendHorizontal size={35} className=" text-gray-500 hover:text-blue-500 cursor-pointer" />
-          </button>
+  <input
+    type="text"
+    value={newComment}
+    onChange={(e) => setNewComment(e.target.value)}
+    placeholder="Ajouter un commentaire..."
+    className={classNames(
+      "w-full p-2 border rounded-full focus:outline-none focus:ring-2 mr-3",
+      {
+        "focus:ring-blue-500 text-gray-700 border-gray-300 bg-white": !isDarkMode, // Mode clair
+        "focus:ring-blue-300 text-gray-300 border-gray-600 bg-gray-800": isDarkMode, // Mode sombre
+      }
+    )}
+  />
+  <div className="relative">
+  <Smile 
+    size={35} 
+    className={classNames("cursor-pointer", {
+      "text-gray-500 hover:text-blue-500": !isDarkMode, // Mode clair
+      "text-gray-300 hover:text-blue-400": isDarkMode,  // Mode sombre
+    })} 
+    onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+  />
+  {showEmojiPicker && (
+    <div
+      className="emoji-picker-container absolute bottom-full mb-2 right-0"
+      ref={emojiPickerRef}
+      onMouseLeave={() => setShowEmojiPicker(false)}
+    >
+      <EmojiPicker 
+        onEmojiClick={handleEmojiClick} 
+        theme={isDarkMode ? Theme.DARK : Theme.LIGHT}  // Utiliser les valeurs de l'énumération `Theme`
+      />
+    </div>
+  )}
+</div>
 
-        </div>
+
+  <button onClick={handleEnvoyerCommentaire}>
+    <SendHorizontal
+      size={35}
+      className={classNames("cursor-pointer", {
+        "text-gray-500 hover:text-blue-500": !isDarkMode, // Mode clair
+        "text-gray-300 hover:text-blue-400": isDarkMode,  // Mode sombre
+      })}
+    />
+  </button>
+</div>
+
       </div>
     </div>
   );
