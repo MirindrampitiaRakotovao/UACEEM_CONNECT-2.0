@@ -1,6 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState , useRef} from 'react';
 import axios from 'axios';
 import Avatar from '../avatar';
+import { SendHorizonal ,Smile} from 'lucide-react';
+import EmojiPicker , { EmojiClickData } from 'emoji-picker-react';
+
 
 interface Message {
   id: number;
@@ -23,6 +26,10 @@ interface ChatWindowProps {
 const ChatWindow: React.FC<ChatWindowProps> = ({ user }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+
+  // Ref pour le conteneur de l'emoji picker
+  const emojiPickerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -67,6 +74,31 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user }) => {
     }
   };
 
+  // Fonction pour ajouter un emoji 
+  const handleEmojiClick = (emojiObject: EmojiClickData) => {
+    setNewMessage((prev) => prev + emojiObject.emoji);
+  };
+
+  // Fonction pour détecter le clic en dehors du sélecteur d'emojis
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (emojiPickerRef.current && !emojiPickerRef.current.contains(event.target as Node)) {
+        setShowEmojiPicker(false);
+      }
+    };
+
+    if (showEmojiPicker) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmojiPicker]);
+  
+
   return (
     <div className="flex flex-col bg-gray-50 h-screen">
       {/* Header de la conversation */}
@@ -78,32 +110,60 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user }) => {
       </div>
 
       {/* Liste des messages */}
-      <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-gray-50">
+      <div className="flex-1 p-2 space-y-4 overflow-y-auto bg-gray-50 ">
         {messages.map((message) => (
           <div
             key={message.id}
-            className={`max-w-xs p-3 rounded-lg ${
-              message.expediteur_id === user.id ? 'self-start bg-gray-200' : 'self-end bg-blue-500 text-white'
+            className={`flex ${
+              message.destinataire_id === user.id ? 'justify-end' : 'justify-start'
             }`}
           >
-            <p>{message.contenuMessage}</p>
-            <span className="text-xs text-gray-500">{new Date(message.createdAt).toLocaleTimeString()}</span>
+            <div
+              className={`max-w-xs p-3 rounded-lg p-2 border  ${
+                message.expediteur_id === user.id ? 'bg-gray-200 text-black' : 'bg-blue-500 text-white'
+              }`}
+            >
+              <p>{message.contenuMessage}</p>
+              <span className="text-xs text-gray-500">
+                {new Date(message.createdAt).toLocaleTimeString()}
+              </span>
+            </div>
           </div>
         ))}
       </div>
 
+
+
       {/* Saisie de message */}
-      <div className="sticky bottom-0 flex items-center p-4 border-t border-gray-300 bg-white">
+      <div className="sticky bottom-0 flex items-center p-5 border-t border-gray-300 bg-white">
         <input
           type="text"
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
           placeholder="Écrivez un message..."
-          className="flex-1 p-2 rounded-lg bg-gray-200 focus:outline-none"
+          className="flex-1 w-full p-2  mr-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
-        <button onClick={handleSendMessage} className="ml-2 bg-blue-500 p-2 rounded-lg text-white">
-          Envoyer
-        </button>
+         <div className="relative">
+          <Smile 
+            size={35} 
+            className="text-gray-500 hover:text-blue-500 cursor-pointer" 
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+          />
+          {showEmojiPicker && (
+            <div
+              className="emoji-picker-container absolute bottom-full mb-2 right-0"
+              ref={emojiPickerRef}
+              onMouseLeave={() => setShowEmojiPicker(false)}
+            >
+              <EmojiPicker onEmojiClick={handleEmojiClick} />
+            </div>
+          )}
+        </div>
+        <SendHorizonal
+          onClick={handleSendMessage} 
+          className="text-gray-500 hover:text-blue-500 cursor-pointer"
+          size={35}
+        />
       </div>
     </div>
   );

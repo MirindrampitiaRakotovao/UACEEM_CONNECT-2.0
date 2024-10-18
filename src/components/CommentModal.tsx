@@ -317,7 +317,7 @@ const CommentModal: React.FC<CommentModalProps> = ({
             className="w-full p-2 border rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 mr-3 text-gray"
           />
           <div className="relative">
-          <Smile 
+            <Smile 
               size={35} 
               className=" text-gray-500 hover:text-blue-500 cursor-pointer" 
               onClick={() => setShowEmojiPicker(!showEmojiPicker)}
