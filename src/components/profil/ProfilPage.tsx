@@ -6,7 +6,8 @@ import Avatar from "../avatar";
 import EditProfileModal from './EditProfileModal';
 import { useUserProfile } from '../../services/profileService';
 import { getPublicPublicationMe } from '../../services/publicationService';
-import PublicationList from '../publication/PublicationList'; // Importation du nouveau composant
+import PublicationList from '../publication/PublicationList'; 
+import { useDarkMode } from '../../contexts/DarkModeContext'; // Importer le hook du mode sombre
 
 // Définition des types
 type Etudiant = {
@@ -47,6 +48,7 @@ const UserProfile: React.FC = () => {
   const [publications, setPublications] = useState<Publication[]>([]);
   const [loadingPublications, setLoadingPublications] = useState(true);
   const [publicationError, setPublicationError] = useState<string | null>(null);
+  const { isDarkMode } = useDarkMode(); // Utiliser le hook pour détecter le mode sombre
 
   useEffect(() => {
     const fetchUserPublications = async () => {
@@ -76,25 +78,25 @@ const UserProfile: React.FC = () => {
   }
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className={`h-screen flex flex-col ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
       {/* Afficher le composant approprié selon le rôle */}
       {getHomeComponent(etudiant.role)}
 
-      <div className="bg-gray-50 text-gray flex-1 overflow-y-auto p-4">
-        <div className="w-2/5 mx-auto bg-white rounded-lg p-6">
+      <div className={`flex-1 overflow-y-auto p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+        <div className={`w-2/5 mx-auto rounded-lg p-6 ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}>
           {/* Header du profil */}
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-xl font-semibold">{etudiant.nom}</h2>
-              <p className="text-sm text-gray-400">@{etudiant.username}</p>
-              <p className="text-sm mt-2">{etudiant.email}</p>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>@{etudiant.username}</p>
+              <p className={`text-sm mt-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>{etudiant.email}</p>
             </div>
            <Avatar userId={etudiant.id} size="w-36 h-36"/>
           </div>
 
           {/* Bouton pour éditer le profil */}
           <div className="mt-4 text-center">
-            <button className="bg-transparent border-blue-500 border-2 text-black py-2 px-4 rounded-lg w-full hover:bg-blue-500 hover:text-white" onClick={openModal}>
+            <button className={`py-2 px-4 rounded-lg w-full ${isDarkMode ? 'bg-transparent border-blue-400 border-2 text-white hover:bg-blue-500' : 'bg-transparent border-blue-500 border-2 text-black hover:bg-blue-500 hover:text-white'}`} onClick={openModal}>
               Edit profile
             </button>
           </div>
@@ -112,7 +114,7 @@ const UserProfile: React.FC = () => {
 
           {/* Publications section avec le nouveau composant */}
           <div className="mt-6">
-            <h3 className="text-sm text-gray-400 mb-4">Vos Publications</h3>
+            <h3 className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-4`}>Vos Publications</h3>
             <PublicationList 
               publications={publications} 
               loading={loadingPublications} 
