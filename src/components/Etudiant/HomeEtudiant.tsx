@@ -6,6 +6,7 @@ import Avatar from "../avatar";
 import {  showDropdown, hideDropdown, goToProfile } from "../../services/homeService";
 import { logout } from '../../services/authService';
 import { useUserProfile } from "../../services/profileService"; 
+import { useDarkMode } from "../../contexts/DarkModeContext";
 
 
 
@@ -14,6 +15,7 @@ const HomeDelegue: React.FC = () => {
   const navigate = useNavigate();
 
   const { etudiant, loading, error } = useUserProfile();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   const currentPath = window.location.pathname; // Récupérer l'URL actuelle
 
@@ -29,11 +31,11 @@ const HomeDelegue: React.FC = () => {
 
   return (
     <div className="flex-none">
-<nav className="flex justify-between items-center px-5 h-16 bg-white border-b border-gray-200">
+<nav className="flex justify-between items-center px-5 h-16 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
       {/* Logo */}
       <div className="flex items-center space-x-2">
         <img src={logo} alt="Logo" className="h-10" />
-        <span className="font-bold text-3xl tracking-wide text-[#1c3d6e]">
+        <span className="font-bold text-3xl tracking-wide text-[#1c3d6e] dark:text-white">
           UACEEM-CONNECT
         </span>
       </div>
@@ -72,10 +74,10 @@ const HomeDelegue: React.FC = () => {
         <div className="flex items-center space-x-4">
           <MessageCircle 
             size={25} 
-            className="cursor-pointer"
+            className="cursor-pointer dark:text-white"
             onClick={() => navigate('/messages')} 
           />
-          <Bell size={25} className="cursor-pointer" />
+          <Bell size={25} className="cursor-pointer dark:text-white" />
           
           {/* Avatar avec gestion du clic pour afficher le dropdown */}
           <div className="relative" 
@@ -83,7 +85,7 @@ const HomeDelegue: React.FC = () => {
           >
              {etudiant?.id ? <Avatar userId={etudiant.id} /> : null}
             {isDropdownVisible && (
-              <div className="absolute right-0 mt-2 w-60 bg-white border border-gray-300 rounded-md shadow-lg"
+              <div className="absolute right-0 mt-2 w-60 bg-white border border-gray-300 rounded-md shadow-lg dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-md shadow-lg"
               onMouseEnter={() => showDropdown(setDropdownVisible)}
                 onMouseLeave={(e) => {
                   if (e.currentTarget instanceof Node && e.relatedTarget instanceof Node) {
@@ -97,25 +99,24 @@ const HomeDelegue: React.FC = () => {
               >
                 <div className="flex p-4 space-x-5 cursor-pointer" onClick={() => goToProfile(navigate)}>
                 {etudiant?.id ? <Avatar userId={etudiant.id} /> : null}
-                  <p className="text-gray-700">
+                  <p className="text-gray-700 dark:text-gray-300">
                     {loading ? "Chargement..." : error ? "Erreur" : etudiant?.username}
                   </p>
                 </div>
                 <ul>
-                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between">
-                    Mode sombre
-                    <span
-                      role="switch"
-                      aria-checked="false"  // Modifie cette valeur dynamiquement selon l'état du mode sombre
-                      className="ml-2"
+                <li 
+                      className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex justify-between"
+                      onClick={toggleDarkMode}
                     >
-                      🌙
-                    </span>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer">Aide & Support</li>
-                  <li className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => handleLogout}                  
-                  >Déconnexion</li>
+                      {isDarkMode ? "Mode clair" : "Mode sombre"}
+                      <span role="switch" aria-checked={isDarkMode} className="ml-2">
+                        {isDarkMode ? "🌞" : "🌙"}
+                      </span>
+                    </li>
+                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">Aide & Support</li>
+                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleLogout}>
+                      Déconnexion
+                    </li>
                 </ul>
               </div>
             )}

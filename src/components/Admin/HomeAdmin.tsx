@@ -1,28 +1,22 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Home, Users, ShieldAlert, Lightbulb, MessageCircle, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import logo from "../../assets/Logo ACEEMM.png";
 import Avatar from "../avatar";
-import { showDropdown, hideDropdown, goToProfile, toggleDarkMode } from "../../services/homeService";
+import { showDropdown, hideDropdown, goToProfile} from "../../services/homeService";
 import { logout } from '../../services/authService';
 import { useUserProfile } from "../../services/profileService"; 
+import { useDarkMode } from "../../contexts/DarkModeContext";
 
 const HomeAdmin: React.FC = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const navigate = useNavigate();
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
 
   const { etudiant, loading, error } = useUserProfile();
 
   const currentPath = window.location.pathname;
 
-  useEffect(() => {
-    const storedTheme = localStorage.getItem('theme');
-    if (storedTheme === 'dark') {
-      setIsDarkMode(true);
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
 
   const handleLogout = async () => {
     try {
@@ -102,19 +96,19 @@ const HomeAdmin: React.FC = () => {
                   </p>
                 </div>
                 <ul>
-                  <li 
-                    className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex justify-between"
-                    onClick={() => toggleDarkMode(isDarkMode, setIsDarkMode)}
-                  >
-                    {isDarkMode ? "Mode clair" : "Mode sombre"}
-                    <span role="switch" aria-checked={isDarkMode} className="ml-2">
-                      {isDarkMode ? "🌞" : "🌙"}
-                    </span>
-                  </li>
-                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">Aide & Support</li>
-                  <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleLogout}>
-                    Déconnexion
-                  </li>
+                <li 
+                      className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer flex justify-between"
+                      onClick={toggleDarkMode}
+                    >
+                      {isDarkMode ? "Mode clair" : "Mode sombre"}
+                      <span role="switch" aria-checked={isDarkMode} className="ml-2">
+                        {isDarkMode ? "🌞" : "🌙"}
+                      </span>
+                    </li>
+                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer">Aide & Support</li>
+                    <li className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer" onClick={handleLogout}>
+                      Déconnexion
+                    </li>
                 </ul>
               </div>
             )}
