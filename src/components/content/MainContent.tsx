@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Image, PackageOpen, CalendarDays } from 'lucide-react'; // Import icons
+import { Image, PackageOpen, CalendarDays } from 'lucide-react';
 import Avatar from '../avatar';
 import ModalPublication from '../publication/ModalPublication';
-import PublicationList from '../publication/PublicationList'; // Import de PublicationList
+import PublicationList from '../publication/PublicationList';
 import { getPublicPublications } from '../../services/publicationService';
 import socketService from '../../services/socketService';
 
@@ -34,7 +34,9 @@ const MainContent: React.FC = () => {
   const navigate = useNavigate();
   const socketRef = useRef<any>(null);
   
-
+  // Récupérer l'utilisateur connecté à partir du localStorage (ou d'une autre source)
+  const etudiant = JSON.parse(localStorage.getItem('etudiant') || '{}');
+  
   useEffect(() => {
     const fetchPublications = async () => {
       try {
@@ -53,7 +55,6 @@ const MainContent: React.FC = () => {
 
     fetchPublications();
 
-    // Initialisation du WebSocket une seule fois au montage du composant
     if (!socketRef.current) {
       console.log('Tentative de connexion au WebSocket...');
       socketRef.current = socketService.onNewPublication((newPublication: Publication) => {
@@ -66,13 +67,11 @@ const MainContent: React.FC = () => {
       if (socketRef.current) {
         console.log('Déconnexion du WebSocket...');
         socketService.disconnect();
-        socketRef.current = null; // Assurer la déconnexion
+        socketRef.current = null;
       }
     };
   }, [navigate]);
   
-  
-
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
@@ -81,7 +80,7 @@ const MainContent: React.FC = () => {
       {/* Section de création de publication */}
       <div className="bg-white p-4 rounded-md shadow mb-6 top-0 z-10">
         <div className="flex mb-6">
-        {publications.length > 0 && <Avatar userId={publications[0].etudiant.id} />}
+          <Avatar userId={etudiant.id}/> {/* Utiliser l'ID de l'étudiant connecté */}
           <input
             type="text"
             placeholder="Que voulez-vous faire aujourd'hui ?"

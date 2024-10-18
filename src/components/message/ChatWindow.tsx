@@ -15,6 +15,7 @@ interface ChatWindowProps {
     id: number;
     username: string;
     photo?: string;
+    role?: string;
   };
 }
 
@@ -26,7 +27,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user }) => {
   useEffect(() => {
     const fetchMessages = async () => {
       try {
-        const response = await axios.get(`http://localhost:4000/messagePrivee/messages/${user.id}`, {
+        const response = await axios.get(`http://localhost:4000/messagePrivee/me/${user.id}`, {
           headers: {
             Authorization: `Bearer ${localStorage.getItem('token')}`,
           },
@@ -44,7 +45,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({ user }) => {
     if (newMessage.trim()) {
       try {
         await axios.post(
-          'http://localhost:4000/messagePrivee/send',
+          'http://localhost:4000/messagePrivee',
           { destinataire_id: user.id, contenuMessage: newMessage },
           {
             headers: {

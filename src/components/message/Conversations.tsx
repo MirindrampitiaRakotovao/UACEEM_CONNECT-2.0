@@ -7,6 +7,7 @@ interface Discussion {
   id: number;
   photo: string;
   username: string;
+  role: string;
   lastMessage: string | null;
 }
 
@@ -14,6 +15,7 @@ interface Etudiant {
   id: number;
   photo: string;
   username: string;
+  role: string;
 }
 
 interface ConversationsProps {

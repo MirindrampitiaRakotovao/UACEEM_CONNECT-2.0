@@ -1,97 +1,67 @@
-// Conversations.tsx
-import React from 'react';
-import Avatar from '../avatar';
-import ChatWindow from './ChatWindow';  // Importez le composant ChatWindow
+import React, { useState } from 'react';
+import Conversations from './Conversations';  // Assure-toi que l'import est correct
+import ChatWindow from './ChatWindow';
+import ChatDetails from './ChatDetails';
+
+interface User {
+  id: number;
+  username: string;
+  photo?: string;   
+}
 
 interface Discussion {
   id: number;
   photo: string;
   username: string;
-  lastMessage: string | null;
 }
 
 interface Etudiant {
   id: number;
   photo: string;
   username: string;
+  role: string;
 }
 
-interface ConversationsProps {
-  onSelectUser: (user: Discussion | Etudiant) => void;  // Define the onSelectUser prop
-}
-
-const Conversations: React.FC<ConversationsProps> = ({ onSelectUser }) => {
-  const [discussionsRecentes, setDiscussionsRecentes] = useState<Discussion[]>([]);
-  const [etudiantsRestants, setEtudiantsRestants] = useState<Etudiant[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchDiscussions = async () => {
-      try {
-        const response = await axios.get('http://localhost:4000/messagePrivee/discussions', {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem('token')}`, 
-          },
-        });
-        
-        const { discussionsRecentes, etudiantsRestants } = response.data;
-        setDiscussionsRecentes(discussionsRecentes);
-        setEtudiantsRestants(etudiantsRestants);
-      } catch (err) {
-        setError('Erreur lors du chargement des données.');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchDiscussions();
-  }, []);
+const Messages: React.FC = () => {
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const handleSelectUser = (user: Discussion | Etudiant) => {
-    onSelectUser(user);  // Call the passed onSelectUser function
+    // Transformer un Discussion ou Etudiant en User
+    const transformedUser: User = {
+      id: user.id,
+      username: user.username,
+      photo: 'photo' in user ? user.photo : undefined,  // Vérifie si l'utilisateur a une photo
+    };
+    setSelectedUser(transformedUser);  // Définit l'utilisateur sélectionné comme un User
   };
 
-  if (loading) return <p>Chargement...</p>;
-  if (error) return <p>{error}</p>;
-
   return (
-    <div className="flex">
-      <div className="max-w-sm bg-white shadow-lg rounded-lg overflow-hidden mx-auto my-4 p-6">
-        <input
-          type="text"
-          placeholder="Rechercher dans Messenger"
-          className="mb-4 p-2 rounded bg-gray-200 focus:outline-none"
-        />
-
-        <div className="space-y-4">
-          {discussionsRecentes.map((discussion) => (
-            <div key={discussion.id} 
-                 className="flex items-center space-x-2 cursor-pointer hover:bg-gray-200 p-2 rounded"
-                 onClick={() => handleSelectUser(discussion)}  // Pass user to parent component
-            >
-              <Avatar userId={discussion.id} size="w-10 h-10" />
-              <div>
-                <p className="font-bold">{discussion.username}</p>
-                <p className="text-sm text-gray-500">{discussion.lastMessage || 'Aucun message'}</p>
-              </div>
+    <div className="h-screen flex flex-col">
+      {/* Layout principal pour les messages */}
+      <div className="flex flex-grow bg-gray-100 overflow-hidden">
+        {/* Liste des conversations */}
+        <div className="flex-none w-1/3 h-full overflow-auto">
+          <Conversations onSelectUser={handleSelectUser} />
+        </div>
+        
+        {/* Fenêtre de discussion */}
+        <div className="flex-grow h-full overflow-hidden">
+          {selectedUser ? (
+            <ChatWindow user={selectedUser} /> 
+          ) : (
+            <div className="flex items-center justify-center h-full">
+              <p>Sélectionnez un utilisateur pour commencer la discussion</p>
             </div>
-          ))}
-
-          {etudiantsRestants.map((etudiant) => (
-            <div key={etudiant.id} 
-                 className="flex items-center space-x-2 cursor-pointer hover:bg-gray-200 p-2 rounded"
-                 onClick={() => handleSelectUser(etudiant)}  // Pass student to parent component
-            >
-              <Avatar userId={etudiant.id} size="w-10 h-10" />
-              <div>
-                <p className="font-bold">{etudiant.username}</p>
-              </div>
-            </div>
-          ))}
+          )}
+        </div>
+        
+        {/* Détails de la discussion */}
+        <div className="flex-none w-1/3 h-full overflow-auto">
+          <ChatDetails />
         </div>
       </div>
     </div>
   );
 };
 
-export default Conversations;
+export default Messages;
