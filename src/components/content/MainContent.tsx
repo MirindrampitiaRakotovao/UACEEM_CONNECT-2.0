@@ -6,6 +6,7 @@ import ModalPublication from '../publication/ModalPublication';
 import PublicationList from '../publication/PublicationList';
 import { getPublicPublications } from '../../services/publicationService';
 import socketService from '../../services/socketService';
+import { useDarkMode } from '../../contexts/DarkModeContext'; // Import the useDarkMode hook
 
 type File = {
   id: number;
@@ -33,8 +34,9 @@ const MainContent: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
   const socketRef = useRef<any>(null);
+  const { isDarkMode } = useDarkMode(); // Get the dark mode state
   
-  // Récupérer l'utilisateur connecté à partir du localStorage (ou d'une autre source)
+  // Get the logged-in student from localStorage (or another source)
   const etudiant = JSON.parse(localStorage.getItem('etudiant') || '{}');
   
   useEffect(() => {
@@ -76,46 +78,46 @@ const MainContent: React.FC = () => {
   const closeModal = () => setIsModalOpen(false);
 
   return (
-    <main className="relative flex-1 h-[90vh] overflow-y-scroll bg-gray-50 p-6 scrollbar-hidden">
-      {/* Section de création de publication */}
-      <div className="bg-white p-4 rounded-md shadow mb-6 top-0 z-10">
+    <main className={`relative flex-1 h-[90vh] overflow-y-scroll p-6 scrollbar-hidden ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-50'}`}>
+      {/* Section for creating a publication */}
+      <div className={`p-4 rounded-md shadow mb-6 ${isDarkMode ? 'bg-gray-700' : 'bg-white'}`}>
         <div className="flex mb-6">
-          <Avatar userId={etudiant.id}/> {/* Utiliser l'ID de l'étudiant connecté */}
+          <Avatar userId={etudiant.id}/> {/* Use the logged-in student's ID */}
           <input
             type="text"
             placeholder="Que voulez-vous faire aujourd'hui ?"
-            className="w-full p-2 border rounded-full hover:outline-none hover:ring-2 hover:ring-blue-500 mb-1 ml-3"
+            className={`w-full p-2 border rounded-full mb-1 ml-3 ${isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'border-gray-300'}`}
             onClick={openModal}
             readOnly
           />
         </div>
 
-        <hr className="w-full my-4 border-gray-300" />
+        <hr className={`w-full my-4 ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`} />
 
         <div className="flex justify-around w-full">
           <div className="flex flex-col items-center">
-            <Image className="w-6 h-6" />
-            <span className="text-sm text-gray-700">Photo / Vidéo</span>
+            <Image className={`w-6 h-6 ${isDarkMode ? 'text-white' : 'text-gray-700'}`} />
+            <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Photo / Vidéo</span>
           </div>
           <div className="flex flex-col items-center">
-            <PackageOpen className="w-6 h-6" />
-            <span className="text-sm text-gray-700">Fichier</span>
+            <PackageOpen className={`w-6 h-6 ${isDarkMode ? 'text-white' : 'text-gray-700'}`} />
+            <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Fichier</span>
           </div>
           <div className="flex flex-col items-center">
-            <CalendarDays className="w-6 h-6" />
-            <span className="text-sm text-gray-700">Événement</span>
+            <CalendarDays className={`w-6 h-6 ${isDarkMode ? 'text-white' : 'text-gray-700'}`} />
+            <span className={`text-sm ${isDarkMode ? 'text-white' : 'text-gray-700'}`}>Événement</span>
           </div>
         </div>
       </div>
 
-      {/* Utilisation du composant PublicationList */}
+      {/* Use the PublicationList component */}
       <PublicationList
         publications={publications}
         loading={loading}
         error={error}
       />
 
-      {/* Modal pour la création de publication */}
+      {/* Modal for creating publication */}
       <ModalPublication isOpen={isModalOpen} onClose={closeModal} />
     </main>
   );
