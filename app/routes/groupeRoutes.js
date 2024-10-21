@@ -15,5 +15,4 @@ router.get('/membres', authenticateToken ,groupeController.getEtudiantsByGroupe)
 router.put('/:id/couverture' , authenticateToken, hasRole , upload.single('couverture'), groupeController.updatecouverture);
 
 
-
 module.exports = router;

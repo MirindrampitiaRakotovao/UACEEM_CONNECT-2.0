@@ -160,4 +160,43 @@ exports.getGroupesAdministres = async (req, res) => {
   }
 };
 
+// Modifier la couverture d'un groupe (admin uniquement)
+exports.changeCouverture = async (req, res) => {
+  const { groupe_nom } = req.body;
+  const { couverture } = req.body; // URL ou fichier de la nouvelle couverture
+
+  // Vérifier si req.user et req.user.id sont définis
+  if (!req.user || !req.user.id) {
+    return res.status(403).json({ message: 'Utilisateur non authentifié' });
+  }
+
+  const admin_id = req.user.id; // ID de l'utilisateur connecté (admin)
+
+  try {
+    // Trouver le groupe par son nom
+    const groupe = await GroupePartage.findOne({ where: { design_groupe_partage: groupe_nom } });
+
+    if (!groupe) {
+      return res.status(404).json({ message: 'Groupe non trouvé' });
+    }
+
+    // Vérifier si l'utilisateur est l'admin du groupe
+    const estAdmin = await GroupePartageEtudiant.findOne({
+      where: { groupe_partage_id: groupe.id, membre_id: admin_id, role_membre_groupe: 'admin' },
+    });
+
+    if (!estAdmin) {
+      return res.status(403).json({ message: 'Seul l\'administrateur peut changer la couverture du groupe' });
+    }
+
+    // Mettre à jour la couverture du groupe
+    groupe.couverture = couverture; // Vous pouvez aussi gérer les fichiers d'upload ici
+    await groupe.save();
+
+    res.status(200).json({ message: 'Couverture du groupe modifiée avec succès', groupe });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la modification de la couverture', error: error.message });
+  }
+};
+
   
