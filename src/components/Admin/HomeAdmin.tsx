@@ -45,7 +45,10 @@ const HomeAdmin: React.FC = () => {
           >
             <Home size={25} className={`${currentPath === '/homeAdmin' ? 'text-[#1c3d6e]' : 'dark:text-white'}`} />
           </li>
-          <li className="cursor-pointer">
+          <li 
+            className={`relative flex flex-col items-center cursor-pointer ${currentPath === '/groupe' ? 'border-b-2 border-[#1c3d6e] rounded-b-lg w-16' : 'w-15'}`}
+            onClick={() => navigate('/groupe')}
+          >
             <Users size={25} className="dark:text-white" />
           </li>
           <li className="cursor-pointer">

@@ -8,6 +8,7 @@ import DashboardDelegue from './pages/dashboardDelegue';
 import DashboardEtudiant from './pages/dashboardEtudiant';
 import ProfilPage from './components/profil/ProfilPage';
 import Messages from "./components/message/Messages";
+import Groupe from "./components/Groupes/Groupe"
 import { DarkModeProvider } from './contexts/DarkModeContext'; // Import DarkModeProvider
 
 const App: React.FC = () => {
@@ -21,6 +22,7 @@ const App: React.FC = () => {
           <Route path="/homeEtudiant" element={<DashboardEtudiant />} />
           <Route path="/profile/:username" element={<ProfilPage />} />
           <Route path="/messages" element={<Messages />} />
+          <Route path="/groupe" element={<Groupe />} />
         </Routes>
       </Router>
     </DarkModeProvider>
