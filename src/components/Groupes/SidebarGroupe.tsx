@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { Link } from 'react-router-dom';
 import Avatar from '../avatar';
+import axios from 'axios';
 import { useDarkMode } from '../../contexts/DarkModeContext'; // Import the dark mode context
 import { Search, Plus, Settings , Newspaper , UsersRound} from 'lucide-react'; // Lucide icons
 
@@ -10,11 +11,18 @@ interface DecodedToken {
   username: string;
   role: string;
 }
+interface Groupe {
+  id: number;
+  design_groupe_partage: string;
+  admin_id: number;
+}
+
 
 const SidebarGroupe: React.FC = () => {
   const [id, setId] = useState<number | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const [groupesAdministres, setGroupesAdministres] = useState<Groupe[]>([]);
   const { isDarkMode } = useDarkMode(); // Get the dark mode state
 
   useEffect(() => {
@@ -25,12 +33,28 @@ const SidebarGroupe: React.FC = () => {
         setId(decodedToken.id);
         setUsername(decodedToken.username);
         setRole(decodedToken.role);
+        fetchGroupesAdministres(decodedToken.id);
       } catch (error) {
         console.error('Erreur lors du décodage du token JWT', error);
       }
     }
   }, []);
 
+  const fetchGroupesAdministres = async (adminId: number) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await axios.get(`http://localhost:4000/partageGroupe/admin/me`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log(response.data);  // Ajoute cette ligne pour voir les données reçues
+      setGroupesAdministres(response.data.groupes);
+    } catch (error) {
+      console.error('Erreur lors de la récupération des groupes administrés', error);
+    }
+  };
+  
   return (
     <div className={`max-w-sm  overflow-hidden mx-auto my-4 p-6 ${isDarkMode ? ' text-white' : ' text-gray-700'}`}>
         {/* User Section */}
@@ -103,17 +127,21 @@ const SidebarGroupe: React.FC = () => {
 
       {/* Managed Groups */}
       <div className="mt-6">
-        <h3 className="font-bold text-lg mb-2">Groupes que vous gérez</h3>
-        <ul className="space-y-3">
-            <li  className="flex items-center space-x-3">
-              <div>
-                <h4 className="font-semibold">Nom groupe</h4>
-                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>En ligne il y a </p>
-              </div>
-            </li>
-        </ul>
-      </div>
-
+  <h2 className="font-bold text-lg mb-2">Groupes que vous gérez</h2>
+  <ul className="space-y-3">
+    {groupesAdministres.length > 0 ? (
+      groupesAdministres.map((groupe) => (
+        <li key={groupe.id} className="flex items-center space-x-3">
+          <div>
+            <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{groupe.design_groupe_partage}</h3>
+          </div>
+        </li>
+      ))
+    ) : (
+      <li className="text-gray-500">Vous n'êtes administrateur d'aucun groupe.</li>
+    )}
+  </ul>
+</div>
       {/* Member Groups */}
       <div className="mt-6">
         <h3 className="font-bold text-lg mb-2">Groupes dont vous êtes membre</h3>
