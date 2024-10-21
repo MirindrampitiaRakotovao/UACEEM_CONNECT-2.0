@@ -24,7 +24,6 @@ const Groupe: React.FC = () => {
           "http://localhost:4000/etudiant/me",
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        
 
         // Vérifie si les données de l'étudiant sont dans un sous-objet
         if (response.data && response.data.role) {
@@ -54,24 +53,30 @@ const Groupe: React.FC = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
       {etudiant ? (
         <>
           {console.log('Rôle de l\'étudiant:', etudiant.role)}  {/* Affiche le rôle pour vérifier */}
-          {getHomeComponent(etudiant.role)}  {/* Affiche le composant basé sur le rôle */}
+          <header className="w-full bg-white dark:bg-gray-800 p-4 shadow">
+            {getHomeComponent(etudiant.role)}  {/* Affiche le composant de la navbar basé sur le rôle */}
+          </header>
         </>
       ) : (
         <p>Chargement du profil...</p>
       )}
-      {/* Sidebar */}
-      <aside className="w-1/5 bg-gray-800 dark:bg-gray-700 p-4">
-        <SidebarGroupe />
-      </aside>
+      
+      {/* Layout principal sous la navbar */}
+      <div className="flex flex-grow">
+        {/* Sidebar */}
+        <aside className="w-1/5 bg-gray-800 dark:bg-gray-700 p-4">
+          <SidebarGroupe />
+        </aside>
 
-      {/* Main content */}
-      <main className="flex-grow p-4">
-        {/* Contenu principal ici */}
-      </main>
+        {/* Main content */}
+        <main className="flex-grow p-4">
+          {/* Contenu principal ici */}
+        </main>
+      </div>
     </div>
   );
 };
