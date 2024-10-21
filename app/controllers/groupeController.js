@@ -60,3 +60,37 @@ exports.getEtudiantsByGroupe = async (req, res) => {
     res.status(500).json({ message: 'Erreur serveur', error });
   }
 };
+
+exports.updatecouverture = async (req, res) => {
+  try {
+    const groupeId = req.params.id;
+    const userId = req.user.id;
+    const userRole = req.user.role;
+
+
+    // Vérifier si l'utilisateur est un étudiant et a le rôle de délégué
+    if (userRole !== 'Délegué') {
+      return res.status(403).json({ error: 'Accès refusé. Seuls les délégués peuvent changer la photo de couverture.' });
+    }
+
+    // Vérifier si l'étudiant appartient bien au groupe
+    const etudiant = await Etudiant.findOne({ where: { id: userId, groupes_id: groupeId } });
+    if (!etudiant) {
+      return res.status(403).json({ error: 'Accès refusé. Vous ne faites pas partie de ce groupe.' });
+    }
+
+    // Rechercher le groupe auquel l'étudiant appartient
+    const groupe = await Groupe.findByPk(groupeId);
+    if (!groupe) {
+      return res.status(404).json({ error: 'Groupe non trouvé.' });
+    }
+
+    // Mettre à jour le chemin de la couverture dans la base de données
+    groupe.couverture = `../uploads/${req.file.filename}`;
+    await groupe.save();
+
+    res.status(200).json({ message: 'couverture mise à jour avec succès', couverture: groupe.couverture });
+  } catch (error) {
+    res.status(500).json({ error: 'Une erreur est survenue' });
+  }
+};
