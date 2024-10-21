@@ -18,6 +18,8 @@ const Commentaire = sequelize.define('commentaire', {
       model: 'etudiants',
       key: 'id',
     },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   publication_id: {
     type: DataTypes.INTEGER,
@@ -26,6 +28,8 @@ const Commentaire = sequelize.define('commentaire', {
       model: 'publications',
       key: 'id',
     },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   parent_id: {
     type: DataTypes.INTEGER,
@@ -34,6 +38,8 @@ const Commentaire = sequelize.define('commentaire', {
       model: 'commentaires', // Référence à ce même modèle pour les réponses
       key: 'id',
     },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   date_commentaire: {
     type: DataTypes.DATE,

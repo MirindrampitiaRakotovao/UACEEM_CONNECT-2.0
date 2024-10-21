@@ -1,1 +1,20 @@
-const MessagePriveeService = require('../services/messagePriveeService');
+// consulter profil
+exports.getProfil = async (req, res) => {
+    try {
+        const etudiantId = req.user.id;
+
+        // Récupérer les informations de l'étudiant connecté avec le rôle
+        const etudiant = await Etudiant.findByPk(etudiantId, {
+            attributes: { exclude: ['password'] }, // Exclure le mot de passe
+        });
+
+        if (!etudiant) {
+            return res.status(404).json({ message: 'Profil non trouvé' });
+        }
+
+        res.status(200).json(etudiant); // Pas besoin d'envoyer un objet avec { etudiant }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Erreur serveur', error });
+    }
+};

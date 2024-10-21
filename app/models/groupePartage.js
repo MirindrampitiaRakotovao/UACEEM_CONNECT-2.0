@@ -18,6 +18,8 @@ const GroupePartages = sequelize.define('groupePartages', {
       model: 'etudiants',
       key: 'id',
     },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   date_creation: {
     type: DataTypes.DATE,

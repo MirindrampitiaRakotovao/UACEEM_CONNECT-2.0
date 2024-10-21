@@ -16,6 +16,8 @@ const Publications = sequelize.define('publications', {
       model: 'etudiants',
       key: 'id',
     },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   visibilite: {
     type: DataTypes.ENUM('Public', 'Groupe'),
@@ -50,7 +52,9 @@ const Publications = sequelize.define('publications', {
     references: {
       model: 'groupePartages',
       key: 'id'
-    }
+    },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   }
 });
 

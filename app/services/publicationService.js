@@ -93,6 +93,31 @@ exports.getPublicPublications = async () => {
   }
 };
 
+//publication public de tout les utilisateurs
+exports.getGroupePublications = async () => {
+  try {
+    // Récupérer toutes les publications avec visibilité "Public"
+    const publications = await Publications.findAll({
+      where: { visibilite: 'Groupe' },
+      include: [
+        {
+          model: require('../models/etudiants'),
+          attributes: ['id','nom', 'username'],
+        },
+        {
+          model: Fichiers,
+          as: 'fichiers', // Inclure les fichiers liés à la publication
+          attributes: ['nom_fichier', 'url_fichier'], // Renvoyer le nom et l'URL des fichiers
+        },
+      ],
+    });
+
+    return publications;
+  } catch (error) {
+    throw new Error(error.message);
+  }
+};
+
 //publication public de la personne 
 exports.getPublicPublicationsByUser = async (etudiant_id) => {
   try {

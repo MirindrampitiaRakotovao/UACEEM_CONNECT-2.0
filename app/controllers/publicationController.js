@@ -53,6 +53,21 @@ exports.getPublicPublications = async (req, res) => {
   }
 };
 
+//publication public de tout les utilisateurs
+exports.getGroupePublications = async (req, res) => {
+  try {
+    const publications = await publicationService.getPublicPublications();
+
+    if (!publications.length) {
+      return res.status(404).json({ message: 'Aucune publication Groupe trouvée' });
+    }
+
+    return res.status(200).json(publications);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 
 //publication publier par la personne 
 exports.getPublicPublicationsByUser = async (req, res) => {

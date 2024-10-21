@@ -1,8 +1,12 @@
-const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/database');
+'use strict';
 
-const MessagePrivee = sequelize.define('messagePrivees', {
-    id: {
+const { DataTypes } = require('sequelize');
+
+/** @type {import('sequelize-cli').Migration} */
+module.exports = {
+  async up (queryInterface, Sequelize) {
+    await queryInterface.createTable('messagePrivees',{
+      id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -34,8 +38,21 @@ const MessagePrivee = sequelize.define('messagePrivees', {
     status: {
         type: DataTypes.BOOLEAN,
         defaultValue: false,
-    }
-});
+    },
+      
+      //Autres colonnes 
+      createdAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+      updatedAt: {
+        allowNull: false,
+        type: Sequelize.DATE,
+      },
+    });
+  },
 
-module.exports = MessagePrivee;
-
+  async down (queryInterface, Sequelize) {
+    await queryInterface.dropTable('messagePrivees');
+  }
+};

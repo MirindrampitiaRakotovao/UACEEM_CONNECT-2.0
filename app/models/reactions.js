@@ -15,6 +15,8 @@ const Reactions = sequelize.define('reactions', {
       model: 'etudiants', // Fait référence au modèle d'étudiant
       key: 'id',
     },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   publication_id: {
     type: DataTypes.INTEGER,
@@ -23,6 +25,8 @@ const Reactions = sequelize.define('reactions', {
       model: 'publications',
       key: 'id',
     },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   commentaire_id: {
     type: DataTypes.INTEGER,
@@ -31,6 +35,8 @@ const Reactions = sequelize.define('reactions', {
       model: 'commentaires',
       key: 'id',
     },
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   isReacted: {
     type: DataTypes.BOOLEAN,

@@ -25,6 +25,8 @@ const Etudiants = sequelize.define('etudiants', {
           model: 'groupes',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
     },
     photo: {
       type: DataTypes.STRING,

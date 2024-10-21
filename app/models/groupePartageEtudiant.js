@@ -9,19 +9,23 @@ const GroupePartageEtudiants = sequelize.define('groupePartageEtudiants', {
   },
   membre_id: {
     type: DataTypes.INTEGER,
+    allowNull: false,
     references: {
       model: 'etudiants',
       key: 'id',
     },
-    allowNull: false,
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   groupe_partage_id: {
     type: DataTypes.INTEGER,
+    allowNull: false,
     references: {
       model: 'groupePartages',
       key: 'id',
     },
-    allowNull: false,
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
   date_adhesion: {
     type: DataTypes.DATE,

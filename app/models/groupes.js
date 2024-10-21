@@ -23,6 +23,12 @@ const Groupes = sequelize.define('groupes', {
           model: 'niveaux',
           key: 'id',
         },
+        onUpdate: 'CASCADE',
+        onDelete: 'CASCADE',
+    },
+    couverture: {
+      type: DataTypes.STRING,
+      allowNull: true,
     },
   });
 

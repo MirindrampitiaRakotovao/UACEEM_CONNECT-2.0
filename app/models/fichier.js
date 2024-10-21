@@ -26,7 +26,8 @@ const Fichiers = sequelize.define('fichiers', {
       model: 'Publications',
       key: 'id',
     },
-    onDelete: 'CASCADE', // Si une publication est supprimée, supprimer aussi les fichiers associés
+    onUpdate: 'CASCADE',
+    onDelete: 'CASCADE',
   },
 });
 

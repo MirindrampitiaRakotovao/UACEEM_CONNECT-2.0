@@ -23,6 +23,8 @@ const Parcours = sequelize.define('parcours', {
         model: 'mentions',
         key: 'id',
       },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
     },
   });
   

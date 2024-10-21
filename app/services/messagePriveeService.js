@@ -11,8 +11,8 @@ class MessagePriveeService {
       return await MessagePrivee.findAll({
           where: {
               [Op.or]: [
-                  { expediteur_id, destinataire_id },
-                  { expediteur_id: destinataire_id, destinataire_id: expediteur_id }
+                { expediteur_id: expediteur_id, destinataire_id: destinataire_id },
+                { expediteur_id: destinataire_id, destinataire_id: expediteur_id }
               ]
           },
           order: [['createdAt', 'ASC']],
@@ -64,7 +64,7 @@ class MessagePriveeService {
                   [Op.in]: userIdsWithMessages
               }
           },
-          attributes: ['id', 'photo', 'username'],
+          attributes: ['id', 'photo', 'username' , 'role'],
           raw: true
       });
 

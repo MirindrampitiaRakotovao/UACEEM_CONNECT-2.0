@@ -23,6 +23,8 @@ const Niveaux = sequelize.define('niveaux', {
         model: 'parcours',
         key: 'id',
       },
+      onUpdate: 'CASCADE',
+      onDelete: 'CASCADE',
     },
   },
   {
