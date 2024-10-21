@@ -47,38 +47,43 @@ const SidebarGroupe: React.FC = () => {
       </div>
 
     {/* Titre */}
-		<div className="flex items-center justify-between mb-4">
+		<div className="flex items-center justify-between mb-5">
 			<h3 className="text font-bold">Groupes</h3>
 			<Settings className="text-gray-500 cursor-pointer" />
 		</div>
 
 
       {/* Search Bar */}
-      <div className="flex items-center space-x-3 mb-4">
+      <div className="flex items-center space-x-3 mb-4 ">
         <Search className="text-gray-500" />
         <input
           type="text"
           placeholder="Rechercher des groupes"
-          className={`w-full p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-700'}`}
+          className={`w-full p-2 rounded-lg border ${isDarkMode ? ' border-gray-700 bg-gray-800 text-gray-100 focus:ring-blue-400' : ' border-gray-300 bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-blue-500 '}`}
         />
       </div>
 
         {/* Navigation menu */}
-      <div className="m-6 space-y-4">
-        <button className={`w-full p-2 rounded-lg ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
+      <div className=" space-y-4 mb-6">
+        <button className={`w-full h-12 rounded-lg text font-bold ${isDarkMode ? ' hover:bg-gray-600 text-white' : ' hover:bg-gray-200 text-gray-700'}`}>
           Votre fil
         </button>
-        <button className={`w-full p-2 rounded-lg ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
+        <button className={`w-full h-12 rounded-lg text font-bold ${isDarkMode ? ' hover:bg-gray-600 text-white' : ' hover:bg-gray-200 text-gray-700'}`}>
           Vos Groupes
         </button>
       </div>
 
       {/* Navigation Buttons */}
-      <div className="space-y-4">
-        <button className={`w-full flex justify-start items-center p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 hover:bg-gray-700 text-white' : 'bg-gray-100 hover:bg-gray-200 text-gray-700'}`}>
-          <Plus className="mr-2" /> Créer un nouveau groupe
+      <div className="space-y-4 ">
+        <button className={`w-full flex justify-start items-center p-2 rounded-lg text font-bold
+          ${isDarkMode 
+            ? 'bg-blue-100 hover:bg-blue-200 text-blue-800'  
+            : 'bg-blue-50 hover:bg-blue-100 text-blue-600' 
+          }`}>
+          <Plus className="mr-3 ml-3" /> Créer un nouveau groupe
         </button>
       </div>
+
 
       {/* Managed Groups */}
       <div className="mt-6">

@@ -57,7 +57,7 @@ const Groupe: React.FC = () => {
       {etudiant ? (
         <>
           {console.log('Rôle de l\'étudiant:', etudiant.role)}  {/* Affiche le rôle pour vérifier */}
-          <header className="w-full bg-white dark:bg-gray-800 p-4 shadow">
+          <header className="w-full bg-white dark:bg-gray-800  shadow">
             {getHomeComponent(etudiant.role)}  {/* Affiche le composant de la navbar basé sur le rôle */}
           </header>
         </>
@@ -68,12 +68,12 @@ const Groupe: React.FC = () => {
       {/* Layout principal sous la navbar */}
       <div className="flex flex-grow">
         {/* Sidebar */}
-        <aside className="w-1/5 bg-gray-800 dark:bg-gray-700 p-4">
+        <aside className="w-1/5 pt-0 p-5">
           <SidebarGroupe />
         </aside>
 
         {/* Main content */}
-        <main className="flex-grow p-4">
+        <main className="flex-grow p-2">
           {/* Contenu principal ici */}
         </main>
       </div>
