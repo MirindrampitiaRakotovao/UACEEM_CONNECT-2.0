@@ -30,18 +30,11 @@ const Messages: React.FC = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
         
-        // Inspecte la réponse complète pour voir comment elle est structurée
-        console.log('Réponse complète du serveur :', response);
-
-        // Regarde spécifiquement response.data pour vérifier la structure
-        console.log('Données exactes reçues (response.data) :', response.data);
 
         // Vérifie si les données de l'étudiant sont dans un sous-objet
         if (response.data && response.data.role) {
-          console.log('Le rôle a été trouvé :', response.data.role);
           setEtudiant(response.data);  // Utilise directement les données si elles contiennent le rôle
         } else {
-          console.log("Les données de l'étudiant sont dans un sous-objet, essayons autre chose...");
           setEtudiant(response.data.etudiant); // Essaye response.data.etudiant si le rôle est dans un sous-objet
         }
       } catch (error) {

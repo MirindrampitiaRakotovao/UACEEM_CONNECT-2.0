@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Home, Users, Shield, Lightbulb, MessageCircle, Bell } from 'lucide-react';
+import { Home, Users, Lightbulb, MessageCircle, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import logo from "../../assets/Logo ACEEMM.png";
 import Avatar from "../avatar";
@@ -50,13 +50,10 @@ const HomeDelegue: React.FC = () => {
             <Home size={25} className={`${currentPath === '/homeEtudiant' ? 'text-[#1c3d6e]' : 'dark:text-white'}`} />
           </li>
           <li className="cursor-pointer">
-            <Users size={25} />
+            <Users size={25} className="dark:text-white"/>
           </li>
           <li className="cursor-pointer">
-            <Shield size={25} />
-          </li>
-          <li className="cursor-pointer">
-            <Lightbulb size={25} />
+            <Lightbulb size={25} className="dark:text-white"/>
           </li>
         </ul>
       </div>

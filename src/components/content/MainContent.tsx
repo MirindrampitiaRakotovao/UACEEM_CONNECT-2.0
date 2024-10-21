@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Image, PackageOpen, CalendarDays } from 'lucide-react';
 import Avatar from '../avatar';
+import axios from 'axios';
 import ModalPublication from '../publication/ModalPublication';
 import PublicationList from '../publication/PublicationList';
 import { getPublicPublications } from '../../services/publicationService';
@@ -27,7 +28,15 @@ type Publication = {
   fichiers: File[];
 };
 
+interface User {
+  id: number;
+  username: string;
+  role: string;
+  photo?: string;
+}
+
 const MainContent: React.FC = () => {
+  const [etudiant, setEtudiant] = useState<User | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [publications, setPublications] = useState<Publication[]>([]);
   const [loading, setLoading] = useState(true);
@@ -36,8 +45,6 @@ const MainContent: React.FC = () => {
   const socketRef = useRef<any>(null);
   const { isDarkMode } = useDarkMode(); // Get the dark mode state
   
-  // Get the logged-in student from localStorage (or another source)
-  const etudiant = JSON.parse(localStorage.getItem('etudiant') || '{}');
   
   useEffect(() => {
     const fetchPublications = async () => {
@@ -77,19 +84,49 @@ const MainContent: React.FC = () => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    
+    const fetchEtudiant = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:4000/etudiant/me",
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        
+
+        // Vérifie si les données de l'étudiant sont dans un sous-objet
+        if (response.data && response.data.id) {
+          setEtudiant(response.data);  // Utilise directement les données si elles contiennent le rôle
+        } else {
+          setEtudiant(response.data.etudiant); // Essaye response.data.etudiant si le rôle est dans un sous-objet
+        }
+      } catch (error) {
+        console.error('Erreur lors de la récupération du profil :', error);
+      }
+    };
+
+    fetchEtudiant();
+  }, []);
+
   return (
     <main className={`relative flex-1 h-[90vh] overflow-y-scroll p-6 scrollbar-hidden ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-50'}`}>
       {/* Section for creating a publication */}
       <div className={`p-4 rounded-md shadow mb-6 ${isDarkMode ? 'bg-gray-700' : 'bg-white'}`}>
         <div className="flex mb-6">
-          <Avatar userId={etudiant.id}/> {/* Use the logged-in student's ID */}
+          {etudiant ? (
+            <Avatar userId={etudiant.id} /> 
+          ) : (
+            <div>Loading...</div> 
+          )}
           <input
             type="text"
             placeholder="Que voulez-vous faire aujourd'hui ?"
-            className={`w-full p-2 border rounded-full mb-1 ml-3 ${isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'border-gray-300'}`}
+            className={`w-[100%] p-2 border rounded-full mb-1 ml-3 ${isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'border-gray-300'}`}
             onClick={openModal}
             readOnly
           />
+
         </div>
 
         <hr className={`w-full my-4 ${isDarkMode ? 'border-gray-600' : 'border-gray-300'}`} />

@@ -49,10 +49,10 @@ const HomeAdmin: React.FC = () => {
             <Users size={25} className="dark:text-white" />
           </li>
           <li className="cursor-pointer">
-            <ShieldAlert size={25} className="dark:text-white" />
+            <Lightbulb size={25} className="dark:text-white" />
           </li>
           <li className="cursor-pointer">
-            <Lightbulb size={25} className="dark:text-white" />
+            <ShieldAlert size={25} className="dark:text-white" />
           </li>
         </ul>
       </div>
