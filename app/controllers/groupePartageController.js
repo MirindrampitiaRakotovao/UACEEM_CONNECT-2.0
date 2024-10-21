@@ -139,4 +139,25 @@ exports.removeMember = async (req, res) => {
     res.status(500).json({ message: 'Erreur lors de la suppression du membre', error: error.message });
   }
 };
+
+// Liste des groupes où l'utilisateur connecté est administrateur
+exports.getGroupesAdministres = async (req, res) => {
+  const admin_id = req.user.id; // ID de l'utilisateur connecté
+
+  try {
+    // Récupérer les groupes où l'utilisateur est administrateur
+    const groupes = await GroupePartage.findAll({
+      where: { admin_id },
+    });
+
+    if (groupes.length === 0) {
+      return res.status(404).json({ message: 'Aucun groupe trouvé.' });
+    }
+
+    res.status(200).json({ groupes });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération des groupes', error: error.message });
+  }
+};
+
   

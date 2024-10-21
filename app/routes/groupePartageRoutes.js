@@ -9,4 +9,6 @@ router.post('/addMember', authenticateToken ,groupePartageController.addMember);
 router.post('/removeMember', authenticateToken ,groupePartageController.removeMember);
 router.get('/membres/:groupe_nom', authenticateToken ,groupePartageController.listMembers);
 
+router.get('/admin/me', authenticateToken ,groupePartageController.getGroupesAdministres);
+
 module.exports = router;
