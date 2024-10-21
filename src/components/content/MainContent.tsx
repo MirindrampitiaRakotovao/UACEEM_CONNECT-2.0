@@ -110,7 +110,7 @@ const MainContent: React.FC = () => {
   }, []);
 
   return (
-    <main className={`relative flex-1 h-[90vh] overflow-y-scroll p-6 scrollbar-hidden ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-50'}`}>
+    <main className={`relative flex-1 h-[90vh] overflow-y-scroll p-6 scrollbar-hidden max-w-[90%] mx-auto ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-50'}`}>
       {/* Section for creating a publication */}
       <div className={`p-4 rounded-md shadow mb-6 ${isDarkMode ? 'bg-gray-700' : 'bg-white'}`}>
         <div className="flex mb-6">
@@ -122,7 +122,7 @@ const MainContent: React.FC = () => {
           <input
             type="text"
             placeholder="Que voulez-vous faire aujourd'hui ?"
-            className={`w-[100%] p-2 border rounded-full mb-1 ml-3 ${isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'border-gray-300'}`}
+            className={`w-[80%] p-2 border rounded-full mb-1 ml-3 ${isDarkMode ? 'bg-gray-600 border-gray-500 text-white' : 'border-gray-300'}`}
             onClick={openModal}
             readOnly
           />

@@ -82,7 +82,7 @@ const UserProfile: React.FC = () => {
       {/* Afficher le composant approprié selon le rôle */}
       {getHomeComponent(etudiant.role)}
 
-      <div className={`flex-1 overflow-y-auto p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
+      <div className={`flex-1 overflow-y-auto  ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}>
         <div className={`w-2/5 mx-auto rounded-lg p-6 ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'}`}>
           {/* Header du profil */}
           <div className="flex items-center justify-between">

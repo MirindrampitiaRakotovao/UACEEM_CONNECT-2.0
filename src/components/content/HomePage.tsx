@@ -10,7 +10,7 @@ const HomePage: React.FC = () => {
   return (
     <div className={`flex overflow-hidden ${isDarkMode ? 'bg-gray-900' : 'bg-gray-100'} dark:bg-gray-900`}>
       {/* Sidebar gauche */}
-      <div className="flex-none w-1/3 h-full">
+      <div className="flex-none w-1/4 h-full">
         <SidebarLeft />
       </div>
 
@@ -20,7 +20,7 @@ const HomePage: React.FC = () => {
       </div>
 
       {/* Sidebar droit */}
-      <div className="flex-none w-1/3 h-full">
+      <div className="flex-none w-1/4 h-full">
         <SidebarRight />
       </div>
     </div>
