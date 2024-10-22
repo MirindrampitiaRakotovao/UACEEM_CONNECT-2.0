@@ -9,10 +9,9 @@ interface CouvertureProps {
   groupId: number;
 }
 
-
 const Couverture: React.FC<CouvertureProps> = ({ size = "w-10 h-10", groupId }) => {
   const [couverture, setCouverture] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [hasError, setHasError] = useState(false);
   const { isDarkMode } = useDarkMode(); 
 
   // Fonction pour calculer la taille de l'icône en fonction du cercle
@@ -36,19 +35,18 @@ const Couverture: React.FC<CouvertureProps> = ({ size = "w-10 h-10", groupId }) 
         if (couverturePath) {
           const fullPath = `http://localhost:4000/${couverturePath}`;
           console.log('Chemin complet:', fullPath);
-          setCouverture(fullPath); // Met à jour le chemin de l'image
+          setCouverture(fullPath);
         } else {
-          setError('Image de couverture non trouvée');
+          setHasError(true); // Marque comme erreur si la couverture est absente
         }
       } catch (err) {
         console.error('Erreur lors de la récupération:', err);
-        setError('Erreur lors de la récupération des données');
+        setHasError(true);
       }
     };
 
     fetchCouverture();
   }, [groupId]);
-  
 
   return (
     <div
@@ -56,24 +54,22 @@ const Couverture: React.FC<CouvertureProps> = ({ size = "w-10 h-10", groupId }) 
         "rounded-lg overflow-hidden flex justify-center items-center",
         size,
         {
-          // Appliquer différentes classes selon le mode sombre ou clair
-          "bg-gray-200": !isDarkMode, // Couleur de fond en mode clair
-          "bg-gray-600": isDarkMode,  // Couleur de fond en mode sombre
+          "bg-gray-200": !isDarkMode, // Fond clair
+          "bg-gray-600": isDarkMode,  // Fond sombre
         }
       )}
     >
-      {error ? (
-        <p className="text-red-500">{error}</p>
-      ) : couverture ? (
+      {hasError || !couverture ? (
+        <UsersRound
+          className={isDarkMode ? "text-gray-400" : "text-gray-500"}
+          style={{ width: calculateIconSize(size), height: calculateIconSize(size) }}
+        />
+      ) : (
         <img
           src={couverture}
           alt="Couverture du groupe"
           className="object-cover w-full h-full"
-        />
-      ) : (
-        <UsersRound
-          className={isDarkMode ? "text-gray-400" : "text-gray-500"} 
-          style={{ width: calculateIconSize(size), height: calculateIconSize(size) }} 
+          onError={() => setHasError(true)} // Gestion du cas où l'image ne charge pas
         />
       )}
     </div>

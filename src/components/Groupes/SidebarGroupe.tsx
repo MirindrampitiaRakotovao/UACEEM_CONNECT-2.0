@@ -19,7 +19,11 @@ interface Groupe {
   admin_id: number;
 }
 
-const SidebarGroupe: React.FC = () => {
+interface SidebarGroupeProps {
+  onCreateNewGroup: () => void;  
+}
+
+const SidebarGroupe: React.FC<SidebarGroupeProps> = ({ onCreateNewGroup }) => {
   const [id, setId] = useState<number | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -101,7 +105,10 @@ const SidebarGroupe: React.FC = () => {
 
       {/* Create New Group Button */}
       <div className="space-y-4">
-        <button className={`w-full flex justify-start items-center p-2 rounded-lg font-bold ${isDarkMode ? 'bg-blue-100 hover:bg-blue-200 text-blue-800' : 'bg-blue-50 hover:bg-blue-100 text-blue-600'}`}>
+        <button 
+          onClick={onCreateNewGroup}
+          className={`w-full flex justify-start items-center p-2 rounded-lg font-bold ${isDarkMode ? 'bg-blue-100 hover:bg-blue-200 text-blue-800' : 'bg-blue-50 hover:bg-blue-100 text-blue-600'}`}
+        >
           <Plus className="mr-3 ml-3" /> Créer un nouveau groupe
         </button>
       </div>

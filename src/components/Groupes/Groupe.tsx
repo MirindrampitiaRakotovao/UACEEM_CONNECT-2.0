@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import SidebarGroupe from './SidebarGroupe';
+import SidebarNouveauGroupe from './SidebarNouveauGroupe';
 import HomeAdmin from '../Admin/HomeAdmin';
 import HomeEtudiant from '../Etudiant/HomeEtudiant';
 import HomeDelegue from '../Delegue/HomeDelegue';
@@ -14,6 +15,7 @@ interface User {
 
 const Groupe: React.FC = () => {
   const [etudiant, setEtudiant] = useState<User | null>(null);
+  const [isCreatingNewGroup, setIsCreatingNewGroup] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -52,6 +54,10 @@ const Groupe: React.FC = () => {
     }
   };
 
+  const handleCreateNewGroup = () => {
+    setIsCreatingNewGroup(true); // Active le mode "Créer un nouveau groupe"
+  };
+
   return (
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
       {etudiant ? (
@@ -69,7 +75,11 @@ const Groupe: React.FC = () => {
       <div className="flex flex-grow">
         {/* Sidebar */}
         <aside className="w-1/5 pt-0 p-5">
-          <SidebarGroupe />
+          {isCreatingNewGroup ? (
+            <SidebarNouveauGroupe /> 
+          ) : (
+            <SidebarGroupe onCreateNewGroup={handleCreateNewGroup} />
+          )}
         </aside>
 
         {/* Main content */}
