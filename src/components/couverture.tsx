@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { UsersRound } from "lucide-react"; 
 import classNames from "classnames"; 
-import api from "../axios/axiosConfig";
+import axios from 'axios';
 import { useDarkMode } from "../contexts/DarkModeContext"; 
 
 interface CouvertureProps {
@@ -9,8 +9,10 @@ interface CouvertureProps {
   groupId: number;
 }
 
+
 const Couverture: React.FC<CouvertureProps> = ({ size = "w-10 h-10", groupId }) => {
-  const [couverture, setcouverture] = useState<string | null>(null);
+  const [couverture, setCouverture] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { isDarkMode } = useDarkMode(); 
 
   // Fonction pour calculer la taille de l'icône en fonction du cercle
@@ -20,16 +22,33 @@ const Couverture: React.FC<CouvertureProps> = ({ size = "w-10 h-10", groupId }) 
   };
 
   useEffect(() => {
-    // Appel API pour récupérer la couverture de profil de l'groupePartage
-    api
-      .get(`/partageGroupe/couverture/${groupId}`)
-      .then((response) => {
-        setcouverture(response.data.groupePartage.couverture); 
-      })
-      .catch((error) => {
-        console.error("Erreur lors de la récupération de la couverture:", error);
-      });
+    const fetchCouverture = async () => {
+      const token = localStorage.getItem("token");
+      try {
+        const response = await axios.get(
+          `http://localhost:4000/partageGroupe/couverture/${groupId}`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        console.log('Réponse complète:', response.data);
+
+        const couverturePath = response.data.groupe?.couverture;
+        if (couverturePath) {
+          const fullPath = `http://localhost:4000/${couverturePath}`;
+          console.log('Chemin complet:', fullPath);
+          setCouverture(fullPath); // Met à jour le chemin de l'image
+        } else {
+          setError('Image de couverture non trouvée');
+        }
+      } catch (err) {
+        console.error('Erreur lors de la récupération:', err);
+        setError('Erreur lors de la récupération des données');
+      }
+    };
+
+    fetchCouverture();
   }, [groupId]);
+  
 
   return (
     <div
@@ -43,10 +62,12 @@ const Couverture: React.FC<CouvertureProps> = ({ size = "w-10 h-10", groupId }) 
         }
       )}
     >
-      {couverture ? (
+      {error ? (
+        <p className="text-red-500">{error}</p>
+      ) : couverture ? (
         <img
-          src={`http://localhost:4000/uploads/${couverture}`}
-          alt="Profile"
+          src={couverture}
+          alt="Couverture du groupe"
           className="object-cover w-full h-full"
         />
       ) : (
