@@ -55,7 +55,11 @@ const Groupe: React.FC = () => {
   };
 
   const handleCreateNewGroup = () => {
-    setIsCreatingNewGroup(true); // Active le mode "Créer un nouveau groupe"
+    setIsCreatingNewGroup(true); 
+  };
+
+  const handleCloseNewGroup = () => {
+    setIsCreatingNewGroup(false);
   };
 
   return (
@@ -76,7 +80,7 @@ const Groupe: React.FC = () => {
         {/* Sidebar */}
         <aside className="w-1/5 pt-0 p-5">
           {isCreatingNewGroup ? (
-            <SidebarNouveauGroupe /> 
+            <SidebarNouveauGroupe onClose={handleCloseNewGroup} /> 
           ) : (
             <SidebarGroupe onCreateNewGroup={handleCreateNewGroup} />
           )}
