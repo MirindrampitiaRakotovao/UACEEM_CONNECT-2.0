@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { jwtDecode } from 'jwt-decode';
 import { Link } from 'react-router-dom';
 import Avatar from '../avatar';
+import Couverture from '../couverture';
 import axios from 'axios';
 import { useDarkMode } from '../../contexts/DarkModeContext'; // Import the dark mode context
 import { Search, Plus, Settings , Newspaper , UsersRound} from 'lucide-react'; // Lucide icons
@@ -127,21 +128,22 @@ const SidebarGroupe: React.FC = () => {
 
       {/* Managed Groups */}
       <div className="mt-6">
-  <h2 className="font-bold text-lg mb-2">Groupes que vous gérez</h2>
-  <ul className="space-y-3">
-    {groupesAdministres.length > 0 ? (
-      groupesAdministres.map((groupe) => (
-        <li key={groupe.id} className="flex items-center space-x-3">
-          <div>
-            <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{groupe.design_groupe_partage}</h3>
-          </div>
-        </li>
-      ))
-    ) : (
-      <li className="text-gray-500">Vous n'êtes administrateur d'aucun groupe.</li>
-    )}
-  </ul>
-</div>
+        <h2 className="font-bold text-lg mb-2">Groupes que vous gérez</h2>
+        <ul className="space-y-3">
+          {groupesAdministres.length > 0 ? (
+            groupesAdministres.map((groupe) => (
+              <li key={groupe.id} className="flex items-center space-x-3">
+                <div className="flex">
+                  <Couverture groupId={groupe.id} size="w-5 h-5" />
+                  <h3 className={`text-sm font-semibold ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{groupe.design_groupe_partage}</h3>
+                </div>
+              </li>
+            ))
+          ) : (
+            <li className="text-gray-500">Vous n'êtes administrateur d'aucun groupe.</li>
+          )}
+        </ul>
+      </div>
       {/* Member Groups */}
       <div className="mt-6">
         <h3 className="font-bold text-lg mb-2">Groupes dont vous êtes membre</h3>
