@@ -25,6 +25,10 @@ const GroupePartages = sequelize.define('groupePartages', {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
   },
+  couverture: {
+    type: DataTypes.STRING,
+    allowNull: true,
+  },
 });
 
 module.exports = GroupePartages;

@@ -162,15 +162,8 @@ exports.getGroupesAdministres = async (req, res) => {
 
 // Modifier la couverture d'un groupe (admin uniquement)
 exports.changeCouverture = async (req, res) => {
-  const { groupe_nom } = req.body;
-  const { couverture } = req.body; // URL ou fichier de la nouvelle couverture
-
-  // Vérifier si req.user et req.user.id sont définis
-  if (!req.user || !req.user.id) {
-    return res.status(403).json({ message: 'Utilisateur non authentifié' });
-  }
-
-  const admin_id = req.user.id; // ID de l'utilisateur connecté (admin)
+  const { groupe_nom } = req.body; // On récupère le nom du groupe depuis le body
+  const admin_id = req.user.id; // ID de l'admin connecté
 
   try {
     // Trouver le groupe par son nom
@@ -180,23 +173,51 @@ exports.changeCouverture = async (req, res) => {
       return res.status(404).json({ message: 'Groupe non trouvé' });
     }
 
-    // Vérifier si l'utilisateur est l'admin du groupe
+    // Vérifier que l'utilisateur est l'administrateur du groupe
     const estAdmin = await GroupePartageEtudiant.findOne({
       where: { groupe_partage_id: groupe.id, membre_id: admin_id, role_membre_groupe: 'admin' },
     });
 
     if (!estAdmin) {
-      return res.status(403).json({ message: 'Seul l\'administrateur peut changer la couverture du groupe' });
+      return res.status(403).json({ message: 'Seul l\'admin peut changer la couverture' });
     }
 
-    // Mettre à jour la couverture du groupe
-    groupe.couverture = couverture; // Vous pouvez aussi gérer les fichiers d'upload ici
+    // Vérifier que le fichier a bien été envoyé
+    if (!req.file) {
+      return res.status(400).json({ message: 'Aucun fichier de couverture fourni' });
+    }
+
+    // Mettre à jour la couverture avec le chemin du fichier uploadé
+    const couverturePath = req.file.path; // Le chemin du fichier est défini par multer
+    groupe.couverture = couverturePath;
+
+    // Sauvegarder les modifications dans la base de données
     await groupe.save();
 
-    res.status(200).json({ message: 'Couverture du groupe modifiée avec succès', groupe });
+    console.log(groupe); // Vérifier si la couverture a bien été modifiée
+
+    res.status(200).json({ message: 'Couverture modifiée avec succès', groupe });
   } catch (error) {
     res.status(500).json({ message: 'Erreur lors de la modification de la couverture', error: error.message });
   }
 };
 
-  
+// Récupérer un groupe de partage avec sa couverture par son ID
+exports.getGroupeByIdWithCouverture = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const groupe = await GroupePartage.findOne({
+      where: { id },
+      attributes: ['id', 'design_groupe_partage', 'couverture'],
+    });
+
+    if (!groupe) {
+      return res.status(404).json({ message: 'Groupe de partage non trouvé' });
+    }
+
+    res.status(200).json({ groupe });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération du groupe de partage', error });
+  }
+};
+
