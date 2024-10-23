@@ -4,6 +4,9 @@ import SidebarNouveauGroupe from './SidebarNouveauGroupe';
 import HomeAdmin from '../Admin/HomeAdmin';
 import HomeEtudiant from '../Etudiant/HomeEtudiant';
 import HomeDelegue from '../Delegue/HomeDelegue';
+import GroupHeader from './GroupHeader';  // Ajout du composant
+import GroupTabs from './GroupTabs';      // Ajout du composant
+import GroupPostSection from './GroupPostSection';  // Ajout du composant
 import axios from 'axios';
 
 interface User {
@@ -16,6 +19,7 @@ interface User {
 const Groupe: React.FC = () => {
   const [etudiant, setEtudiant] = useState<User | null>(null);
   const [isCreatingNewGroup, setIsCreatingNewGroup] = useState(false);
+  const [groupName, setGroupName] = useState<string>('Nom du groupe'); 
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -27,11 +31,10 @@ const Groupe: React.FC = () => {
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        // Vérifie si les données de l'étudiant sont dans un sous-objet
         if (response.data && response.data.role) {
-          setEtudiant(response.data);  // Utilise directement les données si elles contiennent le rôle
+          setEtudiant(response.data);
         } else {
-          setEtudiant(response.data.etudiant); // Essaye response.data.etudiant si le rôle est dans un sous-objet
+          setEtudiant(response.data.etudiant);
         }
       } catch (error) {
         console.error('Erreur lors de la récupération du profil :', error);
@@ -55,40 +58,51 @@ const Groupe: React.FC = () => {
   };
 
   const handleCreateNewGroup = () => {
-    setIsCreatingNewGroup(true); 
+    setIsCreatingNewGroup(true); // Active la création du groupe
   };
 
   const handleCloseNewGroup = () => {
-    setIsCreatingNewGroup(false);
+    setIsCreatingNewGroup(false); // Retourne au sidebar de groupe
+  };
+
+  const handleGroupNameChange = (newName: string) => {
+    setGroupName(newName);  
   };
 
   return (
     <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
       {etudiant ? (
         <>
-          {console.log('Rôle de l\'étudiant:', etudiant.role)}  {/* Affiche le rôle pour vérifier */}
-          <header className="w-full bg-white dark:bg-gray-800  shadow">
-            {getHomeComponent(etudiant.role)}  {/* Affiche le composant de la navbar basé sur le rôle */}
+          <header className="w-full bg-white dark:bg-gray-800 shadow">
+            {getHomeComponent(etudiant.role)}
           </header>
         </>
       ) : (
         <p>Chargement du profil...</p>
       )}
       
-      {/* Layout principal sous la navbar */}
       <div className="flex flex-grow">
         {/* Sidebar */}
         <aside className="w-1/5 pt-0 p-5">
           {isCreatingNewGroup ? (
-            <SidebarNouveauGroupe onClose={handleCloseNewGroup} /> 
+            <SidebarNouveauGroupe 
+            onClose={handleCloseNewGroup} 
+            onGroupNameChange={handleGroupNameChange}  
+          /> 
           ) : (
             <SidebarGroupe onCreateNewGroup={handleCreateNewGroup} />
           )}
         </aside>
 
         {/* Main content */}
-        <main className="flex-grow p-2">
-          {/* Contenu principal ici */}
+        <main className={`flex-grow p-2` }>
+          {isCreatingNewGroup && (
+            <>
+              <GroupHeader groupName={groupName} privacy="Confidentialité du groupe" membersCount={1} />
+              <GroupTabs />
+              <GroupPostSection />
+            </>
+          )}
         </main>
       </div>
     </div>

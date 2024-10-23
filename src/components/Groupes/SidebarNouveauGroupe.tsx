@@ -12,15 +12,22 @@ interface DecodedToken {
 }
 
 interface SidebarNouveauGroupeProps {
-  onClose: () => void;  // Ajout de la prop onClose
+  onClose: () => void;
+  onGroupNameChange: (name: string) => void;
 }
 
-const SidebarNouveauGroupe: React.FC<SidebarNouveauGroupeProps> = ({ onClose }) => {
+const SidebarNouveauGroupe: React.FC<SidebarNouveauGroupeProps> = ({ onClose, onGroupNameChange }) => {
   const [id, setId] = useState<number | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
   const [groupName, setGroupName] = useState<string>(''); // État pour le nom du groupe
   const { isDarkMode } = useDarkMode();
+
+  const handleGroupNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    setGroupName(newName);
+    onGroupNameChange(newName);  // Mise à jour dans le parent
+  };
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -67,7 +74,7 @@ const SidebarNouveauGroupe: React.FC<SidebarNouveauGroupeProps> = ({ onClose }) 
           <input
             type="text"
             value={groupName}
-            onChange={(e) => setGroupName(e.target.value)} 
+            onChange={handleGroupNameChange}
             placeholder="Nom du groupe"
             className="w-full p-2 rounded-lg border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200 focus:ring focus:ring-blue-500"
           />

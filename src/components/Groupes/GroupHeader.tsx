@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDarkMode } from '../../contexts/DarkModeContext';
+import groupImage from '../../assets/saryGroupeee.jpeg';  // Importation directe de l'image
 
 interface GroupHeaderProps {
   groupName: string;
@@ -11,10 +12,10 @@ const GroupHeader: React.FC<GroupHeaderProps> = ({ groupName, privacy, membersCo
   const { isDarkMode } = useDarkMode();
 
   return (
-    <div className="relative w-full h-48 mb-4">
+    <div className="relative w-auto h-64 mb-4">
       {/* Image de couverture */}
       <img 
-        src="/path/to/your/group-image.jpg"  // Vous pouvez changer cette image selon vos besoins
+        src={groupImage}  // Utilisation de l'image importée
         alt="Group cover"
         className="w-full h-full object-cover rounded-lg"
       />
