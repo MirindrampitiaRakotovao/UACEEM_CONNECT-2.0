@@ -15,4 +15,6 @@ router.get('/admin/me', authenticateToken ,groupePartageController.getGroupesAdm
 router.post('/couverture', authenticateToken,upload.single('couverture'), groupePartageController.changeCouverture);
 router.get('/couverture/:id', authenticateToken, groupePartageController.getGroupeByIdWithCouverture);
 
+router.get('/liste/nomGroupePartage' , authenticateToken , groupePartageController.getGroupesMembre);
+
 module.exports = router;

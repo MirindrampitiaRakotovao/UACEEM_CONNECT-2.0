@@ -91,3 +91,18 @@ exports.getPublicPublicationsByUser = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+// Récupérer les publications de type "Groupe"
+exports.getAllGroupePublications = async (req, res) => {
+  try {
+    const publications = await publicationService.getGroupePublications();
+
+    if (!publications.length) {
+      return res.status(404).json({ message: 'Aucune publication de groupe trouvée' });
+    }
+
+    return res.status(200).json(publications);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};

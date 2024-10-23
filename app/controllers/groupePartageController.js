@@ -221,3 +221,28 @@ exports.getGroupeByIdWithCouverture = async (req, res) => {
   }
 };
 
+
+// Lister tous les groupes où l'étudiant connecté est membre
+exports.getGroupesMembre = async (req, res) => {
+  const etudiant_id = req.user.id;
+
+  try {
+    // Récupérer les groupes où l'étudiant est membre
+    const groupes = await GroupePartage.findAll({
+      include: {
+        model: GroupePartageEtudiant,
+        as: 'membres',
+        where: { membre_id: etudiant_id },
+        attributes: [], // On n'a pas besoin des champs de GroupePartageEtudiant ici
+      },
+    });
+
+    if (groupes.length === 0) {
+      return res.status(404).json({ message: 'Aucun groupe trouvé.' });
+    }
+
+    res.status(200).json({ groupes });
+  } catch (error) {
+    res.status(500).json({ message: 'Erreur lors de la récupération des groupes', error: error.message });
+  }
+};

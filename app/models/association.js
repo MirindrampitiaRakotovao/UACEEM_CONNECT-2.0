@@ -147,6 +147,15 @@ Etudiants.hasMany(MessagePrivee, {
 });
 
 
+GroupePartages.hasMany(GroupePartageEtudiants, {
+  foreignKey: 'groupe_partage_id', 
+  as: 'membres', 
+});
+
+GroupePartageEtudiants.belongsTo(GroupePartages, {
+  foreignKey: 'groupe_partage_id', 
+  as: 'groupe', 
+});
 
 
 

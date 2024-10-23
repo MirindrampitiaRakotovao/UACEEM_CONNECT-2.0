@@ -145,3 +145,11 @@ exports.getPublicPublicationsByUser = async (etudiant_id) => {
     throw new Error(error.message);
   }
 };
+
+// Récupérer les publications de type "Groupe"
+exports.getAllGroupePublications = async () => {
+  return await Publications.findAll({
+    where: { visibilite: 'Groupe' },
+    order: [['createdAt', 'DESC']], // Trier par date de création (optionnel)
+  });
+};
