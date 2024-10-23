@@ -1,5 +1,6 @@
-import React from 'react';
+import React , { useState, useEffect }from 'react';
 import Avatar from '../avatar';
+import axios from 'axios';
 import { Globe, UsersRound } from 'lucide-react';
 import { useUserProfile } from "../../services/profileService"; 
 import { useDarkMode } from '../../contexts/DarkModeContext'; // Import du hook pour le mode sombre
@@ -24,7 +25,34 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({
   setDesignGroupePartage
 }) => {
   const { etudiant, loading, error } = useUserProfile();
-  const { isDarkMode } = useDarkMode(); // Utilisation du mode sombre
+  const { isDarkMode } = useDarkMode();
+  const [groupes, setGroupes] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (selectedAudience === 'Groupe') {
+      const fetchGroupes = async () => {
+        try {
+          const response = await axios.get('http://localhost:4000/partageGroupe/liste/nomGroupePartage', {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('token')}`,
+            },
+          });
+          console.log(response.data); // Log pour vérifier la structure des données
+          if (Array.isArray(response.data.groupes)) {  // On vérifie si 'groupes' est bien un tableau
+            const nomsGroupes = response.data.groupes.map((groupe: any) => groupe.design_groupe_partage); // On extrait les noms des groupes
+            setGroupes(nomsGroupes);
+          } else {
+            console.error('Les données récupérées ne sont pas un tableau de groupes:', response.data);
+          }
+        } catch (error) {
+          console.error('Erreur lors de la récupération des groupes:', error);
+        }
+      };
+  
+      fetchGroupes();
+    }
+  }, [selectedAudience]);
+  
 
   return (
     <div>
@@ -90,16 +118,33 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({
           </div>
 
           {selectedAudience === 'Groupe' && (
-            <input
-              type="text"
-              value={designGroupePartage}
-              onChange={(e) => setDesignGroupePartage(e.target.value)}
-              placeholder="Nom du groupe"
-              className={`w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                isDarkMode ? 'bg-gray-700 text-white border-gray-600' : 'bg-white text-black border-gray-300'
-              }`}
-            />
-          )}
+              <div className="mt-4">
+                <label htmlFor="groupeSelect" className="block mb-2 text-sm font-medium">
+                  Le nom du groupe
+                </label>
+                <select
+                  id="groupeSelect"
+                  value={designGroupePartage}
+                  onChange={(e) => setDesignGroupePartage(e.target.value)}
+                  className={`form-select w-full p-2 rounded-lg ${
+                    isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'
+                  }`}
+                >
+                  <option value="" disabled>
+                    Le nom du groupe 
+                  </option>
+                  {groupes.length > 0 ? (
+                    groupes.map((groupe) => (
+                      <option key={groupe} value={groupe}>
+                        {groupe}
+                      </option>
+                  ))
+                  ) : (
+                    <option disabled>Aucun groupe disponible</option>
+                  )}
+                </select>
+              </div>
+            )}
         </div>
       )}
     </div>

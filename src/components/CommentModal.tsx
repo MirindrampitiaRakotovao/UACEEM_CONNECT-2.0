@@ -240,11 +240,11 @@ const CommentModal: React.FC<CommentModalProps> = ({
               onClick={() => handleLikeToggle(commentaire.id)}
             >
               <span
-                className={`text-sm transition duration-200 ease-in-out ${
-                  isLiked ? 'text-red-500' : 'text-gray-400'
-                } hover:text-red-500`}
+                    className={`text-sm transition duration-200 ease-in-out ${
+                      isLiked ? 'text-red-500' : 'text-gray-500'
+                    } hover:text-red-500`}
               >
-                J'adore
+                    J'adore
               </span>
             </button>
               <button 
