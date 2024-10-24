@@ -4,9 +4,10 @@ import SidebarNouveauGroupe from './SidebarNouveauGroupe';
 import HomeAdmin from '../Admin/HomeAdmin';
 import HomeEtudiant from '../Etudiant/HomeEtudiant';
 import HomeDelegue from '../Delegue/HomeDelegue';
-import GroupHeader from './GroupHeader';  // Ajout du composant
-import GroupTabs from './GroupTabs';      // Ajout du composant
-import GroupPostSection from './GroupPostSection';  // Ajout du composant
+import GroupHeader from './GroupHeader';  
+import GroupTabs from './GroupTabs';      
+import GroupPostSection from './GroupPostSection'; 
+import PublicationGroup from "./publicationGroup";
 import axios from 'axios';
 
 interface User {
@@ -20,6 +21,13 @@ const Groupe: React.FC = () => {
   const [etudiant, setEtudiant] = useState<User | null>(null);
   const [isCreatingNewGroup, setIsCreatingNewGroup] = useState(false);
   const [groupName, setGroupName] = useState<string>('Nom du groupe'); 
+  const [isFilSelected, setIsFilSelected] = useState(false);
+
+  // Fonction pour gérer le clic sur "Votre fil"
+  const handleFilClick = () => {
+    setIsFilSelected(true); // Active l'affichage du fil
+    setIsCreatingNewGroup(false); // Désactive la création de groupe
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -70,7 +78,7 @@ const Groupe: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900">
+    <div className="flex flex-col bg-gray-100 dark:bg-gray-900">
       {etudiant ? (
         <>
           <header className="w-full bg-white dark:bg-gray-800 shadow">
@@ -90,12 +98,18 @@ const Groupe: React.FC = () => {
             onGroupNameChange={handleGroupNameChange}  
           /> 
           ) : (
-            <SidebarGroupe onCreateNewGroup={handleCreateNewGroup} />
+            <SidebarGroupe onCreateNewGroup={handleCreateNewGroup} onFilClick={handleFilClick} />
           )}
         </aside>
 
         {/* Main content */}
         <main className={`flex-grow p-2` }>
+        {isFilSelected && (
+            <>
+              <h1 className="text-xl font-bold mb-4">Publications du fil</h1>
+              <PublicationGroup /> {/* Affichage des publications */}
+            </>
+          )}
           {isCreatingNewGroup && (
             <>
               <GroupHeader groupName={groupName} privacy="Confidentialité du groupe" membersCount={1} />

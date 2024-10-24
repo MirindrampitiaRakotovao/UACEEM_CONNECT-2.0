@@ -202,7 +202,7 @@ const PublicationList: React.FC<PublicationListProps> = ({
         <p>{error}</p>
       ) : (
         sortedPublications.map((publication) => {
-          const isLiked = likedPublications.includes(publication.id); // Vérifier si l'utilisateur a déjà aimé
+          const isLiked = likedPublications.includes(publication.id);
 
           return (
             <div key={publication.id} className={`p-4 rounded-md shadow mb-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>

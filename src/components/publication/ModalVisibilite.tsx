@@ -119,15 +119,14 @@ const AudienceSelector: React.FC<AudienceSelectorProps> = ({
 
           {selectedAudience === 'Groupe' && (
               <div className="mt-4">
-                <label htmlFor="groupeSelect" className="block mb-2 text-sm font-medium">
-                  Le nom du groupe
-                </label>
                 <select
                   id="groupeSelect"
                   value={designGroupePartage}
                   onChange={(e) => setDesignGroupePartage(e.target.value)}
-                  className={`form-select w-full p-2 rounded-lg ${
-                    isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-black'
+                  className={`form-select w-full p-2 rounded-lg focus:outline-none focus:ring-2 ${
+                    isDarkMode
+                      ? 'bg-gray-700 text-white border-gray-600 focus:ring-blue-500'
+                      : 'bg-white text-black border-gray-300 focus:ring-blue-500'
                   }`}
                 >
                   <option value="" disabled>

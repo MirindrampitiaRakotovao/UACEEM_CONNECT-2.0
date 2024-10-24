@@ -21,9 +21,10 @@ interface Groupe {
 
 interface SidebarGroupeProps {
   onCreateNewGroup: () => void;  
+  onFilClick : () => void;
 }
 
-const SidebarGroupe: React.FC<SidebarGroupeProps> = ({ onCreateNewGroup }) => {
+const SidebarGroupe: React.FC<SidebarGroupeProps> = ({ onCreateNewGroup  , onFilClick}) => {
   const [id, setId] = useState<number | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
@@ -93,11 +94,17 @@ const SidebarGroupe: React.FC<SidebarGroupeProps> = ({ onCreateNewGroup }) => {
 
       {/* Navigation menu */}
       <div className="space-y-4 mb-6">
-        <button className={`w-full h-12 flex items-center justify-start rounded-lg font-bold ${isDarkMode ? 'hover:bg-gray-600 text-white' : 'hover:bg-gray-200 text-gray-700'}`}>
+        <button 
+          className={`w-full h-12 flex items-center justify-start rounded-lg font-bold ${isDarkMode ? 'hover:bg-gray-600 text-white' : 'hover:bg-gray-200 text-gray-700'}`}
+          onClick={onFilClick}
+        >
           <Newspaper className="m-3" />
           Votre fil
         </button>
-        <button className={`w-full h-12 flex items-center justify-start rounded-lg font-bold ${isDarkMode ? 'hover:bg-gray-600 text-white' : 'hover:bg-gray-200 text-gray-700'}`}>
+        <button 
+          className={`w-full h-12 flex items-center justify-start rounded-lg font-bold ${isDarkMode ? 'hover:bg-gray-600 text-white' : 'hover:bg-gray-200 text-gray-700'}`}
+          onClick={onFilClick}
+        >
           <UsersRound className="m-3" />
           Vos Groupes
         </button>
