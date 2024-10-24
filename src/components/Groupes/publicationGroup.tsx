@@ -1,4 +1,3 @@
-// PublicationGroup.tsx
 import React, { useState, useEffect } from 'react';
 import { getPublicationGroup } from '../../services/publicationService'; // Import de la fonction
 import PublicationListPourGroupe from '../publication/PublicationListPourGroupe';

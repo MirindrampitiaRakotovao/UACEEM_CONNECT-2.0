@@ -10,8 +10,8 @@ interface ProfileBannerProps {
 }
 
 const ProfileBanner: React.FC<ProfileBannerProps> = ({
-  couvertureSize = "w-32 h-32", // Size of the cover (you can adjust)
-  avatarSize = "w-10 h-10", // Size of the avatar
+  couvertureSize = "w-12 h-12", // Size of the cover (you can adjust)
+  avatarSize = "w-8 h-8", // Size of the avatar
   groupId,
   userId,
 }) => {
@@ -20,7 +20,7 @@ const ProfileBanner: React.FC<ProfileBannerProps> = ({
       {/* Container that wraps both components */}
       <Couverture size={couvertureSize} groupId={groupId} />
 
-      <div className="absolute bottom-0 right-0 transform translate-x-1/2 translate-y-1/2">
+      <div className="absolute bottom-0 right-0 transform translate-x-1/4 translate-y-1/12">
         {/* Avatar positioned at the bottom right of the cover */}
         <Avatar size={avatarSize} userId={userId} />
       </div>

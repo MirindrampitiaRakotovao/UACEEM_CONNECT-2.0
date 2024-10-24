@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Heart, MessageCircle, BadgeAlert, CircleX,  Eye , SendHorizontal, Smile} from 'lucide-react';
-import Avatar from '../avatar';
+import AvatarPourPublicationGroup from '../AvatarPourPublicationGroup';
 import ModalFile from '../ModalFile';
 import axios from 'axios';  // Ajouter axios pour la gestion des requêtes API
 import CommentModal from "../CommentModal";
@@ -19,13 +19,23 @@ type Etudiant = {
   role: string;
 };
 
+type GroupePartage = {
+  id: number;
+  design_groupe_partage: string;
+  admin_id: number;
+  date_creation: string;
+};
+
+
 type Publication = {
   id: number;
   legende: string;
   date_publication: string;
   etudiant: Etudiant;
+  groupePartage : GroupePartage;
   fichiers: File[];
 };
+
 
 interface PublicationListPourGroupeProps {
   publications: Publication[];
@@ -69,6 +79,10 @@ const PublicationListPourGroupe: React.FC<PublicationListPourGroupeProps> = ({
     try {
       const isLiked = likedPublications.includes(publicationId);
       const token = localStorage.getItem('token');
+      if (!token) {
+        console.error('Token non disponible');
+        return;
+      }
       await axios.post(
         'http://localhost:4000/reaction',
         { publicationId },
@@ -99,6 +113,10 @@ const PublicationListPourGroupe: React.FC<PublicationListPourGroupeProps> = ({
     const fetchUserReactions = async () => {
       try {
         const token = localStorage.getItem('token');
+        if (!token) {
+          console.error('Token non disponible');
+          return;
+        }
         const response = await axios.get('http://localhost:4000/reaction', {
           headers: { Authorization: `Bearer ${token}` },
         });
@@ -174,6 +192,11 @@ const PublicationListPourGroupe: React.FC<PublicationListPourGroupeProps> = ({
     (a, b) => new Date(b.date_publication).getTime() - new Date(a.date_publication).getTime()
   );
 
+  /**** */
+  useEffect(() => {
+    console.log("Publications reçues :", publications);
+  }, [publications]);
+
   // Fonction pour détecter le clic en dehors du sélecteur d'emojis
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -204,14 +227,24 @@ const PublicationListPourGroupe: React.FC<PublicationListPourGroupeProps> = ({
         sortedPublications.map((publication) => {
           const isLiked = likedPublications.includes(publication.id);
 
+          /***** */
+          const etudiant = publication.etudiant;
+          const groupePartage = publication.groupePartage;
+
+          if (!etudiant || !groupePartage) {
+            console.error("Données de publication incomplètes : ", publication);
+            return null; // Ne pas afficher les publications incomplètes
+          }
+          /**** */
+
           return (
             <div key={publication.id} className={`p-4 rounded-md shadow mb-4 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
               <div className="flex justify-between items-center mb-4">
                 <div className="flex">
-                  <Avatar userId={publication.etudiant.id}/>  
+                <AvatarPourPublicationGroup groupId={groupePartage.id} userId={etudiant.id} />  
                   <div className="ml-4">
-                    <h4 className="text-lg font-bold">{publication.etudiant.username}</h4>
-                    <p className="text-sm text-gray-400">{publication.etudiant.role}</p>
+                    <h4 className="text-lg font-bold">{groupePartage.design_groupe_partage}</h4>
+                    <p className="text-sm text-gray-400">{etudiant.username}</p>
                     <span className="text-sm text-gray-400">
                       {new Date(publication.date_publication).toLocaleDateString()}
                     </span>
@@ -400,7 +433,7 @@ const PublicationListPourGroupe: React.FC<PublicationListPourGroupeProps> = ({
                 </button>
               </div>
               
-              )}
+            )}
               <div className="mt-4">
               
               {/*Boutton pour afficher le commentaire */}
