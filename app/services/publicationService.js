@@ -2,6 +2,9 @@ require('../models/association');
 const Publications = require('../models/publications');
 const Fichiers = require('../models/fichier');
 const GroupePartages = require('../models/groupePartage'); // Modèle des groupes
+const GroupePartageEtudiants = require('../models/groupePartageEtudiant');
+const Etudiants = require('../models/etudiants');
+
 const fs = require('fs');
 const path = require('path');
 
@@ -152,4 +155,40 @@ exports.getAllGroupePublications = async () => {
     where: { visibilite: 'Groupe' },
     order: [['createdAt', 'DESC']], // Trier par date de création (optionnel)
   });
+};
+
+// Récupérer les publications de type "Groupe" auxquelles l'étudiant est membre
+exports.getGroupePublicationsForUser = async (etudiant_id) => {
+  try {
+    const publications = await Publications.findAll({
+      where: { visibilite: 'Groupe' },
+      include: [
+        {
+          model: GroupePartages,
+          as: 'groupePartage',
+          include: [
+            {
+              model: require('../models/groupePartageEtudiant'),
+              as: 'membres',
+              where: { membre_id: etudiant_id } // Filtrer par les groupes auxquels l'étudiant est membre
+            }
+          ]
+        },
+        {
+          model: require('../models/etudiants'),
+          attributes: ['id', 'nom', 'username'],
+        },
+        {
+          model: Fichiers,
+          as: 'fichiers', 
+          attributes: ['nom_fichier', 'url_fichier'],
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+    });
+
+    return publications;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 };

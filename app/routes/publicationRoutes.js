@@ -20,5 +20,7 @@ router.get('/liste/public/me', authenticateToken ,publicationController.getPubli
 
 router.get('/liste/groupe/all', authenticateToken ,publicationController.getAllGroupePublications);
 
+router.get('/liste/groupe/me', authenticateToken ,publicationController.getGroupePublicationsForUser);
+
 module.exports = router;
 

@@ -106,3 +106,26 @@ exports.getAllGroupePublications = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+
+// Récupérer les publications de groupe visibles par l'utilisateur authentifié
+exports.getGroupePublicationsForUser = async (req, res) => {
+  try {
+    // Vérifie si l'utilisateur est authentifié
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ message: "L'utilisateur doit être authentifié" });
+    }
+
+    const etudiant_id = req.user.id;
+    
+    // Récupérer les publications visibles par l'utilisateur
+    const publications = await publicationService.getGroupePublicationsForUser(etudiant_id);
+
+    if (!publications.length) {
+      return res.status(404).json({ message: 'Aucune publication de groupe trouvée' });
+    }
+
+    return res.status(200).json(publications);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};

@@ -158,6 +158,16 @@ GroupePartageEtudiants.belongsTo(GroupePartages, {
 });
 
 
+Publications.belongsTo(GroupePartages, {
+  foreignKey: 'groupe_partage_id',
+  as: 'groupePartage'  // nom de l'association
+});
+
+GroupePartages.hasMany(Publications, {
+  foreignKey: 'groupe_partage_id',
+  as: 'publications'  // nom de l'association
+});
+
 
 module.exports = {
   Groupes,
