@@ -106,7 +106,6 @@ const Groupe: React.FC = () => {
         <main className={`flex-grow p-2` }>
         {isFilSelected && (
             <>
-              <h1 className="text-xl font-bold mb-4">Publications du fil</h1>
               <PublicationGroup /> {/* Affichage des publications */}
             </>
           )}

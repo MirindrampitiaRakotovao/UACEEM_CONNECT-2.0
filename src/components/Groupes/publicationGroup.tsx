@@ -1,7 +1,7 @@
 // PublicationGroup.tsx
 import React, { useState, useEffect } from 'react';
 import { getPublicationGroup } from '../../services/publicationService'; // Import de la fonction
-import PublicationList from '../publication/PublicationList';
+import PublicationListPourGroupe from '../publication/PublicationListPourGroupe';
 import { useDarkMode } from '../../contexts/DarkModeContext'; 
 
 const PublicationGroup: React.FC = () => {
@@ -34,9 +34,9 @@ const PublicationGroup: React.FC = () => {
   }
 
   return (
-    <div className="mt-6">
+    <div className={`relative flex-1 h-[90vh] overflow-y-scroll p-6 scrollbar-hidden max-w-[70%] mx-auto ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-50'}`}>
     <h3 className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-4`}>Vos Publications</h3>
-        <PublicationList 
+        <PublicationListPourGroupe 
               publications={publications} 
               loading={loading} 
               error={error} 
