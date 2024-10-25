@@ -34,15 +34,22 @@ export const logout = async () => {
 
   if (token) {
     try {
-      await axios.post(`${API_URL}/logout`, {}, { withCredentials: true });
+      await axios.post(
+        `${API_URL}/logout`, 
+        {}, 
+        {
+          withCredentials: true,
+          headers: { Authorization: `Bearer ${token}` },
+        }
+      );
       localStorage.removeItem('token');
     } catch (error) {
       console.error('Erreur lors de la déconnexion :', error);
       throw new Error('Erreur lors de la déconnexion');
     }
   }
-  
 };
+
 
 // Récupérer les informations de l'utilisateur à partir du token
 export const getUserInfoFromToken = (): { username: string | null; role: string | null } => {

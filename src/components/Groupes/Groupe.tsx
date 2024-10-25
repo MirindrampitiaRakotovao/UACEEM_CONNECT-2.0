@@ -4,9 +4,7 @@ import SidebarNouveauGroupe from './SidebarNouveauGroupe';
 import HomeAdmin from '../Admin/HomeAdmin';
 import HomeEtudiant from '../Etudiant/HomeEtudiant';
 import HomeDelegue from '../Delegue/HomeDelegue';
-import GroupHeader from './GroupHeader';  
-import GroupTabs from './GroupTabs';      
-import GroupPostSection from './GroupPostSection'; 
+import GroupHeader from './GroupHeader';       
 import PublicationGroup from "./publicationGroup";
 import axios from 'axios';
 
@@ -21,7 +19,7 @@ const Groupe: React.FC = () => {
   const [etudiant, setEtudiant] = useState<User | null>(null);
   const [isCreatingNewGroup, setIsCreatingNewGroup] = useState(false);
   const [groupName, setGroupName] = useState<string>('Nom du groupe'); 
-  const [isFilSelected, setIsFilSelected] = useState(false);
+  const [isFilSelected, setIsFilSelected] = useState(true);
 
   // Fonction pour gérer le clic sur "Votre fil"
   const handleFilClick = () => {
@@ -66,11 +64,13 @@ const Groupe: React.FC = () => {
   };
 
   const handleCreateNewGroup = () => {
-    setIsCreatingNewGroup(true); // Active la création du groupe
+    setIsCreatingNewGroup(true);
+    setIsFilSelected(false);
   };
 
   const handleCloseNewGroup = () => {
-    setIsCreatingNewGroup(false); // Retourne au sidebar de groupe
+    setIsCreatingNewGroup(false);
+    setIsFilSelected(true); 
   };
 
   const handleGroupNameChange = (newName: string) => {
@@ -78,7 +78,7 @@ const Groupe: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col bg-gray-100 dark:bg-gray-900">
+    <div className="flex flex-col h-screen bg-gray-100 dark:bg-gray-900 overflow-hidden">
       {etudiant ? (
         <>
           <header className="w-full bg-white dark:bg-gray-800 shadow">
@@ -103,7 +103,7 @@ const Groupe: React.FC = () => {
         </aside>
 
         {/* Main content */}
-        <main className={`flex-grow p-2` }>
+        <main className={`flex-grow p-2 max-w-[70%] mx-auto` }>
         {isFilSelected && (
             <>
               <PublicationGroup /> {/* Affichage des publications */}
@@ -112,8 +112,6 @@ const Groupe: React.FC = () => {
           {isCreatingNewGroup && (
             <>
               <GroupHeader groupName={groupName} privacy="Confidentialité du groupe" membersCount={1} />
-              <GroupTabs />
-              <GroupPostSection />
             </>
           )}
         </main>

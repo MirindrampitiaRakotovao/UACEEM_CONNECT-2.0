@@ -8,14 +8,14 @@ const HomePage: React.FC = () => {
   const { isDarkMode } = useDarkMode(); // Get the dark mode state
 
   return (
-    <div className={`flex overflow-hidden ${isDarkMode ? 'bg-gray-900' : 'bg-gray-100'} dark:bg-gray-900`}>
+    <div className={`flex h-screen overflow-hidden ${isDarkMode ? 'bg-gray-900' : 'bg-gray-100'} `}>
       {/* Sidebar gauche */}
       <div className="flex-none w-1/4 h-full">
         <SidebarLeft />
       </div>
 
       {/* Contenu principal avec scrollbar invisible */}
-      <div className="flex-grow h-full">
+      <div className="flex-grow h-full overflow-y-auto">
         <MainContent />
       </div>
 

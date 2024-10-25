@@ -58,7 +58,7 @@ export const handleLogout = async (navigate: any) => {
 
       if (response.status === 200) {
         // Si la déconnexion a réussi, rediriger vers la page de login
-        navigate('/login');  // Redirige vers /login
+        navigate('/');  // Redirige vers /login
       } else {
         console.error('Erreur lors de la déconnexion : ', response.status);
       }

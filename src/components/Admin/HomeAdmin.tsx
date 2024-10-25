@@ -21,7 +21,7 @@ const HomeAdmin: React.FC = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      navigate('/login');
+      navigate('/');
     } catch (error) {
       console.error("Erreur lors de la déconnexion :", error);
     }

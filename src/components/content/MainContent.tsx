@@ -53,7 +53,7 @@ const MainContent: React.FC = () => {
         setPublications(data);
       } catch (err: any) {
         if (err.message === 'Utilisateur non authentifié') {
-          navigate('/login');
+          navigate('/');
         } else {
           setError('Erreur lors du chargement des publications.');
         }
@@ -110,7 +110,7 @@ const MainContent: React.FC = () => {
   }, []);
 
   return (
-    <main className={`relative flex-1 h-[90vh] overflow-y-scroll p-6 scrollbar-hidden max-w-[90%] mx-auto ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-50'}`}>
+    <main className={`relative flex-1 h-[100vh]  overflow-y-scroll p-6 scrollbar-hidden max-w-[90%] mx-auto ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-50'}`}>
       {/* Section for creating a publication */}
       <div className={`p-4 rounded-md shadow mb-6 ${isDarkMode ? 'bg-gray-700' : 'bg-white'}`}>
         <div className="flex mb-6">
