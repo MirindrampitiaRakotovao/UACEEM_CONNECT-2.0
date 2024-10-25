@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const NotificationsController = require('../controllers/notificationController');
+const latestNotificationsController = require('../controllers/latestNotificationsController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 
@@ -12,5 +13,8 @@ router.put('/:notificationId/read', authMiddleware.authenticate, NotificationsCo
 
 // Créer une nouvelle notification (à appeler lors des actions pertinentes)
 router.post('/newNotifications', authMiddleware.authenticate, NotificationsController.createNotification);
+
+// Afficher les 3 dernieres notifications
+router.get('/latest-notifications', authMiddleware.authenticate, latestNotificationsController.getLatestNotifications);
 
 module.exports = router;

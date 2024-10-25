@@ -4,6 +4,9 @@ import Cookies from 'js-cookie';
 import { Heart, MessageCircle, Share, MoreVertical, Send, X } from 'lucide-react';
 import io from 'socket.io-client';
 import { useTheme } from '../../../../../context/ThemeContext';
+import moment from 'moment';
+import 'moment/locale/fr';  // Importer la localisation française
+moment.locale('fr');  // Configurer moment pour utiliser le français
 
 const socket = io('http://localhost:5000');
 
@@ -134,14 +137,20 @@ const Posts: React.FC = () => {
 
             setComments(prev => ({
                 ...prev,
-                [publicationId]: [...(prev[publicationId] || []), response.data.commentaire]
+                [publicationId]: [...(prev[publicationId] || []), {
+                    ...response.data.commentaire,
+                    auteur: userProfile // Assurez-vous que userProfile contient les informations nécessaires
+                }]
             }));
 
             setNewCommentContent('');
 
             socket.emit('new_comment', {
                 publicationId,
-                comment: response.data.commentaire
+                comment: {
+                    ...response.data.commentaire,
+                    auteur: userProfile // Assurez-vous que userProfile contient les informations nécessaires
+                }
             });
         } catch (error) {
             console.error('Erreur lors de l\'envoi du commentaire:', error);
@@ -188,10 +197,24 @@ const Posts: React.FC = () => {
     };
 
     const renderComment = (comment: Comment, publicationId: string) => {
+        const authorName = comment.auteur?.nomUtilisateur || 'Utilisateur inconnu';
         const profileImageUrl = comment.auteur?.photoProfil
             ? `http://localhost:5000/${comment.auteur.photoProfil.replace(/\\/g, '/')}`
             : '';
-
+        // Fonction pour formater l'indication de temps
+        const formatTimeIndication = (createdAt: string) => {
+            const now = moment();
+            const commentTime = moment(createdAt);
+            const diffMinutes = now.diff(commentTime, 'minutes');
+            const diffHours = now.diff(commentTime, 'hours');
+            const diffDays = now.diff(commentTime, 'days');
+            if (diffMinutes < 1) return "À l'instant";
+            if (diffMinutes < 60) return `Il y a ${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
+            if (diffHours < 24) return `Il y a ${diffHours} heure${diffHours > 1 ? 's' : ''}`;
+            if (diffDays === 1) return "Hier";
+            if (diffDays < 30) return `Il y a ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
+            return commentTime.format('DD/MM/YYYY');
+        };
         return (
             <div key={comment.id} className={`p-4 ${isDarkMode ? 'bg-neutral-800' : 'bg-white'}`}>
                 <div className="flex items-start space-x-3">
@@ -209,7 +232,9 @@ const Posts: React.FC = () => {
                             <p className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
                                 {comment.auteur?.nomUtilisateur || 'Utilisateur inconnu'}
                             </p>
-                            {/*<span className={`text-sm ${isDarkMode ? 'text-neutral-400' : 'text-gray-500'}`}>3j</span>*/}
+                            <span className={`text-xs ${isDarkMode ? 'text-neutral-400' : 'text-gray-500'}`}>
+                            {formatTimeIndication(comment.createdAt)}
+                        </span>
                         </div>
                         <p className={`mt-1 text-sm ${isDarkMode ? 'text-neutral-300' : 'text-gray-700'}`}>
                             {comment.text}
@@ -291,6 +316,18 @@ const Posts: React.FC = () => {
 
         return () => {
             socket.off('new_publication');
+        };
+
+        socket.on('new_comment', (data) => {
+            setComments(prev => ({
+                ...prev,
+                [data.publicationId]: [...(prev[data.publicationId] || []), data.comment]
+            }));
+        });
+
+        return () => {
+            // ... autres nettoyages
+            socket.off('new_comment');
         };
     }, []);
 
@@ -388,8 +425,9 @@ const Posts: React.FC = () => {
                         {isModalOpen && selectedPublicationId && (
                             <div
                                 id="hs-focus-management-modal"
-                                className="fixed inset-0 z-[80] overflow-x-hidden overflow-y-auto flex items-center justify-center"
-                                style={{ backgroundColor: 'rgba(255, 255, 255, 0.1)' }}
+                                className={`fixed inset-0 z-[80] overflow-x-hidden overflow-y-auto flex items-center justify-center ${
+                                    isDarkMode ? 'bg-black bg-opacity-10' : 'bg-gray-200 bg-opacity-10'
+                                }`}
                                 role="dialog"
                             >
                                 <div className="w-full max-w-lg m-3">
@@ -404,7 +442,7 @@ const Posts: React.FC = () => {
                                             </h3>
                                             <button
                                                 type="button"
-                                                className={`size-8 inline-flex justify-center items-center rounded-full border border-transparent ${
+                                                className={`w-8 h-8 inline-flex justify-center items-center rounded-full border border-transparent ${
                                                     isDarkMode
                                                         ? 'bg-neutral-700 hover:bg-neutral-600 text-neutral-400 focus:bg-neutral-600'
                                                         : 'bg-gray-100 hover:bg-gray-200 text-gray-800 focus:bg-gray-200'
@@ -412,10 +450,12 @@ const Posts: React.FC = () => {
                                                 onClick={() => setIsModalOpen(false)}
                                             >
                                                 <span className="sr-only">Fermer</span>
-                                                <X className="size-4" />
+                                                <X className="w-4 h-4" />
                                             </button>
                                         </div>
-                                        <div className="p-4 overflow-y-auto max-h-[60vh]">
+                                        <div className={`p-4 overflow-y-auto max-h-[60vh] ${
+                                            isDarkMode ? 'bg-neutral-800' : 'bg-white'
+                                        }`}>
                                             {comments[selectedPublicationId]?.length > 0 ? (
                                                 comments[selectedPublicationId].map(comment => (
                                                     <div key={comment.id} className="mb-4">
@@ -429,14 +469,14 @@ const Posts: React.FC = () => {
                                             )}
                                         </div>
                                         <div className={`flex items-center gap-x-2 py-3 px-4 border-t ${
-                                            isDarkMode ? 'border-neutral-700' : 'border-gray-200'
+                                            isDarkMode ? 'border-neutral-700 bg-neutral-800' : 'border-gray-200 bg-white'
                                         }`}>
                                             <input
                                                 type="text"
                                                 className={`py-2 px-3 block w-full rounded-lg text-sm focus:ring-blue-500 ${
                                                     isDarkMode
-                                                        ? 'bg-neutral-900 border-neutral-700 text-neutral-400 focus:border-blue-500'
-                                                        : 'bg-white border-gray-200 text-gray-800 focus:border-blue-500'
+                                                        ? 'bg-neutral-700 border-neutral-600 text-white focus:border-blue-500'
+                                                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
                                                 }`}
                                                 placeholder="Ajouter un commentaire..."
                                                 value={newCommentContent}
