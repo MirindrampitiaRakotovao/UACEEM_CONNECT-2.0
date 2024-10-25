@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" href="/assets/img/Logo UACEEM.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>UACEEM-CONNECT</title>
+
+  </head>
+  <body>
+    <!-- <button class="toggle-button" id="theme-toggle">Toggle Dark Mode</button> -->
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+    <script>
+      // Gestion du mode sombre
+      const toggleButton = document.getElementById('theme-toggle');
+
+      // Vérifiez si le mode sombre est déjà activé
+      const isDarkMode = localStorage.getItem('darkMode') === 'true';
+      if (isDarkMode) {
+        document.body.classList.add('dark');
+      }
+
+      // Fonction pour basculer le mode sombre
+      const toggleDarkMode = () => {
+        document.body.classList.toggle('dark');
+        // Sauvegarder l'état du mode sombre dans le local storage
+        const darkModeEnabled = document.body.classList.contains('dark');
+        localStorage.setItem('darkMode', darkModeEnabled);
+      };
+
+      // Ajoutez un écouteur d'événements pour le bouton
+      toggleButton.addEventListener('click', toggleDarkMode);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,15 @@
+{
+  "files": [],
+  "references": [
+    { "path": "./tsconfig.app.json" },
+    { "path": "./tsconfig.node.json" }
+  ],
+  "compilerOptions": {
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/@types"  // Ajoutez cette ligne pour inclure vos types personnalisés
+    ],
+    "strict": true,  // Exemple d'option pour activer le mode strict
+    "esModuleInterop": true // Si vous utilisez des modules ES
+  }
+}
