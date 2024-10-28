@@ -297,3 +297,22 @@ exports.getUserByIdWithPhoto = async (req, res) => {
   }
 };
 
+/* Fonction pour récupérer les utilisateurs en ligne */
+exports.getOnlineUsers = async (req, res) => {
+  try {
+    // Récupérer les utilisateurs ayant status = true sans inclure le mot de passe
+    const utilisateursEnLigne = await Etudiant.findAll({
+      where: { status: true },
+      attributes: { exclude: ['password'] } // Exclure les mots de passe
+    });
+
+    if (utilisateursEnLigne.length === 0) {
+      return res.status(404).json({ message: 'Aucun utilisateur en ligne' });
+    }
+
+    res.status(200).json({ utilisateursEnLigne });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Erreur lors de la récupération des utilisateurs en ligne', error });
+  }
+};

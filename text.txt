@@ -1,47 +1,27 @@
-const { transaction } = require('sequelize');
-
-exports.addOrRemoveReaction = async (req, res) => {
-  const t = await sequelize.transaction();
+exports.createPublication = async (req, res) => {
   try {
-    const { publicationId, commentaireId } = req.body;
-    const etudiantId = req.user.id;
-
-    if (!publicationId && !commentaireId) {
-      return res.status(400).json({ error: 'ID de publication ou de commentaire requis.' });
+    const { visibilite, legende } = req.body;
+    
+    if (!['Public', 'Groupe'].includes(visibilite)) {
+      return res.status(400).json({ message: 'Visibilité invalide' });
     }
 
-    let condition = { etudiant_id: etudiantId };
-    if (publicationId) condition.publication_id = publicationId;
-    if (commentaireId) condition.commentaire_id = commentaireId;
-
-    const existingReaction = await Reactions.findOne({ where: condition });
-
-    if (existingReaction) {
-      await existingReaction.destroy({ transaction: t });
-
-      if (publicationId) {
-        await Publications.decrement('nombre_reaction', { where: { id: publicationId }, transaction: t });
-      } else {
-        await Commentaires.decrement('nombre_reaction_commentaire', { where: { id: commentaireId }, transaction: t });
-      }
-
-      await t.commit();
-      return res.status(200).json({ message: 'Réaction supprimée.' });
+    if ((!req.files['fichiers'] || !req.files['fichiers'].length) && !legende) {
+      return res.status(400).json({ message: 'Le contenu de la publication ne peut pas être vide.' });
     }
 
-    await Reactions.create({ publication_id: publicationId || null, commentaire_id: commentaireId || null, etudiant_id: etudiantId }, { transaction: t });
+    const photo = req.files['photo'] ? req.files['photo'][0] : null;
 
-    if (publicationId) {
-      await Publications.increment('nombre_reaction', { where: { id: publicationId }, transaction: t });
-    } else {
-      await Commentaires.increment('nombre_reaction_commentaire', { where: { id: commentaireId }, transaction: t });
-    }
+    const publication = await publicationService.createPublication(req, req.files['fichiers'], photo);
 
-    await t.commit();
-    res.status(200).json({ message: 'Réaction ajoutée.' });
+    // Notifie les utilisateurs de la nouvelle publication via Socket.io
+    req.io.emit('newPublication', { 
+      message: 'Nouvelle publication créée', 
+      publication 
+    });
+    
+    return res.status(200).json({ message: 'Publication créée avec succès', publication });
   } catch (error) {
-    await t.rollback();
-    console.error('Error in addOrRemoveReaction:', error);
-    res.status(500).json({ error: 'Erreur lors de la gestion de la réaction.' });
+    return res.status(400).json({ message: error.message });
   }
 };

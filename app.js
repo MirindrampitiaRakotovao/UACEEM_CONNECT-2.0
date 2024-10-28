@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const http = require('http');
-const { Server } = require('socket.io');
+const socketIo = require('socket.io');
 const cookieParser = require('cookie-parser');
 const sequelize = require('./config/database');
 const bodyParser = require('body-parser');
@@ -27,7 +27,7 @@ const app = express();
 const server = http.createServer(app);
 
 // Initialisation de Socket.io avec le serveur HTTP
-const io = new Server(server, {
+const io = socketIo(server, {
   cors: {
     origin: 'http://localhost:3000',  // Ton front-end
     methods: ['GET', 'POST'], // Méthodes HTTP autorisées
@@ -62,6 +62,18 @@ process.on('uncaughtException', (err) => {
 
 process.on('unhandledRejection', (reason, promise) => {
   console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+io.on('connection', (socket) => {
+  console.log('Nouvel utilisateur connecté :', socket.id);
+
+  socket.on('sendMessage', (message) => {
+    io.emit('receiveMessage', message); // Envoyer le message à tous les clients
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Utilisateur déconnecté :', socket.id);
+  });
 });
 
 // Test de connexion à la base de données et synchronisation des modèles

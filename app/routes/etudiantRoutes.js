@@ -38,6 +38,8 @@ router.get('/toutPhotodeProfil' , etudiantController.getAllUsersWithPhotos);
 //afficher tout les photo de profil d'un  etudiants
 router.get('/pourAvatar/:id' , etudiantController.getUserByIdWithPhoto);
 
+router.get('/etudiantsEnLigne', authenticateToken,etudiantController.getOnlineUsers);
+
 
 
 module.exports = router;
