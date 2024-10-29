@@ -8,7 +8,7 @@ const getPublications = async (req, res) => {
             include: [{
                 model: Personnel,
                 as: 'auteur', // Assurez-vous que cet alias correspond à celui défini dans votre modèle
-                attributes: ['nomUtilisateur', 'photoProfil'], // Inclure uniquement les informations nécessaires
+                attributes: ['id', 'nomUtilisateur', 'photoProfil', 'nom', 'prenom', 'role', 'posteOccupe'], // Inclure uniquement les informations nécessaires
             }],
         });
 

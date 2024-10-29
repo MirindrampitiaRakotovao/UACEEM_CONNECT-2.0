@@ -12,7 +12,8 @@ import UserAdd from './Pages/UserManagment/UserAdd';
 import UserModify from './Pages/UserManagment/UserModify';
 import UserProfile from './Pages/Profile/UserProfile';
 import SignalementList from './Pages/Signalement/SignalementList';
-import { useTheme } from './context/ThemeContext'; // Importer le hook pour utiliser le contexte de thème
+import { useTheme } from './context/ThemeContext';
+import PostUser from "./Pages/Profile/PostUser.tsx"; // Importer le hook pour utiliser le contexte de thème
 
 const App: React.FC = () => {
   const { isDarkMode } = useTheme(); // Utiliser le hook pour obtenir l'état du mode sombre
@@ -35,6 +36,7 @@ const App: React.FC = () => {
         <Route path="/UserAdd" element={<UserAdd />} />
         <Route path="/UserModify/:id" element={<UserModify />} />
         <Route path="/UserProfile" element={<UserProfile />} />
+        <Route path="/PostUser/:id" element={<PostUser  />} />
         <Route path="/acceuilProfesseur"
           element={
             <ProtectedRoute>

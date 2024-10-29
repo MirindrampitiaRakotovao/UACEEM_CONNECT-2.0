@@ -63,13 +63,13 @@ const ProfilePosts = () => {
 
           await Promise.all(
             sortedPosts.map(async (post: Post) => {
-              // Récupérer le compte de réactions
+
               const reactionsRes = await axios.get(`http://localhost:5000/api/reactions/publication/${post.id}/reactions-count`, {
                 headers: { Authorization: `Bearer ${token}` },
               });
               setReactionsCount((prev) => ({ ...prev, [post.id]: reactionsRes.data.count }));
 
-              // Vérifier la réaction de l'utilisateur
+
               const userReactionRes = await axios.get(`http://localhost:5000/api/reactions/publication/${post.id}/user-reactions`, {
                 headers: { Authorization: `Bearer ${token}` },
               });

@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import {useNavigate} from "react-router-dom";
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { Heart, MessageCircle, Share, MoreVertical, Send, X } from 'lucide-react';
+import {Heart, MessageCircle, Share, MoreVertical, Send, X, CircleAlert} from 'lucide-react';
 import io from 'socket.io-client';
 import { useTheme } from '../../../../../context/ThemeContext';
 import moment from 'moment';
@@ -12,6 +13,8 @@ const socket = io('http://localhost:5000');
 
 // Définir les interfaces pour TypeScript
 interface User {
+    prenom: string;
+    nom: string;
     id: number;
     nomUtilisateur: string;
     photoProfil: string;
@@ -306,6 +309,23 @@ const Posts: React.FC = () => {
         }
     };
 
+    const navigate = useNavigate();
+
+    const redirectToUserProfile = (auteur) => {
+        if (!auteur) {
+            console.error("Les informations de l'auteur ne sont pas disponibles");
+            return;
+        }
+        const authorId = auteur.id;
+        if (!authorId) {
+            console.error("L'ID de l'auteur n'est pas disponible");
+            return;
+        }
+        navigate(`/PostUser/${authorId}`, {
+            state: { authorData: auteur }
+        });
+    };
+
     useEffect(() => {
         fetchUserProfile();
         fetchPublications();
@@ -342,14 +362,73 @@ const Posts: React.FC = () => {
 
                 return (
                     <div key={publication.id} className={` p-4 my-4 rounded ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
-                        <div className="flex items-center">
+                        <div className="flex items-center relative group">
+                            {/* Tooltip */}
+                            <div
+                                className={`absolute hidden group-hover:block ${
+                                    isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
+                                } text-sm rounded-lg p-3 top-1/2 right-full mr-2 transform -translate-y-1/2 z-10 shadow-lg w-72`}
+                            >
+                                <div className="flex items-center mb-3">
+                                    <img
+                                        src={`http://localhost:5000/${publication.auteur.photoProfil.replace(/\\/g, '/')}`}
+                                        alt={publication.auteur.nomUtilisateur}
+                                        className="h-16 w-16 rounded-full object-cover mr-3"
+                                    />
+                                    <div>
+                                        <p
+                                            className="font-semibold cursor-pointer hover:underline"
+                                            onClick={() => redirectToUserProfile(publication.auteur)}
+                                        >
+                                            {publication.auteur.nomUtilisateur}
+                                        </p>
+                                        <p className="text-xs text-black">
+                                            {publication.auteur.nom} {publication.auteur.prenom}
+                                        </p>
+                                        <p className="text-xs text-gray-400">
+                                            {publication.auteur.role}
+                                        </p>
+                                    </div>
+                                </div>
+                                {/* Boutons côte à côte */}
+                                <div className="flex space-x-2">
+                                    <button
+                                        className={`flex-1 py-1 px-2 rounded text-xs ${
+                                            isDarkMode
+                                                ? 'bg-blue-600 hover:bg-blue-700 text-white'
+                                                : 'bg-blue-500 hover:bg-blue-600 text-white'
+                                        }`}
+                                        onClick={() => redirectToUserProfile(publication.auteur)}
+                                    >
+                                        Afficher le profil
+                                    </button>
+                                    <button
+                                        className={`flex-1 py-1 px-2 rounded text-xs ${
+                                            isDarkMode
+                                                ? 'bg-gray-600 hover:bg-gray-500 text-white'
+                                                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                                        }`}
+                                        onClick={() => {/* Logique pour envoyer un message */
+                                        }}
+                                    >
+                                        Message
+                                    </button>
+                                </div>
+                                {/* Flèche du tooltip */}
+                                <div
+                                    className={`absolute top-1/2 -right-2 w-4 h-4 rotate-45 transform -translate-y-1/2 ${
+                                        isDarkMode ? 'bg-gray-700' : 'bg-white'
+                                    }`}
+                                ></div>
+                            </div>
                             <img
                                 src={`http://localhost:5000/${publication.auteur.photoProfil.replace(/\\/g, '/')}`}
                                 alt={publication.auteur.nomUtilisateur}
                                 className="h-10 w-10 rounded-full object-cover mr-2"
                             />
-                            <h2 className="font-semibold">{publication.auteur.nomUtilisateur}</h2>
+                            <h2 className="font-semibold hover:underline cursor-pointer" onClick={() => redirectToUserProfile(publication.auteur)}>{publication.auteur.nomUtilisateur}</h2>
                         </div>
+
                         <p className="my-2">{publication.description}</p>
                         {Array.isArray(images) && images.length > 0 && (
                             <div className="flex flex-wrap -m-1"> {/* Marge négative pour compenser les espacements */}
@@ -391,7 +470,7 @@ const Posts: React.FC = () => {
                                                 />
                                             </div>
                                             <div className="p-1 relative">
-                                                <img
+                                            <img
                                                     src={`http://localhost:5000/${images[2]}`}
                                                     alt={`Image de publication ${publication.id}`}
                                                     className="w-full aspect-square object-cover rounded-xl"
@@ -409,19 +488,34 @@ const Posts: React.FC = () => {
                                 )}
                             </div>
                         )}
-                        <div className="flex justify-between mt-2">
-                            <div className="flex items-center">
-                                <Heart 
-                                    className={`h-5 w-5 cursor-pointer ${userReactions[publication.id] ? 'fill-current text-blue-500' : 'text-gray-500'}`} 
-                                    onClick={() => toggleReaction(publication.id)} // Appel à la fonction de gestion de réaction
+
+                        <div className="flex justify-between items-center mt-2 px-4">
+                            <div className="flex flex-col items-center">
+                                <Heart
+                                    className={`h-6 w-6 cursor-pointer ${userReactions[publication.id] ? 'fill-current text-blue-500' : 'text-gray-500 hover:text-gray-700'}`}
+                                    onClick={() => toggleReaction(publication.id)}
                                 />
-                                <span className="ml-1">{reactionsCount[publication.id] || 0}</span>
-                                <MessageCircle className="h-5 w-5 cursor-pointer ml-4" onClick={() => toggleModal(publication.id)} />
+                                <span
+                                    className="mt-1 text-sm text-gray-600">{reactionsCount[publication.id] || 0}</span>
                             </div>
-                            <Share className="h-5 w-5 cursor-pointer" />
+
+                            <div className="flex flex-col items-center">
+                                <MessageCircle
+                                    className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700"
+                                    onClick={() => toggleModal(publication.id)}
+                                />
+                                <span className="mt-1 text-sm text-gray-600">Commenter</span>
+                            </div>
+
+                            <div className="flex flex-col items-center">
+                                <CircleAlert
+                                    className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700"
+                                />
+                                <span className="mt-1 text-sm text-gray-600">Signaler</span>
+                            </div>
                         </div>
 
-{/* Modal pour les commentaires */}
+                        {/* Modal pour les commentaires */}
                         {isModalOpen && selectedPublicationId && (
                             <div
                                 id="hs-focus-management-modal"
