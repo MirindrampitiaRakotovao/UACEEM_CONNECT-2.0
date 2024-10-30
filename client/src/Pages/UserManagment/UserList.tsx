@@ -13,7 +13,7 @@ const UserList = () => {
                 <UserLists />
                 <RightSidebar />
             </main>
-        </div>
+    </div>
   )
 }
 

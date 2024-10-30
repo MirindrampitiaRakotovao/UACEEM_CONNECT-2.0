@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react';
 import {useNavigate} from "react-router-dom";
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import {Heart, MessageCircle, Share, MoreVertical, Send, X, CircleAlert} from 'lucide-react';
+import {Heart, MessageCircle, Share, MoreVertical, Send, X, CircleAlert, MoreHorizontal} from 'lucide-react';
 import io from 'socket.io-client';
 import { useTheme } from '../../../../../context/ThemeContext';
 import moment from 'moment';
 import 'moment/locale/fr';  // Importer la localisation française
 moment.locale('fr');  // Configurer moment pour utiliser le français
+import { motion, AnimatePresence } from 'framer-motion';
 
 const socket = io('http://localhost:5000');
 
@@ -42,6 +43,31 @@ interface UserProfile {
     photoProfil: string;
 }
 
+
+
+const SkeletonLoader = ({ isDarkMode }) => {
+    return (
+        <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6 space-y-4`}>
+            <div className="flex items-center space-x-4">
+                <div className={`w-12 h-12 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} animate-pulse`}></div>
+                <div className="space-y-2 flex-1">
+                    <div className={`h-4 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded animate-pulse`}></div>
+                    <div className={`h-3 w-3/4 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded animate-pulse`}></div>
+                </div>
+            </div>
+            <div className={`h-40 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded-xl animate-pulse`}></div>
+            <div className="flex justify-between">
+                <div className={`h-8 w-20 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded animate-pulse`}></div>
+                <div className={`h-8 w-20 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded animate-pulse`}></div>
+                <div className={`h-8 w-20 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded animate-pulse`}></div>
+            </div>
+        </div>
+    );
+};
+
+
+
+
 const Posts: React.FC = () => {
     const { isDarkMode } = useTheme();
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
@@ -58,6 +84,12 @@ const Posts: React.FC = () => {
     const [isCommentLoading, setIsCommentLoading] = useState<boolean>(false);
     const [expandedComments, setExpandedComments] = useState<number[]>([]);
     const [newCommentContent, setNewCommentContent] = useState<string>('');
+    const [selectedImages, setSelectedImages] = useState<string[] | null>(null);
+
+
+    const handleImageClick = (images: string[]) => {
+        setSelectedImages(images.length > 1 ? images : null);
+    };
 
     const fetchUserProfile = async (): Promise<void> => {
         const token = Cookies.get('token');
@@ -204,13 +236,14 @@ const Posts: React.FC = () => {
         const profileImageUrl = comment.auteur?.photoProfil
             ? `http://localhost:5000/${comment.auteur.photoProfil.replace(/\\/g, '/')}`
             : '';
-        // Fonction pour formater l'indication de temps
+    
         const formatTimeIndication = (createdAt: string) => {
             const now = moment();
             const commentTime = moment(createdAt);
             const diffMinutes = now.diff(commentTime, 'minutes');
             const diffHours = now.diff(commentTime, 'hours');
             const diffDays = now.diff(commentTime, 'days');
+            
             if (diffMinutes < 1) return "À l'instant";
             if (diffMinutes < 60) return `Il y a ${diffMinutes} minute${diffMinutes > 1 ? 's' : ''}`;
             if (diffHours < 24) return `Il y a ${diffHours} heure${diffHours > 1 ? 's' : ''}`;
@@ -218,74 +251,139 @@ const Posts: React.FC = () => {
             if (diffDays < 30) return `Il y a ${diffDays} jour${diffDays > 1 ? 's' : ''}`;
             return commentTime.format('DD/MM/YYYY');
         };
+    
         return (
-            <div key={comment.id} className={`p-4 ${isDarkMode ? 'bg-neutral-800' : 'bg-white'}`}>
+            <div key={comment.id} 
+                 className={`p-4 rounded-lg mb-3 transition-all duration-200 ${
+                     isDarkMode 
+                         ? 'bg-neutral-800 hover:bg-neutral-700' 
+                         : 'bg-white hover:bg-gray-50'
+                 } shadow-sm`}>
                 <div className="flex items-start space-x-3">
-                    {profileImageUrl ? (
-                        <img
-                            src={profileImageUrl}
-                            alt={`Photo de ${comment.auteur?.nomUtilisateur}`}
-                            className="w-10 h-10 rounded-full object-cover"
-                        />
-                    ) : (
-                        <div className="w-10 h-10 bg-gray-300 rounded-full" />
-                    )}
-                    <div className="flex flex-col w-full">
+                    <div className="flex-shrink-0">
+                        {profileImageUrl ? (
+                            <img
+                                src={profileImageUrl}
+                                alt={`Photo de ${authorName}`}
+                                className="w-10 h-10 rounded-full object-cover border-2 border-blue-500"
+                                onClick={() => redirectToUserProfile(comment.auteur)}
+                            />
+                        ) : (
+                            <div className="w-10 h-10 bg-gradient-to-r from-blue-400 to-blue-600 rounded-full 
+                                          flex items-center justify-center text-white font-bold">
+                                {authorName.charAt(0)}
+                            </div>
+                        )}
+                    </div>
+                    
+                    <div className="flex-1">
                         <div className="flex justify-between items-center w-full">
-                            <p className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                                {comment.auteur?.nomUtilisateur || 'Utilisateur inconnu'}
-                            </p>
-                            <span className={`text-xs ${isDarkMode ? 'text-neutral-400' : 'text-gray-500'}`}>
-                            {formatTimeIndication(comment.createdAt)}
-                        </span>
+                            <div className="flex items-center space-x-2">
+                                <h4 className={`font-semibold cursor-pointer hover:underline ${
+                                    isDarkMode ? 'text-white' : 'text-gray-900'
+                                }`} onClick={() => redirectToUserProfile(comment.auteur)}>
+                                    {authorName}
+                                </h4>
+                                <span className={`text-xs ${
+                                    isDarkMode ? 'text-neutral-400' : 'text-gray-500'
+                                }`}>
+                                    {formatTimeIndication(comment.createdAt)}
+                                </span>
+                            </div>
+                            <button className={`p-1 rounded-full hover:bg-${
+                                isDarkMode ? 'neutral-700' : 'gray-100'
+                            }`}>
+                                <MoreVertical size={16} className={
+                                    isDarkMode ? 'text-neutral-400' : 'text-gray-500'
+                                } />
+                            </button>
                         </div>
-                        <p className={`mt-1 text-sm ${isDarkMode ? 'text-neutral-300' : 'text-gray-700'}`}>
+    
+                        <p className={`mt-2 text-sm ${
+                            isDarkMode ? 'text-neutral-300' : 'text-gray-700'
+                        }`}>
                             {comment.text}
                         </p>
-                        <div className="mt-2 flex items-center space-x-4">
+    
+                        <div className="mt-3 flex items-center space-x-4">
                             <button
-                                className={`text-xs ${isDarkMode ? 'text-neutral-400 hover:text-neutral-300' : 'text-gray-500 hover:text-gray-700'}`}
+                                className={`flex items-center space-x-1 text-xs ${
+                                    isDarkMode 
+                                        ? 'text-neutral-400 hover:text-blue-400' 
+                                        : 'text-gray-500 hover:text-blue-600'
+                                } transition-colors duration-200`}
                                 onClick={() => setReplyingTo(replyingTo === comment.id ? null : comment.id)}
                             >
-                                Répondre
+                                <MessageCircle size={14} />
+                                <span>Répondre</span>
                             </button>
+                            
                             <button
-                                className={`text-xs ${isDarkMode ? 'text-neutral-400 hover:text-neutral-300' : 'text-gray-500 hover:text-gray-700'}`}
-                                onClick={() => {/* Logique pour réagir */}}
+                                className={`flex items-center space-x-1 text-xs ${
+                                    isDarkMode 
+                                        ? 'text-neutral-400 hover:text-red-400' 
+                                        : 'text-gray-500 hover:text-red-600'
+                                } transition-colors duration-200`}
                             >
-                                Réagir
+                                <Heart size={14} />
+                                <span>J'aime</span>
                             </button>
                         </div>
+    
+                        {replyingTo === comment.id && (
+                            <div className="mt-3 flex items-center space-x-2">
+                                <input
+                                    type="text"
+                                    value={replyContent}
+                                    onChange={(e) => setReplyContent(e.target.value)}
+                                    className={`flex-1 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 
+                                              focus:ring-blue-500 transition-all duration-200 ${
+                                        isDarkMode 
+                                            ? 'bg-neutral-700 text-white placeholder-neutral-400' 
+                                            : 'bg-gray-100 text-gray-900 placeholder-gray-500'
+                                    }`}
+                                    placeholder="Écrire une réponse..."
+                                />
+                                <button
+                                    onClick={() => submitReply(publicationId, comment.id)}
+                                    className={`p-2 rounded-full ${
+                                        replyContent.trim() 
+                                            ? 'bg-blue-500 hover:bg-blue-600' 
+                                            : 'bg-gray-300'
+                                    } transition-colors duration-200`}
+                                    disabled={!replyContent.trim()}
+                                >
+                                    <Send size={18} className="text-white" />
+                                </button>
+                            </div>
+                        )}
+    
+                        {comment.reponses && comment.reponses.length > 0 && (
+                            <div className="mt-3">
+                                <button
+                                    onClick={() => toggleReplies(comment.id)}
+                                    className={`text-xs font-medium ${
+                                        isDarkMode 
+                                            ? 'text-blue-400 hover:text-blue-300' 
+                                            : 'text-blue-600 hover:text-blue-700'
+                                    } transition-colors duration-200`}
+                                >
+                                    {expandedComments.includes(comment.id) 
+                                        ? 'Masquer les réponses' 
+                                        : `Voir ${comment.reponses.length} réponse${
+                                            comment.reponses.length > 1 ? 's' : ''
+                                        }`}
+                                </button>
+                                
+                                {expandedComments.includes(comment.id) && (
+                                    <div className="ml-8 mt-3 space-y-3 border-l-2 border-gray-200 pl-4">
+                                        {comment.reponses.map(reply => renderComment(reply, publicationId))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
-
-                {replyingTo === comment.id && (
-                    <div className="ml-10 mt-2 flex items-center space-x-2">
-                        <input
-                            type="text"
-                            value={replyContent}
-                            onChange={(e) => setReplyContent(e.target.value)}
-                            className={`flex-1 border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 ${
-                                isDarkMode
-                                    ? 'bg-neutral-700 border-neutral-600 text-white'
-                                    : 'bg-white border-gray-300 text-gray-900'
-                            }`}
-                            placeholder="Écrire une réponse..."
-                        />
-                        <button
-                            className="bg-blue-500 text-white px-3 py-2 rounded-lg hover:bg-blue-600"
-                            onClick={() => submitReply(publicationId, comment.id)}
-                        >
-                            Envoyer
-                        </button>
-                    </div>
-                )}
-
-                {comment.reponses && comment.reponses.length > 0 && (
-                    <div className="ml-10 mt-4 space-y-3">
-                        {comment.reponses.map(reply => renderComment(reply, publicationId))}
-                    </div>
-                )}
             </div>
         );
     };
@@ -352,248 +450,286 @@ const Posts: React.FC = () => {
     }, []);
 
     if (loading) {
-        return <div>Chargement des publications...</div>;
+        return (
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                    {[...Array(6)].map((_, index) => (
+                        <SkeletonLoader key={index} isDarkMode={isDarkMode} />
+                    ))}
+                </div>
+            </div>
+        );
     }
 
+
     return (
-        <div>
-            {publications.map((publication) => {
-                const images = JSON.parse(publication.image.replace(/\\/g, '/')); // Remplacez les doubles barres obliques inverses
-
-                return (
-                    <div key={publication.id} className={` p-4 my-4 rounded ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
-                        <div className="flex items-center relative group">
-                            {/* Tooltip */}
-                            <div
-                                className={`absolute hidden group-hover:block ${
-                                    isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-800'
-                                } text-sm rounded-lg p-3 top-1/2 right-full mr-2 transform -translate-y-1/2 z-10 shadow-lg w-72`}
-                            >
-                                <div className="flex items-center mb-3">
-                                    <img
-                                        src={`http://localhost:5000/${publication.auteur.photoProfil.replace(/\\/g, '/')}`}
-                                        alt={publication.auteur.nomUtilisateur}
-                                        className="h-16 w-16 rounded-full object-cover mr-3"
-                                    />
-                                    <div>
-                                        <p
-                                            className="font-semibold cursor-pointer hover:underline"
-                                            onClick={() => redirectToUserProfile(publication.auteur)}
-                                        >
-                                            {publication.auteur.nomUtilisateur}
-                                        </p>
-                                        <p className="text-xs text-black">
-                                            {publication.auteur.nom} {publication.auteur.prenom}
-                                        </p>
-                                        <p className="text-xs text-gray-400">
-                                            {publication.auteur.role}
-                                        </p>
-                                    </div>
-                                </div>
-                                {/* Boutons côte à côte */}
-                                <div className="flex space-x-2">
-                                    <button
-                                        className={`flex-1 py-1 px-2 rounded text-xs ${
-                                            isDarkMode
-                                                ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                                                : 'bg-blue-500 hover:bg-blue-600 text-white'
-                                        }`}
-                                        onClick={() => redirectToUserProfile(publication.auteur)}
+        <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+            className="max-w-7xl mx-auto px-4 py-8"
+        >
+            <motion.div 
+                layout
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+            >
+                <motion.div 
+                    layout
+                    className={`col-span-full ${selectedImages ? 'lg:col-span-2' : ''} grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8`}
+                    animate={{ 
+                        gridTemplateColumns: selectedImages 
+                            ? 'repeat(2, minmax(0, 1fr))' 
+                            : 'repeat(3, minmax(0, 1fr))',
+                        x: selectedImages ? '-16.67%' : 0
+                    }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+                >
+                    {publications.map((publication) => (
+                        <PublicationCard 
+                            key={publication.id}
+                            publication={publication}
+                            isDarkMode={isDarkMode}
+                            toggleReaction={toggleReaction}
+                            toggleModal={toggleModal}
+                            redirectToUserProfile={redirectToUserProfile}
+                            userReactions={userReactions}
+                            reactionsCount={reactionsCount}
+                            handleImageClick={handleImageClick}
+                        />
+                    ))}
+                </motion.div>
+                
+                <AnimatePresence>
+                    {selectedImages && (
+                        <motion.div
+                            initial={{ opacity: 0, x: '100%' }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, x: '100%' }}
+                            transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                            className="col-span-1 lg:col-span-1 sticky top-0 h-screen overflow-y-auto"
+                        >
+                            <div className="grid gap-4">
+                                {selectedImages.map((img, index) => (
+                                    <motion.div
+                                        key={index}
+                                        className="aspect-square overflow-hidden rounded-lg shadow-lg"
+                                        initial={{ opacity: 0, y: 20 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        transition={{ delay: index * 0.1 }}
                                     >
-                                        Afficher le profil
-                                    </button>
-                                    <button
-                                        className={`flex-1 py-1 px-2 rounded text-xs ${
-                                            isDarkMode
-                                                ? 'bg-gray-600 hover:bg-gray-500 text-white'
-                                                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                                        }`}
-                                        onClick={() => {/* Logique pour envoyer un message */
-                                        }}
-                                    >
-                                        Message
-                                    </button>
-                                </div>
-                                {/* Flèche du tooltip */}
-                                <div
-                                    className={`absolute top-1/2 -right-2 w-4 h-4 rotate-45 transform -translate-y-1/2 ${
-                                        isDarkMode ? 'bg-gray-700' : 'bg-white'
-                                    }`}
-                                ></div>
-                            </div>
-                            <img
-                                src={`http://localhost:5000/${publication.auteur.photoProfil.replace(/\\/g, '/')}`}
-                                alt={publication.auteur.nomUtilisateur}
-                                className="h-10 w-10 rounded-full object-cover mr-2"
-                            />
-                            <h2 className="font-semibold hover:underline cursor-pointer" onClick={() => redirectToUserProfile(publication.auteur)}>{publication.auteur.nomUtilisateur}</h2>
-                        </div>
-
-                        <p className="my-2">{publication.description}</p>
-                        {Array.isArray(images) && images.length > 0 && (
-                            <div className="flex flex-wrap -m-1"> {/* Marge négative pour compenser les espacements */}
-                                {images.length === 1 ? (
-                                    <div className="w-full p-1">
                                         <img
-                                            src={`http://localhost:5000/${images[0]}`}
-                                            alt={`Image de publication ${publication.id}`}
-                                            className="w-full aspect-square object-cover rounded-xl"
+                                            src={`http://localhost:5000/${img}`}
+                                            alt={`Image ${index + 1}`}
+                                            className="w-full h-full object-cover"
                                         />
-                                    </div>
-                                ) : images.length === 2 ? (
-                                    <>
-                                        {images.map((img, index) => (
-                                            <div key={index} className="w-1/2 p-1">
-                                                <img
-                                                    src={`http://localhost:5000/${img}`}
-                                                    alt={`Image de publication ${publication.id}`}
-                                                    className="w-full aspect-square object-cover rounded-xl"
-                                                />
-                                            </div>
-                                        ))}
-                                    </>
-                                ) : (
-                                    <div className="w-full flex flex-wrap">
-                                        <div className="w-2/3 p-1">
-                                            <img
-                                                src={`http://localhost:5000/${images[0]}`}
-                                                alt={`Image de publication ${publication.id}`}
-                                                className="w-full aspect-square object-cover rounded-xl"
-                                            />
-                                        </div>
-                                        <div className="w-1/3 flex flex-col">
-                                            <div className="p-1">
-                                                <img
-                                                    src={`http://localhost:5000/${images[1]}`}
-                                                    alt={`Image de publication ${publication.id}`}
-                                                    className="w-full aspect-square object-cover rounded-xl"
-                                                />
-                                            </div>
-                                            <div className="p-1 relative">
-                                            <img
-                                                    src={`http://localhost:5000/${images[2]}`}
-                                                    alt={`Image de publication ${publication.id}`}
-                                                    className="w-full aspect-square object-cover rounded-xl"
-                                                />
-                                                {images.length > 3 && (
-                                                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-xl">
-                                <span className="text-white text-lg font-bold">
-                                    +{images.length - 3} Voir plus
-                                </span>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
+                                    </motion.div>
+                                ))}
                             </div>
-                        )}
+                        </motion.div>
+                    )}
+                </AnimatePresence>
+            </motion.div>
 
-                        <div className="flex justify-between items-center mt-2 px-4">
-                            <div className="flex flex-col items-center">
-                                <Heart
-                                    className={`h-6 w-6 cursor-pointer ${userReactions[publication.id] ? 'fill-current text-blue-500' : 'text-gray-500 hover:text-gray-700'}`}
-                                    onClick={() => toggleReaction(publication.id)}
-                                />
-                                <span
-                                    className="mt-1 text-sm text-gray-600">{reactionsCount[publication.id] || 0}</span>
-                            </div>
-
-                            <div className="flex flex-col items-center">
-                                <MessageCircle
-                                    className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700"
-                                    onClick={() => toggleModal(publication.id)}
-                                />
-                                <span className="mt-1 text-sm text-gray-600">Commenter</span>
-                            </div>
-
-                            <div className="flex flex-col items-center">
-                                <CircleAlert
-                                    className="h-6 w-6 cursor-pointer text-gray-500 hover:text-gray-700"
-                                />
-                                <span className="mt-1 text-sm text-gray-600">Signaler</span>
-                            </div>
-                        </div>
-
-                        {/* Modal pour les commentaires */}
-                        {isModalOpen && selectedPublicationId && (
-                            <div
-                                id="hs-focus-management-modal"
-                                className={`fixed inset-0 z-[80] overflow-x-hidden overflow-y-auto flex items-center justify-center ${
-                                    isDarkMode ? 'bg-black bg-opacity-10' : 'bg-gray-200 bg-opacity-10'
-                                }`}
-                                role="dialog"
-                            >
-                                <div className="w-full max-w-lg m-3">
-                                    <div className={`flex flex-col border shadow-sm rounded-xl ${
-                                        isDarkMode ? 'bg-neutral-800 border-neutral-700' : 'bg-white border-gray-200'
-                                    }`}>
-                                        <div className={`flex justify-between items-center py-3 px-4 border-b ${
-                                            isDarkMode ? 'border-neutral-700' : 'border-gray-200'
-                                        }`}>
-                                            <h3 className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                                                Commentaires
-                                            </h3>
-                                            <button
-                                                type="button"
-                                                className={`w-8 h-8 inline-flex justify-center items-center rounded-full border border-transparent ${
-                                                    isDarkMode
-                                                        ? 'bg-neutral-700 hover:bg-neutral-600 text-neutral-400 focus:bg-neutral-600'
-                                                        : 'bg-gray-100 hover:bg-gray-200 text-gray-800 focus:bg-gray-200'
-                                                }`}
-                                                onClick={() => setIsModalOpen(false)}
-                                            >
-                                                <span className="sr-only">Fermer</span>
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                        <div className={`p-4 overflow-y-auto max-h-[60vh] ${
-                                            isDarkMode ? 'bg-neutral-800' : 'bg-white'
-                                        }`}>
-                                            {comments[selectedPublicationId]?.length > 0 ? (
-                                                comments[selectedPublicationId].map(comment => (
-                                                    <div key={comment.id} className="mb-4">
-                                                        {renderComment(comment, selectedPublicationId)}
-                                                    </div>
-                                                ))
-                                            ) : (
-                                                <p className={`text-center ${isDarkMode ? 'text-neutral-400' : 'text-gray-500'}`}>
-                                                    Aucun commentaire pour le moment
-                                                </p>
-                                            )}
-                                        </div>
-                                        <div className={`flex items-center gap-x-2 py-3 px-4 border-t ${
-                                            isDarkMode ? 'border-neutral-700 bg-neutral-800' : 'border-gray-200 bg-white'
-                                        }`}>
-                                            <input
-                                                type="text"
-                                                className={`py-2 px-3 block w-full rounded-lg text-sm focus:ring-blue-500 ${
-                                                    isDarkMode
-                                                        ? 'bg-neutral-700 border-neutral-600 text-white focus:border-blue-500'
-                                                        : 'bg-white border-gray-300 text-gray-900 focus:border-blue-500'
-                                                }`}
-                                                placeholder="Ajouter un commentaire..."
-                                                value={newCommentContent}
-                                                onChange={(e) => setNewCommentContent(e.target.value)}
-                                            />
-                                            <button
-                                                type="button"
-                                                className="py-2 px-3 inline-flex items-center text-sm font-medium rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                                onClick={handleCommentSubmit}
-                                            >
-                                                Envoyer
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                    </div>
-                );
-            })}
-        </div>
+            <AnimatePresence>
+                {isModalOpen && selectedPublicationId && (
+                    <CommentModal 
+                        publication={publications.find(p => p.id === selectedPublicationId)!}
+                        isDarkMode={isDarkMode}
+                        closeModal={() => toggleModal(null)}
+                        comments={comments[selectedPublicationId] || []}
+                        submitComment={submitComment}
+                        newCommentContent={newCommentContent}
+                        setNewCommentContent={setNewCommentContent}
+                        isCommentLoading={isCommentLoading}
+                        renderComment={renderComment}
+                    />
+                )}
+            </AnimatePresence>
+        </motion.div>
     );
 };
 
+const PublicationCard: React.FC<{ 
+    publication: Publication; 
+    isDarkMode: boolean; 
+    toggleReaction: (id: string) => void; 
+    toggleModal: (id: string | null) => void; 
+    redirectToUserProfile: (auteur: User) => void; 
+    userReactions: { [key: string]: boolean }; 
+    reactionsCount: { [key: string]: number };
+    handleImageClick: (images: string[]) => void;
+}> = ({ 
+    publication, 
+    isDarkMode, 
+    toggleReaction, 
+    toggleModal, 
+    redirectToUserProfile, 
+    userReactions, 
+    reactionsCount,
+    handleImageClick
+}) => {
+    const images = JSON.parse(publication.image.replace(/\\/g, '/'));
+
+    return (
+        <motion.div
+            layout
+            variants={{
+                hidden: { y: 20, opacity: 0 },
+                show: { y: 0, opacity: 1 }
+            }}
+            className={`${
+                isDarkMode ? 'bg-gradient-to-r from-[#2d3d53] to-[#29374b] shadow-md text-white' : 'bg-white text-black'
+            } rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl`}
+        >
+
+            <div className="p-4 sm:p-6 relative z-10">
+                <div className="flex items-center justify-between mb-4">
+                    <motion.div 
+                        className="flex items-center space-x-3"
+                        whileHover={{ scale: 1.05 }}
+                    >
+                        <img
+                            src={`http://localhost:5000/${publication.auteur.photoProfil.replace(/\\/g, '/')}`}
+                            alt={publication.auteur.nomUtilisateur}
+                            className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover border-2 border-blue-500"
+                        />
+                        <div>
+                            <h2 className="font-bold text-sm sm:text-base cursor-pointer hover:text-blue-500 transition-colors"
+                                onClick={() => redirectToUserProfile(publication.auteur)}>
+                                {publication.auteur.nomUtilisateur}
+                            </h2>
+                            <span className={`text-xs sm:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                {moment(publication.datePublication).fromNow()}
+                            </span>
+                        </div>
+                    </motion.div>
+                    <motion.button 
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`p-2 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                    >
+                        <MoreHorizontal className="w-5 h-5" />
+                    </motion.button>
+                </div>
+
+                <p className={`text-sm sm:text-base mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                    {publication.description}
+                </p>
+
+                {Array.isArray(images) && images.length > 0 && (
+                    <motion.div 
+                        className="relative aspect-square rounded-xl overflow-hidden cursor-pointer"
+                        onClick={() => handleImageClick(images)}
+                        whileHover={{ scale: 1.02 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                    >
+                        <img
+                            src={`http://localhost:5000/${images[0]}`}
+                            alt={`Publication ${publication.id}`}
+                            className="w-full h-full object-cover"
+                        />
+                        {images.length > 1 && (
+                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                                <span className="text-white text-2xl font-bold">+{images.length - 1}</span>
+                            </div>
+                        )}
+                    </motion.div>
+                )}
+
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <motion.button 
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`flex items-center space-x-2 p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                        onClick={() => toggleReaction(publication.id)}
+                    >
+                        <Heart
+                            className={`h-5 w-5 sm:h-6 sm:w-6 ${
+                                userReactions[publication.id] 
+                                    ? 'text-red-500 fill-current' 
+                                    : isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                            }`}
+                        />
+                        <span className="text-xs sm:text-sm">{reactionsCount[publication.id] || 0}</span>
+                    </motion.button>
+
+                    <motion.button 
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`flex items-center space-x-2 p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                        onClick={() => toggleModal(publication.id)}
+                    >
+                        <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
+                        <span className="text-xs sm:text-sm">Commenter</span>
+                    </motion.button>
+
+                    <motion.button 
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.95 }}
+                        className={`flex items-center space-x-2 p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                    >
+                        <Share className="h-5 w-5 sm:h-6 sm:w-6" />
+                        <span className="text-xs sm:text-sm">Partager</span>
+                    </motion.button>
+                </div>
+            </div>
+        </motion.div>
+    );
+};
+
+const CommentModal: React.FC<{ publication: Publication; isDarkMode: boolean; closeModal: () => void; comments: Comment[]; submitComment: (id: string) => void; newCommentContent: string; setNewCommentContent: (content: string) => void; isCommentLoading: boolean; renderComment: (comment: Comment, publicationId: string) => React.ReactNode }> = ({ publication, isDarkMode, closeModal, comments, submitComment, newCommentContent, setNewCommentContent, isCommentLoading, renderComment }) => {
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+        >
+            <motion.div
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 50, opacity: 0 }}
+                className={`${
+                    isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'
+                } rounded-xl p-6 w-full max-w-lg max-h-[80vh] overflow-y-auto`}
+            >
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-xl font-bold">Commentaires</h2>
+                    <button onClick={closeModal}>
+                        <X className="h-6 w-6" />
+                    </button>
+                </div>
+
+                <div className="space-y-4 mb-4">
+                    {comments.map(comment => renderComment(comment, publication.id))}
+                </div>
+
+                <div className="mt-4 flex items-center space-x-2">
+                    <input
+                        type="text"
+                        value={newCommentContent}
+                        onChange={(e) => setNewCommentContent(e.target.value)}
+                        className={`flex-1 p-2 rounded-lg ${
+                            isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-black'
+                        }`}
+                        placeholder="Ajouter un commentaire..."
+                    />
+                    <motion.button
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => submitComment(publication.id)}
+                        disabled={isCommentLoading || !newCommentContent.trim()}
+                        className={`px-4 py-2 rounded-lg ${
+                            isCommentLoading || !newCommentContent.trim()
+                                ? 'bg-gray-400 cursor-not-allowed'
+                                : 'bg-blue-500 hover:bg-blue-600'
+                        } text-white`}
+                    >
+                        {isCommentLoading ? 'Envoi...' : 'Envoyer'}
+                    </motion.button>
+                </div>
+            </motion.div>
+        </motion.div>
+    );
+}
 export default Posts;

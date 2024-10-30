@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { Image, PackageOpenIcon, Globe, User, X, Video, Newspaper, ClipboardMinus } from 'lucide-react';
+import { Image, PackageOpenIcon, Globe, User, X, Video, Newspaper, ClipboardMinus, Send } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { useTheme } from '../../../../../context/ThemeContext'; // Importer le hook pour le thème
+import { useTheme } from '../../../../../context/ThemeContext';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface ProfilUtilisateur {
   photoProfil: string;
@@ -11,7 +12,7 @@ interface ProfilUtilisateur {
 }
 
 const InputBox = () => {
-  const { isDarkMode } = useTheme(); // Utiliser le contexte pour le mode sombre
+  const { isDarkMode } = useTheme();
   const [profilUtilisateur, setProfilUtilisateur] = useState<ProfilUtilisateur | null>(null);
   const [modalOuvert, setModalOuvert] = useState(false);
   const [fichiersSélectionnés, setFichiersSélectionnés] = useState<File[]>([]);
@@ -45,7 +46,6 @@ const InputBox = () => {
   }, []);
 
   const ouvrirModal = () => setModalOuvert(true);
-
   const fermerModal = () => {
     setModalOuvert(false);
     réinitialiserFormulaire();
@@ -77,7 +77,7 @@ const InputBox = () => {
 
   const soumettrePublication = async () => {
     if (!audience || !typePublication) {
-      alert("Veuillez sélectionner une audience (Public ou Étudiant) et un type de publication.");
+      toast.error("Veuillez sélectionner une audience et un type de publication.");
       return;
     }
 
@@ -87,7 +87,7 @@ const InputBox = () => {
     formData.append('description', description);
 
     fichiersSélectionnés.forEach((fichier) => {
-      formData.append(`image`, fichier); // 'fichiers' doit correspondre au nom attendu dans la route du serveur
+      formData.append(`image`, fichier);
     });
 
     try {
@@ -98,14 +98,11 @@ const InputBox = () => {
         },
       });
 
-      // Afficher le toast de succès
       toast.success('Publication ajoutée avec succès !');
-
       console.log('Publication ajoutée avec succès:', réponse.data);
       fermerModal();
     } catch (erreur) {
       console.error('Erreur lors de l\'ajout de la publication:', erreur);
-      // Afficher le toast d'erreur
       toast.error("Une erreur s'est produite lors de l'ajout de la publication. Veuillez réessayer.");
     }
   };
@@ -114,195 +111,220 @@ const InputBox = () => {
     const fichiersAMontrer = voirPlus ? fichiersSélectionnés : fichiersSélectionnés.slice(0, 4);
 
     return (
-      <>
-        <div className="flex flex-wrap gap-2">
+      <motion.div layout className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <AnimatePresence>
           {fichiersAMontrer.map((fichier, index) => (
-            <div key={index} className="relative">
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.2 }}
+              className="relative aspect-square rounded-lg overflow-hidden"
+            >
               {fichier.type.startsWith('image/') ? (
                 <img
                   src={URL.createObjectURL(fichier)}
                   alt={`sélectionné-${index}`}
-                  className="w-32 h-32 rounded-lg object-cover"
+                  className="w-full h-full object-cover"
                 />
               ) : fichier.type.startsWith('video/') ? (
-                <video className="w-32 h-32 rounded-lg" controls>
+                <video className="w-full h-full object-cover" controls>
                   <source src={URL.createObjectURL(fichier)} type={fichier.type} />
                   Votre navigateur ne supporte pas la vidéo.
                 </video>
               ) : (
-                <div className="w-32 h-32 rounded-lg bg-gray-200 flex items-center justify-center">
-                  <PackageOpenIcon className="h-12 w-12 text-gray-500" />
-                  <p>{fichier.name}</p>
+                <div className="w-full h-full bg-gray-200 flex flex-col items-center justify-center p-2">
+                  <PackageOpenIcon className="h-12 w-12 text-gray-500 mb-2" />
+                  <p className="text-xs text-center truncate w-full">{fichier.name}</p>
                 </div>
               )}
-              <button
-                className="absolute top-0 right-0 bg-red-500 rounded-full p-1 hover:bg-red-600"
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="absolute top-1 right-1 bg-red-500 rounded-full p-1 hover:bg-red-600"
                 onClick={() => supprimerFichier(index)}
               >
                 <X className="text-white w-4 h-4" />
-              </button>
-            </div>
+              </motion.button>
+            </motion.div>
           ))}
-        </div>
-        {fichiersSélectionnés.length > 4 && !voirPlus && (
-          <button onClick={() => setVoirPlus(true)} className="text-blue-500 mt-2">
-            Voir plus...
-          </button>
-        )}
-      </>
+        </AnimatePresence>
+      </motion.div>
     );
   };
 
   return (
-    <div className={`bg-white ${isDarkMode ? 'dark:bg-gray-800' : ''} p-2 rounded-2xl shadow-md text-gray-500 font-medium`}>
-      <div className="flex items-center space-x-4 p-4" onClick={ouvrirModal}>
+    <div className={`bg-white ${isDarkMode ? 'bg-gradient-to-r from-[#2d3d53] to-[#29374b] shadow-md text-white' : ''} p-4 rounded-2xl shadow-lg text-gray-500 font-medium transition-all duration-300 w-full max-w-7xl mx-auto`}>
+      <motion.div 
+        className="flex items-center space-x-4 p-4 cursor-pointer"
+        onClick={ouvrirModal}
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+      >
         {profilUtilisateur && profilUtilisateur.photoProfil ? (
           <img
             src={`http://localhost:5000/${profilUtilisateur.photoProfil}`}
             alt="Photo de profil"
-            className="w-12 h-12 rounded-full object-cover"
+            className="w-12 h-12 rounded-full object-cover border-2 border-blue-500"
           />
         ) : (
-          <img
-            src="default-profile.png"
-            alt="Profil par défaut"
-            className="w-12 h-12 rounded-full object-cover"
-          />
+          <div className="w-12 h-12 rounded-full bg-gray-300 flex items-center justify-center">
+            <User className="w-8 h-8 text-gray-500" />
+          </div>
         )}
 
-        <form className="flex flex-1">
-          <input
-            type="text"
-            className={`w-full bg-gray-100 h-12 rounded-full px-5 focus:outline-none cursor-pointer ${isDarkMode ? 'dark:bg-gray-700 dark:text-white' : ''}`}
-            placeholder={`Qu'avez-vous en tête, ${profilUtilisateur?.nomUtilisateur || 'Utilisateur'} ?`}
-            readOnly
-          />
-        </form>
-      </div>
+        <div className={`flex-1 bg-gray-100 ${isDarkMode ? 'bg-[#414e64] text-white' : ''} rounded-md px-5 py-3 transition-all duration-300`}>
+          <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+            {`Qu'avez-vous en tête, ${profilUtilisateur?.nomUtilisateur || 'Utilisateur'} ?`}
+          </p>
+        </div>
+      </motion.div>
 
       <div className="flex justify-evenly p-3 border-t">
-        <div className="inputIcon" onClick={() => { setTypeMedia('photo'); ouvrirModal(); }}>
-          <Image className="h-7 text-gray-700" />
-          <p className="text-xs sm:text-sm xl:text-base"> Photo </p>
-        </div>
-
-        <div className="inputIcon" onClick={() => { setTypeMedia('video'); ouvrirModal(); }}>
-          <Video className="h-7 text-gray-700" />
-          <p className="text-xs sm:text-sm xl:text-base"> Vidéo </p>
-        </div>
-
-        <div className="inputIcon" onClick={() => { setTypeMedia('document'); ouvrirModal(); }}>
-          <PackageOpenIcon className="h-7 text-gray-700" />
-          <p className="text-xs sm:text-sm xl:text-base"> Document </p>
-        </div>
+        {['photo', 'video', 'document'].map((type) => (
+          <motion.div
+            key={type}
+            className="inputIcon"
+            onClick={() => { setTypeMedia(type as 'photo' | 'video' | 'document'); ouvrirModal(); }}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            {type === 'photo' && <Image className="h-7 text-blue-500" />}
+            {type === 'video' && <Video className="h-7 text-green-500" />}
+            {type === 'document' && <PackageOpenIcon className="h-7 text-amber-500" />}
+            <p className="text-xs sm:text-sm xl:text-base capitalize"> {type} </p>
+          </motion.div>
+        ))}
       </div>
 
-      {modalOuvert && (
-        <div className="fixed z-50 inset-0 bg-black bg-opacity-60 flex justify-center items-center">
-          <div className={`bg-white ${isDarkMode ? 'dark:bg-gray-800' : ''} rounded-lg w-full max-w-2xl p-4 relative`}>
-
-            {/* Icône pour fermer le modal */}
-            <button
-              onClick={fermerModal}
-              className="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-200"
+      <AnimatePresence>
+        {modalOuvert && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed z-50 inset-0 bg-black bg-opacity-60 flex justify-center items-center p-4"
+          >
+            <motion.div
+              initial={{ y: 50, opacity: 0, scale: 0.9 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
+              exit={{ y: 50, opacity: 0, scale: 0.9 }}
+              transition={{ type: "spring", damping: 25, stiffness: 500 }}
+              className={`bg-white ${isDarkMode ? 'dark:bg-[#1F2937]' : ''} rounded-xl w-full max-w-2xl p-6 relative shadow-2xl`}
             >
-              <X className="h-5 w-5 text-gray-500" />
-            </button>
-
-            {/* Titre avec bordure inférieure */}
-            <h2 className="text-2xl font-bold mb-2 text-center">Créer une publication</h2>
-            <div className="border-b-2 border-gray-300 mb-4"></div>
-
-            {/* Conteneur pour la photo de profil et le nom d'utilisateur */}
-            <div className="flex items-center mb-4">
-              {/* Photo de profil */}
-              {profilUtilisateur && profilUtilisateur.photoProfil ? (
-                <img
-                  src={`http://localhost:5000/${profilUtilisateur.photoProfil}`}
-                  alt="Photo de profil"
-                  className="w-16 h-16 rounded-full object-cover mr-4" // Augmentation de la taille
-                />
-              ) : (
-                <img
-                  src="default-profile.png"
-                  alt="Profil par défaut"
-                  className="w-16 h-16 rounded-full object-cover mr-4" // Augmentation de la taille
-                />
-              )}
-              
-              {/* Nom d'utilisateur */}
-              <div className="flex flex-col">
-                <span className="font-semibold">{profilUtilisateur?.nomUtilisateur}</span>
-                {/* Choix de l'audience sous le nom d'utilisateur */}
-                <div className="flex items-center mt-1">
-                  <label className="inline-flex items-center mr-4">
-                    {/* Icône globe pour l'audience publique */}
-                    <Globe className="h-5 w-5 text-gray-500" />
-                    <input
-                      type="radio"
-                      name="audience"
-                      value="public"
-                      checked={audience === 'public'}
-                      onChange={() => changerAudience('public')}
-                      className="ml-2"
-                    />
-                    <span className="ml-1">Public</span>
-                  </label>
-                  <label className="inline-flex items-center">
-                    {/* Icône utilisateur pour l'audience étudiants */}
-                    <User className="h-5 w-5 text-gray-500" />
-                    <input
-                      type="radio"
-                      name="audience"
-                      value="etudiants"
-                      checked={audience === 'etudiants'}
-                      onChange={() => changerAudience('etudiants')}
-                      className="ml-2"
-                    />
-                    <span className="ml-1">Étudiants</span>
-                  </label>
+              <button
+                onClick={fermerModal}
+                className="absolute top-2 right-2 p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors duration-200"
+              >
+                <X className="h-6 w-6 text-gray-500 dark:text-gray-400" />
+              </button>
+              <h2 className="text-2xl font-bold mb-6 text-center text-gray-900 dark:text-white">
+                Créer une publication
+              </h2>
+              <div className="flex items-center mb-6">
+                {profilUtilisateur && profilUtilisateur.photoProfil ? (
+                  <img
+                    src={`http://localhost:5000/${profilUtilisateur.photoProfil}`}
+                    alt="Photo de profil"
+                    className="w-16 h-16 rounded-full object-cover mr-4 border-2 border-indigo-500 dark:border-indigo-400"
+                  />
+                ) : (
+                  <div className="w-16 h-16 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-4">
+                    <User className="w-10 h-10 text-gray-500 dark:text-gray-400" />
+                  </div>
+                )}
+                
+                <div className="flex flex-col">
+                  <span className="font-semibold text-lg text-gray-900 dark:text-white">
+                    {profilUtilisateur?.nomUtilisateur}
+                  </span>
+                  <div className="flex items-center mt-2 space-x-4">
+                    {['public', 'etudiants'].map((aud) => (
+                      <motion.label
+                        key={aud}
+                        className={`inline-flex items-center cursor-pointer ${
+                          audience === aud 
+                            ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-900 dark:text-indigo-100' 
+                            : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                        } p-2 rounded-full transition-all duration-200`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
+                      >
+                        {aud === 'public' ? 
+                          <Globe className={`h-5 w-5 mr-2 ${audience === aud ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'}`} /> : 
+                          <User className={`h-5 w-5 mr-2 ${audience === aud ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                        }
+                        <input
+                          type="radio"
+                          name="audience"
+                          value={aud}
+                          checked={audience === aud}
+                          onChange={() => changerAudience(aud as 'public' | 'etudiants')}
+                          className="hidden"
+                        />
+                        <span className="capitalize text-sm">{aud}</span>
+                      </motion.label>
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
-
-            <div className="mb-4">
               <textarea
-                className={`w-full h-24 p-2 border border-gray-300 rounded-md ${isDarkMode ? 'dark:bg-gray-700 dark:text-white' : ''}`}
-                placeholder={`Qu'est-ce que vous avez à dire, ${profilUtilisateur?.nomUtilisateur} ?`} // Modifier le placeholder
+                className={`w-full h-32 p-4 border border-gray-300 dark:border-gray-600 rounded-lg 
+                ${isDarkMode 
+                  ? 'dark:bg-gray-800 dark:text-white placeholder-gray-400' 
+                  : 'bg-gray-50 text-gray-900 placeholder-gray-500'
+                } 
+                transition-all duration-300 focus:ring-2 focus:ring-indigo-500 focus:border-transparent resize-none`}
+                placeholder={`Qu'est-ce que vous avez à dire, ${profilUtilisateur?.nomUtilisateur} ?`}
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               ></textarea>
-            </div>
+              <div className="my-6">
+                <p className="font-bold mb-3 text-gray-900 dark:text-white">Type de publication :</p>
+                <div className="flex space-x-4">
+                  {['annonce', 'forum'].map((type) => (
+                    <motion.label
+                      key={type}
+                      className={`flex items-center space-x-2 cursor-pointer ${
+                        typePublication === type 
+                          ? 'bg-indigo-100 dark:bg-indigo-900 text-indigo-900 dark:text-indigo-100' 
+                          : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                      } p-2 rounded-lg transition-all duration-200`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      {type === 'annonce' ? 
+                        <Newspaper className={`h-5 w-5 ${typePublication === type ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'}`} /> : 
+                        <ClipboardMinus className={`h-5 w-5 ${typePublication === type ? 'text-indigo-600 dark:text-indigo-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                      }
+                      <input
+                        type="radio"
+                        name="typePublication"
+                        value={type}
+                        checked={typePublication === type}
+                        onChange={() => setTypePublication(type as 'annonce' | 'forum')}
+                        className="hidden"
+                      />
+                      <span className="capitalize text-sm">{type}</span>
+                    </motion.label>
+                  ))}
+                </div>
+              </div>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="bg-indigo-500 dark:bg-indigo-600 text-white w-full px-4 py-3 rounded-lg 
+                hover:bg-indigo-600 dark:hover:bg-indigo-700 transition-colors duration-300 
+                flex items-center justify-center space-x-2 shadow-md"
+                onClick={() => typeMedia === 'document' ? refInputDocument.current?.click() : refInputFichier.current?.click()}
+              >
+                                <span>Ajouter {typeMedia === 'photo' ? 'Photos' : typeMedia === 'video' ? 'Vidéos' : 'Documents'}</span>
+                {typeMedia === 'photo' && <Image className="h-5 w-5" />}
+                {typeMedia === 'video' && <Video className="h-5 w-5" />}
+                {typeMedia === 'document' && <PackageOpenIcon className="h-5 w-5" />}
+              </motion.button>
 
-            <div className="mb-4">
-              <p className="font-bold mb-2">Type de publication :</p>
-              <label className="inline-flex items-center mr-4">
-                <Newspaper className="h-5 w-5 text-gray-500"/>
-                <input
-                  type="radio"
-                  name="typePublication"
-                  value="annonce"
-                  checked={typePublication === 'annonce'}
-                  onChange={() => setTypePublication('annonce')}
-                  className="ml-2"
-                />
-                <span className="ml-2">Annonce</span>
-              </label>
-              <label className="inline-flex items-center">
-                <ClipboardMinus className="h-5 w-5 text-gray-500"/>
-                <input
-                  type="radio"
-                  name="typePublication"
-                  value="forum"
-                  checked={typePublication === 'forum'}
-                  onChange={() => setTypePublication('forum')}
-                  className="ml-2"
-                />
-                <span className="ml-2">Forum</span>
-              </label>
-            </div>
-
-            <div className="mb-4">
               <input
                 type="file"
                 accept={
@@ -317,32 +339,43 @@ const InputBox = () => {
                 ref={typeMedia === 'document' ? refInputDocument : refInputFichier}
                 onChange={gestionChangementFichier}
               />
-              <button
-                className="bg-gray-200 w-full px-4 py-2 rounded-md hover:bg-gray-300"
-                onClick={() =>
-                  typeMedia === 'document'
-                    ? refInputDocument.current?.click()
-                    : refInputFichier.current?.click()
-                }
-              >
-                Ajouter {typeMedia === 'photo' ? 'Photos' : typeMedia === 'video' ? 'Vidéos' : 'Documents'}
-              </button>
-            </div>
 
-            <div className="mb-4">{renderApercuFichiers()}</div>
+              <div className="mt-4">
+                {renderApercuFichiers()}
+                {fichiersSélectionnés.length > 4 && !voirPlus && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setVoirPlus(true)}
+                    className="mt-2 text-indigo-500 dark:text-indigo-400 hover:text-indigo-600 dark:hover:text-indigo-300 transition-colors duration-200"
+                  >
+                    Voir plus...
+                  </motion.button>
+                )}
+              </div>
 
-            <div className="flex items-center justify-between mt-4">
-              <button
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
                 onClick={soumettrePublication}
-                className="bg-blue-500 text-white px-6 py-2 rounded-md hover:bg-blue-600 w-full"
+                className="mt-6 bg-green-500 dark:bg-green-600 text-white w-full px-6 py-3 rounded-lg 
+                hover:bg-green-600 dark:hover:bg-green-700 transition-colors duration-300 
+                flex items-center justify-center space-x-2 shadow-md"
+                disabled={!audience || !typePublication || description.trim() === ''}
               >
-                Publier
-              </button>
-            </div>
+                <span>Publier</span>
+                <Send className="h-5 w-5" />
+              </motion.button>
 
-          </div>
-        </div>
-      )}
+              {(!audience || !typePublication || description.trim() === '') && (
+                <p className="mt-2 text-sm text-red-500 dark:text-red-400 text-center">
+                  Veuillez remplir tous les champs requis avant de publier.
+                </p>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

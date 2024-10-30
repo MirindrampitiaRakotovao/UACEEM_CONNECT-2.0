@@ -1,13 +1,13 @@
-import { House, Shield, Users } from 'lucide-react';
+import { BookOpenText, House, Lightbulb, PackageOpen, Shield, Users } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../context/ThemeContext'; // Import du hook pour le mode sombre
 
-interface HeaderIconProps {
+interface HeaderIconProfesseurProps {
     simulateProgress: () => void; // Ajout de la prop simulateProgress
 }
 
-const HeaderIcon = ({ simulateProgress }: HeaderIconProps) => {
+const HeaderIconProfesseur = ({ simulateProgress }: HeaderIconProfesseurProps) => {
     const navigate = useNavigate();
     const location = useLocation(); // Hook to get the current location
     const { isDarkMode } = useTheme(); // Utilisation du contexte de thème
@@ -27,8 +27,8 @@ const HeaderIcon = ({ simulateProgress }: HeaderIconProps) => {
             case 'house':
                 navigate('/acceuilAdmin');
                 break;
-            case 'users':
-                navigate('/userlist');
+            case 'cours':
+                navigate('/courseList');
                 break;
             case 'shield':
                 navigate('/signalementList');
@@ -43,8 +43,8 @@ const HeaderIcon = ({ simulateProgress }: HeaderIconProps) => {
         const currentPath = location.pathname;
         if (currentPath.includes('acceuilAdmin')) {
             setActiveIcon('house');
-        } else if (currentPath.includes('userlist')) {
-            setActiveIcon('users');
+        } else if (currentPath.includes('courseList')) {
+            setActiveIcon('cours');
         } else if (currentPath.includes('signalementList')) {
             setActiveIcon('shield');
         }
@@ -52,7 +52,7 @@ const HeaderIcon = ({ simulateProgress }: HeaderIconProps) => {
 
     return (
         <div className="flex flex-col items-center">
-            <div className={`flex items-center space-x-40 md:space-x-32 sm:space-x-10 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            <div className={`flex items-center space-x-32 md:space-x-32 sm:space-x-10 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                 {/* House Icon */}
                 <div
                     onClick={() => handleIconClick('house')}
@@ -64,16 +64,17 @@ const HeaderIcon = ({ simulateProgress }: HeaderIconProps) => {
                     <House size={25} />
                 </div>
 
-                {/* Users Icon */}
+                {/* Cours Icon */}
                 <div
-                    onClick={() => handleIconClick('users')}
+                    onClick={() => handleIconClick('cours')}
                     className={`cursor-pointer md:px-10 sm:p-2 md:hover:bg-gray-100 rounded-xl text-center mx-auto 
-                        ${activeIcon === 'users' 
+                        ${activeIcon === 'cours' 
                             ? `${isDarkMode ? 'text-blue-300 border-b-2 border-blue-300' : 'text-blue-800 border-b-2 border-blue-800'}` 
                             : `${isDarkMode ? 'hover:text-blue-300' : 'hover:text-blue-800'}`}`}
                 >
-                    <Users size={25} />
+                    <BookOpenText size={25} />
                 </div>
+
 
                 {/* Shield Icon */}
                 <div
@@ -83,11 +84,11 @@ const HeaderIcon = ({ simulateProgress }: HeaderIconProps) => {
                             ? `${isDarkMode ? 'text-blue-300 border-b-2 border-blue-300' : 'text-blue-800 border-b-2 border-blue-800'}` 
                             : `${isDarkMode ? 'hover:text-blue-300' : 'hover:text-blue-800'}`}`}
                 >
-                    <Shield size={25} />
+                    <Lightbulb size={25} />
                 </div>
             </div>
         </div>
     );
 };
 
-export default HeaderIcon;
+export default HeaderIconProfesseur;

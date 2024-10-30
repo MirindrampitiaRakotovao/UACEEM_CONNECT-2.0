@@ -14,6 +14,8 @@ import UserProfile from './Pages/Profile/UserProfile';
 import SignalementList from './Pages/Signalement/SignalementList';
 import { useTheme } from './context/ThemeContext';
 import PostUser from "./Pages/Profile/PostUser.tsx"; // Importer le hook pour utiliser le contexte de thème
+import CourseList from './Pages/CourseManagement/CourseList.tsx';
+import LandingPage from './Pages/LandingPage/LandingPage.tsx';
 
 const App: React.FC = () => {
   const { isDarkMode } = useTheme(); // Utiliser le hook pour obtenir l'état du mode sombre
@@ -22,17 +24,17 @@ const App: React.FC = () => {
   useEffect(() => {
     if (isDarkMode) {
       document.body.classList.add('dark'); // Ajouter la classe dark au body si le mode sombre est activé
-      document.body.style.backgroundColor = '#1a202c'; // Appliquer un fond sombre
+      document.body.style.backgroundColor = '#2A3A51'; // Appliquer un fond sombre
     } else {
       document.body.classList.remove('dark'); // Supprimer la classe dark
-      document.body.style.backgroundColor = '#f0f0f0'; // Appliquer un fond clair
+      document.body.style.backgroundColor = '#F3F5FA'; // Appliquer un fond clair
     }
   }, [isDarkMode]); // Ce useEffect sera déclenché chaque fois que isDarkMode change
 
   return (
     <div className={isDarkMode ? 'dark' : ''}> {/* Appliquer la classe dark selon l'état */}
       <Routes>
-        <Route path="/" element={<Form />} />
+        <Route path="/login" element={<Form />} />
         <Route path="/UserAdd" element={<UserAdd />} />
         <Route path="/UserModify/:id" element={<UserModify />} />
         <Route path="/UserProfile" element={<UserProfile />} />
@@ -73,7 +75,9 @@ const App: React.FC = () => {
           }
         />
         <Route path="/userlist" element={<UserList />} />  {/* Route pour l'icône Users */}
+        <Route path="/courseList" element={<CourseList />} />  {/* Route pour l'icône cours */}
         <Route path="/signalementList" element={<SignalementList />} />
+        <Route path="/" element={<LandingPage />} />
       </Routes>
     </div>
   );
