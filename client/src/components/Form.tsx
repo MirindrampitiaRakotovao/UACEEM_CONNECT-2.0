@@ -1,7 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import LOGO from '../../public/assets/img/Logo Konnektea Bleu.png';
+import LOGO from '/assets/img/Logo Konnektea Bleu.png';
 import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
 import { useTheme } from '../../src/context/ThemeContext';

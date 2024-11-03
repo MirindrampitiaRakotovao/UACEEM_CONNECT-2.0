@@ -57,8 +57,52 @@ const Sidebar = () => {
     const handleIconClick = (id: string) => {
         setActiveIcon(id);
         localStorage.setItem('activeIcon', id);
-        // Ajoutez ici la navigation vers la page correspondante
+    
+        // Navigation logic
+        switch (id) {
+
+            
+            case 'users':
+                navigate('/userList');
+                break;
+            
+            case 'house':
+                navigate('/acceuilAdmin');
+                break;
+
+            case 'forums':
+                navigate('/forumList');
+                break;
+
+            case 'calendar':
+                navigate('/EdtList');
+                break;
+
+            case 'feedback':
+                navigate('/FeedbackList');
+                break;
+
+            case 'shield':
+                navigate('/signalementList');
+                break;
+
+            case 'bookmark':
+                navigate('/FavorisList');
+                break;
+
+            case 'archive':
+                navigate('/ArchiveList');
+                break;
+
+            case 'settings':
+                navigate('/ParametreList');
+                break;
+            // Other navigation cases can be added here
+            default:
+                break;
+        }
     };
+    
 
     const toggleSidebar = () => {
         setIsExpanded(!isExpanded);
@@ -88,7 +132,7 @@ const Sidebar = () => {
                     className="w-10 h-10 object-contain"
                 />
                 {isExpanded && (
-                    <h1 className={`font-black text-2xl ml-3 tracking-wider ${
+                    <h1 className={`font-black text-2xl ml-2 tracking-wider ${
                         isDarkMode ? 'text-[#F3F5FA]' : 'text-[#2A3A53]'
                     }`}>
                         KONEKTEA <span className="text-[#FFAA00]">.</span>
@@ -118,13 +162,13 @@ const Sidebar = () => {
                                 : `hover:bg-${isDarkMode ? 'white/10' : 'gray-200'} hover:translate-x-2`}`}
                     >
                         <Icon 
-                            size={22} 
+                            size={18} 
                             className={activeIcon === id 
                                 ? 'text-black' 
                                 : `${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`} 
                         />
                         {isExpanded && (
-                            <span className={`ml-4 font-medium ${
+                            <span className={`ml-4 font-medium text-xs ${
                                 activeIcon === id 
                                     ? 'text-black' 
                                     : isDarkMode ? 'text-gray-300' : 'text-gray-600'
@@ -158,7 +202,7 @@ const Sidebar = () => {
                         )}
                         {isExpanded && (
                             <div>
-                                <p className={`text-sm font-medium ${
+                                <p className={`text-xs font-medium ${
                                     isDarkMode ? 'text-white' : 'text-gray-800'
                                 }`}>
                                     {userProfile?.nomUtilisateur || 'Utilisateur'}

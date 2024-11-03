@@ -1,7 +1,15 @@
 import React, { useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { store } from './store'; // Assurez-vous d'avoir créé ce fichier
+import { useTheme } from './context/ThemeContext';
+
+// Components
 import ProtectedRoute from './components/ProtectedRoute';
-import Form from './components/Form'; // Composant du formulaire de connexion
+import Form from './components/Form';
+
+// Pages
+import LandingPage from './Pages/LandingPage/LandingPage';
 import AcceuilProfesseur from './Pages/Acceuil/AcceuilProfesseur/AcceuilProfesseur';
 import AcceuilAdmin from './Pages/Acceuil/AcceuilAdmin/AcceuilAdmin';
 import AcceuilAssociation from './Pages/Acceuil/AcceuilAssociation/AcceuilAssociation';
@@ -11,75 +19,59 @@ import UserList from './Pages/UserManagment/UserList';
 import UserAdd from './Pages/UserManagment/UserAdd';
 import UserModify from './Pages/UserManagment/UserModify';
 import UserProfile from './Pages/Profile/UserProfile';
+import PostUser from "./Pages/Profile/PostUser";
 import SignalementList from './Pages/Signalement/SignalementList';
-import { useTheme } from './context/ThemeContext';
-import PostUser from "./Pages/Profile/PostUser.tsx"; // Importer le hook pour utiliser le contexte de thème
-import CourseList from './Pages/CourseManagement/CourseList.tsx';
-import LandingPage from './Pages/LandingPage/LandingPage.tsx';
+import CourseList from './Pages/CourseManagement/CourseList';
+import ForumList from './Pages/Forum/ForumList';
+import EmploiDuTemps from './Pages/EDT/EmploiDuTemps';
+import Feedback from './Pages/Feedback/Feedback';
+import Favoris from './Pages/Favoris/Favoris';
+import Archive from './Pages/Archive/Archive';
+import Parametre from './Pages/Parametres/Parametre';
+import Messages from './Pages/Messages/Messages';
+
 
 const App: React.FC = () => {
-  const { isDarkMode } = useTheme(); // Utiliser le hook pour obtenir l'état du mode sombre
+  const { isDarkMode } = useTheme();
 
-  // Utiliser useEffect pour manipuler le body directement
   useEffect(() => {
     if (isDarkMode) {
-      document.body.classList.add('dark'); // Ajouter la classe dark au body si le mode sombre est activé
-      document.body.style.backgroundColor = '#2A3A51'; // Appliquer un fond sombre
+      document.body.classList.add('dark');
+      document.body.style.backgroundColor = '#2A3A51';
     } else {
-      document.body.classList.remove('dark'); // Supprimer la classe dark
-      document.body.style.backgroundColor = '#F3F5FA'; // Appliquer un fond clair
+      document.body.classList.remove('dark');
+      document.body.style.backgroundColor = '#F3F5FA';
     }
-  }, [isDarkMode]); // Ce useEffect sera déclenché chaque fois que isDarkMode change
+  }, [isDarkMode]);
 
   return (
-    <div className={isDarkMode ? 'dark' : ''}> {/* Appliquer la classe dark selon l'état */}
-      <Routes>
-        <Route path="/login" element={<Form />} />
-        <Route path="/UserAdd" element={<UserAdd />} />
-        <Route path="/UserModify/:id" element={<UserModify />} />
-        <Route path="/UserProfile" element={<UserProfile />} />
-        <Route path="/PostUser/:id" element={<PostUser  />} />
-        <Route path="/acceuilProfesseur"
-          element={
-            <ProtectedRoute>
-              <AcceuilProfesseur />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/acceuilAdmin"
-          element={
-            <ProtectedRoute>
-              <AcceuilAdmin />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/acceuilAssociation"
-          element={
-            <ProtectedRoute>
-              <AcceuilAssociation />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/acceuilClub"
-          element={
-            <ProtectedRoute>
-              <AcceuilClub />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/acceuilUser"
-          element={
-            <ProtectedRoute>
-              <AcceuilUser />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/userlist" element={<UserList />} />  {/* Route pour l'icône Users */}
-        <Route path="/courseList" element={<CourseList />} />  {/* Route pour l'icône cours */}
-        <Route path="/signalementList" element={<SignalementList />} />
-        <Route path="/" element={<LandingPage />} />
-      </Routes>
-    </div>
+    <Provider store={store}>
+        <div className={isDarkMode ? 'dark' : ''}>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Form />} />
+            <Route path="/UserAdd" element={<UserAdd />} />
+            <Route path="/UserModify/:id" element={<UserModify />} />
+            <Route path="/UserProfile" element={<UserProfile />} />
+            <Route path="/PostUser/:id" element={<PostUser />} />
+            <Route path="/forumList" element={<ForumList />} />
+            <Route path="/EdtList" element={<EmploiDuTemps />} />
+            <Route path="/FeedbackList" element={<Feedback />} />
+            <Route path="/FavorisList" element={<Favoris />} />
+            <Route path="/ArchiveList" element={<Archive />} />
+            <Route path="/ParametreList" element={<Parametre />} />
+            <Route path="/MessagesList" element={<Messages />} />
+            <Route path="/acceuilProfesseur" element={<ProtectedRoute><AcceuilProfesseur /></ProtectedRoute>} />
+            <Route path="/acceuilAdmin" element={<ProtectedRoute><AcceuilAdmin /></ProtectedRoute>} />
+            <Route path="/acceuilAssociation" element={<ProtectedRoute><AcceuilAssociation /></ProtectedRoute>} />
+            <Route path="/acceuilClub" element={<ProtectedRoute><AcceuilClub /></ProtectedRoute>} />
+            <Route path="/acceuilUser" element={<ProtectedRoute><AcceuilUser /></ProtectedRoute>} />
+            <Route path="/userlist" element={<UserList />} />
+            <Route path="/courseList" element={<CourseList />} />
+            <Route path="/signalementList" element={<SignalementList />} />
+          </Routes>
+        </div>
+    </Provider>
   );
 };
 

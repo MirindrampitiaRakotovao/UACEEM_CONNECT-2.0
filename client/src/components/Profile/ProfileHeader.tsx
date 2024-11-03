@@ -1,39 +1,57 @@
 import React, { useEffect, useState } from 'react';
-import { Camera, Edit } from 'lucide-react';
+import { Camera, Edit, UserPlus, Mail, Link as LinkIcon, Share2, Bell, MapPin, Calendar, Briefcase } from 'lucide-react';
 import { useTheme } from '../../../src/context/ThemeContext';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-
+import { motion, AnimatePresence } from 'framer-motion';
+// Image de couverture fixe pour l'académie
+const ACADEMY_COVER = "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2886&auto=format&fit=crop";
 interface UserProfile {
   nom: string;
   prenom: string;
   nomUtilisateur: string;
   photoProfil: string;
+  couverture?: string;
+  bio?: string;
+  email?: string;
+  website?: string;
+  location?: string;
+  joinDate?: string;
+  role?: string;
 }
-
 const ProfileHeader: React.FC = () => {
   const { isDarkMode } = useTheme();
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [publicationsCount, setPublicationsCount] = useState<number>(0);
-  const [showProfileModal, setShowProfileModal] = useState(false); // État pour afficher la photo au centre
-  const [showCameraModal, setShowCameraModal] = useState(false); // État pour afficher le modal caméra
-
+  const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showCameraModal, setShowCameraModal] = useState(false);
+  const [activeTab, setActiveTab] = useState('posts');
+  const [scrollPosition, setScrollPosition] = useState(0);
+  // Effet de parallaxe amélioré
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollPosition(window.pageYOffset);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  // Récupération des données du profil
   useEffect(() => {
     const fetchUserProfile = async () => {
       const token = Cookies.get('token');
       if (token) {
         try {
           const resProfile = await axios.get('http://localhost:5000/api/profile', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           });
-          setUserProfile(resProfile.data);
-
+          setUserProfile({
+            ...resProfile.data,
+            location: 'Madagascar, Antananarivo', // Exemple de données additionnelles
+            joinDate: 'Janvier 2024',
+            role: 'Étudiant en développement web'
+          });
           const resCount = await axios.get('http://localhost:5000/api/count', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           });
           setPublicationsCount(resCount.data.count);
         } catch (error) {
@@ -43,119 +61,272 @@ const ProfileHeader: React.FC = () => {
     };
     fetchUserProfile();
   }, []);
-
-  if (!userProfile) return <div>Loading...</div>;
+  if (!userProfile) return <ProfileSkeleton />;
 
   return (
-    <div className={`p-4 mt-6 rounded-md ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
-      {/* Utilisation de flexbox pour la mise en page */}
-      <div className="flex items-start justify-between mb-4">
-        {/* Section de gauche avec les informations utilisateur */}
-        <div className="flex-grow">
-          <h1 className="text-2xl font-bold mb-1">{`${userProfile.nom} ${userProfile.prenom}`}</h1>
-          <p className="text-gray-400 mb-2">@{userProfile.nomUtilisateur}</p>
-
-          {/* Section avec les informations du profil */}
-          <div className="flex space-x-4 mb-4">
-            {/* Affichage dynamique du nombre de publications */}
-            <span><strong>{publicationsCount}</strong> publications</span>
+    <div className={`w-full ${isDarkMode ? 'bg-gray-900 text-white' : 'bg-gray-50 text-gray-900'}`}>
+      {/* Couverture avec effet parallaxe amélioré */}
+      <div className="relative h-64 overflow-hidden">
+        <div
+          className="absolute inset-0 bg-cover bg-center"
+          style={{
+            backgroundImage: `url(${ACADEMY_COVER})`,
+            transform: `translateY(${scrollPosition * 0.5}px)`,
+          }}
+        />
+        <div className={`absolute inset-0 ${isDarkMode ? 'bg-gradient-to-b from-transparent to-gray-900/90' : 'bg-gradient-to-b from-transparent to-gray-50/90'}`} />
+      </div>
+  
+      {/* Contenu du profil */}
+      <div className="relative px-4 pb-6 -mt-32">
+        <div className={`max-w-5xl mx-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6`}>
+          <div className="flex flex-col md:flex-row items-center md:items-start">
+            {/* Photo de profil */}
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              className="relative -mt-24 mb-4 md:mb-0 md:mr-6"
+            >
+              <img
+                src={`http://localhost:5000/${userProfile.photoProfil}`}
+                alt={`${userProfile.nom} ${userProfile.prenom}`}
+                className="w-32 h-32 rounded-full border-4 border-white dark:border-gray-800 object-cover shadow-lg"
+                onClick={() => setShowProfileModal(true)}
+              />
+              <button
+                className={`absolute bottom-0 right-0 p-1.5 rounded-full ${
+                  isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'
+                } shadow-md transition-colors duration-200`}
+                onClick={() => setShowCameraModal(true)}
+              >
+                <Camera className="w-4 h-4" />
+              </button>
+            </motion.div>
+  
+            {/* Informations du profil */}
+            <div className="flex-grow text-center md:text-left">
+              <h1 className="text-2xl font-bold mb-1">{`${userProfile.prenom} ${userProfile.nom}`}</h1>
+              <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} mb-2`}>@{userProfile.nomUtilisateur}</p>
+              <div className="flex flex-wrap justify-center md:justify-start gap-3 mb-4">
+                {userProfile.location && (
+                  <span className="flex items-center text-xs">
+                    <MapPin className="w-3 h-3 mr-1" />
+                    {userProfile.location}
+                  </span>
+                )}
+                {userProfile.joinDate && (
+                  <span className="flex items-center text-xs">
+                    <Calendar className="w-3 h-3 mr-1" />
+                    Membre depuis {userProfile.joinDate}
+                  </span>
+                )}
+                {userProfile.role && (
+                  <span className="flex items-center text-xs">
+                    <Briefcase className="w-3 h-3 mr-1" />
+                    {userProfile.role}
+                  </span>
+                )}
+              </div>
+              <p className={`text-sm mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                {userProfile.bio || "Aucune biographie pour le moment."}
+              </p>
+              <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`px-4 py-2 text-xs rounded-full ${
+                    isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'
+                  } text-white transition-colors duration-200 flex items-center`}
+                >
+                  <UserPlus className="w-3 h-3 mr-1" />
+                  Suivre
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`p-2 rounded-full ${
+                    isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'
+                  } transition-colors duration-200`}
+                >
+                  <Bell className="w-4 h-4" />
+                </motion.button>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={`p-2 rounded-full ${
+                    isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'
+                  } transition-colors duration-200`}
+                >
+                  <Share2 className="w-4 h-4" />
+                </motion.button>
+              </div>
+            </div>
           </div>
-
-          {/* <p className="text-sm mb-4">Ceci est une bio statique.</p>
-          <a href="#" className={`text-blue-400 hover:underline ${isDarkMode ? 'text-blue-300' : 'text-blue-600'}`}>Profil Facebook</a> */}
+  
+          {/* Statistiques et navigation */}
+          <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-6">
+            <div className="flex justify-between items-center mb-4">
+              <div className="flex space-x-4">
+                {['posts', 'projets', 'réalisations'].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`text-sm font-medium ${
+                      activeTab === tab
+                        ? 'text-blue-600 border-b-2 border-blue-600'
+                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                    } pb-2 transition-colors duration-200`}
+                  >
+                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
+                  </button>
+                ))}
+              </div>
+              <div className="flex space-x-4 text-sm">
+                <span><strong>{publicationsCount}</strong> publications</span>
+                <span><strong>1.2k</strong> abonnés</span>
+                <span><strong>500</strong> abonnements</span>
+              </div>
+            </div>
+          </div>
         </div>
-
-        {/* Section de droite avec la photo de profil */}
-        <div className="relative">
-          <img
-            src={`http://localhost:5000/${userProfile.photoProfil}`}
-            alt={`${userProfile.nom} ${userProfile.prenom}`}
-            className="w-32 h-32 rounded-full border-4 border-gray-300 object-cover cursor-pointer"
-            onClick={() => setShowProfileModal(true)}  // Affiche le modal lorsque l'utilisateur clique sur la photo
-          />
-          <button
-            className={`absolute bottom-0 right-0 p-2 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-800'}`}
-            onClick={() => setShowCameraModal(true)}  // Affiche le modal caméra lorsque l'utilisateur clique sur l'icône caméra
+      </div>
+  
+      {/* Modals */}
+      <AnimatePresence>
+        {showProfileModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+            onClick={() => setShowProfileModal(false)}
           >
-            <Camera className="w-5 h-5 text-white" />
-          </button>
-        </div>
-      </div>
-
-      {/* Bouton Modifier le profil */}
-      <div className="mt-6">
-        <button className={`w-full px-4 py-2 rounded-md flex items-center justify-center ${isDarkMode ? 'bg-gray-500 text-white' : 'bg-blue-950 text-white'}`}>
-          <Edit className="w-4 h-4 mr-2" />
-          Modifier le profil
-        </button>
-      </div>
-
-      {/* Modal pour afficher la photo au centre */}
-      {showProfileModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50" onClick={() => setShowProfileModal(false)}>
-          <div className="relative">
-            <img
+            <motion.img
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
               src={`http://localhost:5000/${userProfile.photoProfil}`}
               alt={`${userProfile.nom} ${userProfile.prenom}`}
-              className="w-64 h-64 rounded-full border-4 border-gray-300 object-cover"
+              className="max-w-lg max-h-[80vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
             />
-          </div>
-        </div>
-      )}
-
-      {/* Modal pour changer ou supprimer la photo */}
-      {showCameraModal && (
-        <div className={`hs-overlay fixed inset-0 ${isDarkMode ? 'bg-black bg-opacity-70' : 'bg-white bg-opacity-90'} z-50 flex items-center justify-center`}>
-          <div className={`hs-overlay-animation-target mt-7 opacity-100 duration-500 ease-out transition-all sm:max-w-lg sm:w-full m-3 sm:mx-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-            <div className={`flex flex-col border shadow-sm rounded-xl ${isDarkMode ? 'border-neutral-700' : 'border-gray-300'}`}>
-              <div className={`flex justify-between items-center py-3 px-4 border-b ${isDarkMode ? 'border-neutral-700' : 'border-gray-300'}`}>
-                <h3 id="hs-slide-down-animation-modal-label" className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
-                  Modifier la photo de profil
+          </motion.div>
+        )}
+  
+        {showCameraModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50"
+            onClick={() => setShowCameraModal(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className={`${
+                isDarkMode ? 'bg-gray-800' : 'bg-white'
+              } rounded-lg shadow-xl p-4 w-full max-w-sm mx-4`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h3 className={`text-sm font-medium ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                  Modifier la photo
                 </h3>
                 <button
-                  type="button"
-                  className="size-8 inline-flex justify-center items-center gap-x-2 rounded-full border bg-gray-100 text-gray-800 hover:bg-gray-200 focus:outline-none focus:bg-gray-200"
-                  onClick={() => setShowCameraModal(false)}  // Fermer le modal
+                  onClick={() => setShowCameraModal(false)}
+                  className={`p-1 rounded-full ${
+                    isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'
+                  }`}
                 >
-                  <span className="sr-only">Close</span>
-                  <svg className="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M18 6 6 18"></path>
-                    <path d="m6 6 12 12"></path>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
-              <div className="p-4">
-                <p className={`mt-1 ${isDarkMode ? 'text-neutral-400' : 'text-gray-800'}`}>
-                  Choisissez une option pour la photo de profil :
-                </p>
-                <div className="mt-4 flex flex-col space-y-2">
-                  <button
-                    className={`py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg shadow-sm hover:opacity-80 focus:outline-none ${isDarkMode ? 'bg-red-500 text-white' : 'bg-red-200 text-gray-800'}`}
-                  >
-                    Supprimer la photo
-                  </button>
-                  <button
-                    className={`py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg shadow-sm hover:opacity-80 focus:outline-none ${isDarkMode ? 'bg-blue-500 text-white' : 'bg-blue-200 text-gray-800'}`}
-                  >
-                    Changer la photo
-                  </button>
-                </div>
-              </div>
-              <div className={`flex justify-end items-center gap-x-2 py-3 px-4 border-t ${isDarkMode ? 'border-neutral-700' : 'border-gray-300'}`}>
+              <div className="space-y-2">
                 <button
-                  type="button"
-                  className="py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border bg-gray-200 text-gray-800 hover:bg-gray-300 focus:outline-none"
+                  className={`w-full py-2 text-xs rounded-lg ${
+                    isDarkMode 
+                      ? 'bg-blue-600 hover:bg-blue-700' 
+                      : 'bg-blue-500 hover:bg-blue-600'
+                  } text-white transition-colors duration-200`}
+                >
+                  Choisir une photo
+                </button>
+                <button
+                  className={`w-full py-2 text-xs rounded-lg ${
+                    isDarkMode 
+                      ? 'bg-red-600 hover:bg-red-700' 
+                      : 'bg-red-500 hover:bg-red-600'
+                  } text-white transition-colors duration-200`}
+                >
+                  Supprimer la photo
+                </button>
+                <button 
+                  className={`w-full py-2 text-xs rounded-lg ${
+                    isDarkMode 
+                      ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+                      : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+                  } transition-colors duration-200`}
                   onClick={() => setShowCameraModal(false)}
                 >
                   Annuler
                 </button>
               </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+  };
+  
+  const ProfileSkeleton: React.FC = () => {
+    const { isDarkMode } = useTheme();
+    return (
+      <div className={`w-full ${isDarkMode ? 'bg-gray-900' : 'bg-gray-50'}`}>
+        <div className="h-64 bg-gray-300 dark:bg-gray-700 animate-pulse"></div>
+        <div className="relative px-4 pb-6 -mt-32">
+          <div className={`max-w-5xl mx-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-xl shadow-lg p-6`}>
+            <div className="flex flex-col md:flex-row items-center md:items-start">
+              <div className="relative -mt-24 mb-4 md:mb-0 md:mr-6">
+                <div className="w-32 h-32 bg-gray-300 dark:bg-gray-700 rounded-full animate-pulse"></div>
+              </div>
+              <div className="flex-grow space-y-4 w-full">
+                <div className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-1/2 mx-auto md:mx-0"></div>
+                <div className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-1/3 mx-auto md:mx-0"></div>
+                <div className="flex justify-center md:justify-start space-x-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-20"></div>
+                  ))}
+                </div>
+                <div className="h-16 bg-gray-300 dark:bg-gray-700 rounded"></div>
+                <div className="flex justify-center md:justify-start space-x-2">
+                  <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded w-24"></div>
+                  <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded w-8"></div>
+                  <div className="h-8 bg-gray-300 dark:bg-gray-700 rounded w-8"></div>
+                </div>
+              </div>
+            </div>
+            <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-6">
+              <div className="flex justify-between items-center">
+                <div className="flex space-x-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-6 bg-gray-300 dark:bg-gray-700 rounded w-16"></div>
+                  ))}
+                </div>
+                <div className="flex space-x-4">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-4 bg-gray-300 dark:bg-gray-700 rounded w-20"></div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      )}
-    </div>
-  );
-};
-
-export default ProfileHeader;
+      </div>
+    );
+  };
+  
+  export default ProfileHeader;

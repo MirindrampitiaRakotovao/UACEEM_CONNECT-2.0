@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {useNavigate} from "react-router-dom";
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import {Heart, MessageCircle, Share, MoreVertical, Send, X, CircleAlert, MoreHorizontal} from 'lucide-react';
+import {Heart, MessageCircle, Share, MoreVertical, Send, X, CircleAlert, MoreHorizontal, ChevronRight, ChevronLeft} from 'lucide-react';
 import io from 'socket.io-client';
 import { useTheme } from '../../../../../context/ThemeContext';
 import moment from 'moment';
@@ -569,6 +569,32 @@ const PublicationCard: React.FC<{
     handleImageClick
 }) => {
     const images = JSON.parse(publication.image.replace(/\\/g, '/'));
+    const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+    // Fonction pour passer à l'image suivante
+    const nextImage = () => {
+        setCurrentImageIndex((prevIndex) => 
+            prevIndex === images.length - 1 ? 0 : prevIndex + 1
+        );
+    };
+
+    // Fonction pour passer à l'image précédente
+    const prevImage = () => {
+        setCurrentImageIndex((prevIndex) => 
+            prevIndex === 0 ? images.length - 1 : prevIndex - 1
+        );
+    };
+
+    // Effet pour le défilement automatique des images
+    useEffect(() => {
+        if (images.length > 1) {
+            const interval = setInterval(() => {
+                nextImage();
+            }, 5000); // Change d'image toutes les 5 secondes
+
+            return () => clearInterval(interval);
+        }
+    }, [images]);
 
     return (
         <motion.div
@@ -581,8 +607,8 @@ const PublicationCard: React.FC<{
                 isDarkMode ? 'bg-gradient-to-r from-[#2d3d53] to-[#29374b] shadow-md text-white' : 'bg-white text-black'
             } rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl`}
         >
-
             <div className="p-4 sm:p-6 relative z-10">
+                {/* En-tête de la publication */}
                 <div className="flex items-center justify-between mb-4">
                     <motion.div 
                         className="flex items-center space-x-3"
@@ -591,14 +617,14 @@ const PublicationCard: React.FC<{
                         <img
                             src={`http://localhost:5000/${publication.auteur.photoProfil.replace(/\\/g, '/')}`}
                             alt={publication.auteur.nomUtilisateur}
-                            className="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover border-2 border-blue-500"
+                            className="h-8 w-8 sm:h-11 sm:w-11 rounded-full object-cover border-2 border-blue-500"
                         />
                         <div>
-                            <h2 className="font-bold text-sm sm:text-base cursor-pointer hover:text-blue-500 transition-colors"
+                            <h2 className="font-bold text-xs sm:text-sm cursor-pointer hover:text-blue-500 transition-colors"
                                 onClick={() => redirectToUserProfile(publication.auteur)}>
                                 {publication.auteur.nomUtilisateur}
                             </h2>
-                            <span className={`text-xs sm:text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            <span className={`text-xs sm:text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                 {moment(publication.datePublication).fromNow()}
                             </span>
                         </div>
@@ -610,30 +636,63 @@ const PublicationCard: React.FC<{
                     >
                         <MoreHorizontal className="w-5 h-5" />
                     </motion.button>
+                
                 </div>
 
-                <p className={`text-sm sm:text-base mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                {/* Description de la publication */}
+                <p className={`text-sm sm:text-sm mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
                     {publication.description}
                 </p>
 
+                {/* Carrousel d'images */}
                 {Array.isArray(images) && images.length > 0 && (
-                    <motion.div 
-                        className="relative aspect-square rounded-xl overflow-hidden cursor-pointer"
-                        onClick={() => handleImageClick(images)}
-                        whileHover={{ scale: 1.02 }}
-                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                    >
-                        <img
-                            src={`http://localhost:5000/${images[0]}`}
+                    <div className="relative aspect-square rounded-xl overflow-hidden">
+                        <motion.img
+                            key={currentImageIndex}
+                            src={`http://localhost:5000/${images[currentImageIndex]}`}
                             alt={`Publication ${publication.id}`}
                             className="w-full h-full object-cover"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.5 }}
                         />
                         {images.length > 1 && (
-                            <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                                <span className="text-white text-2xl font-bold">+{images.length - 1}</span>
-                            </div>
+                            <>
+                                {/* Bouton image précédente */}
+                                <button 
+                                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-2"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        prevImage();
+                                    }}
+                                >
+                                    <ChevronLeft size={24} />
+                                </button>
+                                {/* Bouton image suivante */}
+                                <button 
+                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-2"
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        nextImage();
+                                    }}
+                                >
+                                    <ChevronRight size={24} />
+                                </button>
+                                {/* Indicateurs de position */}
+                                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
+                                    {images.map((_, index) => (
+                                        <div 
+                                            key={index}
+                                            className={`h-2 w-2 rounded-full ${
+                                                index === currentImageIndex ? 'bg-white' : 'bg-gray-400'
+                                            }`}
+                                        />
+                                    ))}
+                                </div>
+                            </>
                         )}
-                    </motion.div>
+                    </div>
                 )}
 
                 <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
@@ -644,7 +703,7 @@ const PublicationCard: React.FC<{
                         onClick={() => toggleReaction(publication.id)}
                     >
                         <Heart
-                            className={`h-5 w-5 sm:h-6 sm:w-6 ${
+                            className={`h-4 w-4 sm:h-5 sm:w-5 ${
                                 userReactions[publication.id] 
                                     ? 'text-red-500 fill-current' 
                                     : isDarkMode ? 'text-gray-400' : 'text-gray-500'
@@ -659,8 +718,8 @@ const PublicationCard: React.FC<{
                         className={`flex items-center space-x-2 p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
                         onClick={() => toggleModal(publication.id)}
                     >
-                        <MessageCircle className="h-5 w-5 sm:h-6 sm:w-6" />
-                        <span className="text-xs sm:text-sm">Commenter</span>
+                        <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="text-xs sm:text-xs">Commenter</span>
                     </motion.button>
 
                     <motion.button 
@@ -668,8 +727,8 @@ const PublicationCard: React.FC<{
                         whileTap={{ scale: 0.95 }}
                         className={`flex items-center space-x-2 p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
                     >
-                        <Share className="h-5 w-5 sm:h-6 sm:w-6" />
-                        <span className="text-xs sm:text-sm">Partager</span>
+                        <Share className="h-4 w-4 sm:h-5 sm:w-5" />
+                        <span className="text-xs sm:text-xs">Partager</span>
                     </motion.button>
                 </div>
             </div>

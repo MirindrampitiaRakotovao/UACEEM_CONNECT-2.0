@@ -30,6 +30,27 @@ export default {
         sans: ['Helvetica', 'Arial', 'sans-serif'],
         serif: ['Georgia', 'Cambria', 'serif'],
       },
+
+      keyframes: {
+        fadeIn: {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' },
+        },
+        modalSlideIn: {
+          '0%': { 
+            opacity: '0',
+            transform: 'translate(0, -1rem) scale(0.95)'
+          },
+          '100%': { 
+            opacity: '1',
+            transform: 'translate(0, 0) scale(1)'
+          },
+        },
+      },
+      animation: {
+        fadeIn: 'fadeIn 0.2s ease-out',
+        modalSlideIn: 'modalSlideIn 0.3s ease-out',
+      },
     },
   },
   plugins: [

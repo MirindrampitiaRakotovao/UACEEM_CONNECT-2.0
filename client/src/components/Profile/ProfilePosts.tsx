@@ -1,13 +1,13 @@
-import { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { Heart, MessageCircle, Plus, X, MoreVertical, Share, Send } from 'lucide-react';
+import { Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { useTheme } from '../../../src/context/ThemeContext';
 import io from 'socket.io-client';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const socket = io('http://localhost:5000');
 
-// Interfaces pour les types
 interface User {
   nomUtilisateur: string;
   photoProfil: string;
@@ -17,6 +17,7 @@ interface Comment {
   id: string;
   text: string;
   auteurCommentaire: User;
+  date: string;
 }
 
 interface Post {
@@ -30,20 +31,15 @@ interface Post {
   commentaires: Comment[];
 }
 
-const ProfilePosts = () => {
+const ProfilePosts: React.FC = () => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [newComment, setNewComment] = useState<{ [key: string]: string }>({});
   const [userReactions, setUserReactions] = useState<{ [key: string]: boolean }>({});
   const [reactionsCount, setReactionsCount] = useState<{ [key: string]: number }>({});
-  const [showDropdown, setShowDropdown] = useState<{ [key: string]: boolean }>({});
-  const [selectedPost, setSelectedPost] = useState<Post | null>(null); // Post sélectionné pour afficher les commentaires
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null);
   const { isDarkMode } = useTheme();
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const [userProfile, setUserProfile] = useState<User | null>(null);
-
 
   useEffect(() => {
     const fetchPosts = async () => {
@@ -51,9 +47,7 @@ const ProfilePosts = () => {
       if (token) {
         try {
           const response = await axios.get('http://localhost:5000/api/userPosts', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           });
 
           const sortedPosts = response.data.sort(
@@ -63,12 +57,10 @@ const ProfilePosts = () => {
 
           await Promise.all(
             sortedPosts.map(async (post: Post) => {
-
               const reactionsRes = await axios.get(`http://localhost:5000/api/reactions/publication/${post.id}/reactions-count`, {
                 headers: { Authorization: `Bearer ${token}` },
               });
               setReactionsCount((prev) => ({ ...prev, [post.id]: reactionsRes.data.count }));
-
 
               const userReactionRes = await axios.get(`http://localhost:5000/api/reactions/publication/${post.id}/user-reactions`, {
                 headers: { Authorization: `Bearer ${token}` },
@@ -93,9 +85,7 @@ const ProfilePosts = () => {
       if (token) {
         try {
           const response = await axios.get('http://localhost:5000/api/profile', {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            headers: { Authorization: `Bearer ${token}` },
           });
           setUserProfile(response.data);
         } catch (err) {
@@ -124,10 +114,6 @@ const ProfilePosts = () => {
     };
   }, []);
 
-  const openModal = (images: string[]) => {
-    setSelectedImages(images);
-  };
-
   const handleReact = async (postId: string) => {
     const token = Cookies.get('token');
     if (token) {
@@ -135,17 +121,11 @@ const ProfilePosts = () => {
         await axios.post(
           `http://localhost:5000/api/reactions/publication/${postId}/toggle-reaction`,
           {},
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+          { headers: { Authorization: `Bearer ${token}` } }
         );
 
         const hasReacted = userReactions[postId];
         setUserReactions((prev) => ({ ...prev, [postId]: !hasReacted }));
-
-        // Mettre à jour le compte des réactions
         setReactionsCount((prev) => ({
           ...prev,
           [postId]: hasReacted ? prev[postId] - 1 : prev[postId] + 1,
@@ -172,190 +152,293 @@ const ProfilePosts = () => {
     }
   };
 
-  const closeCommentsModal = () => {
-    setSelectedPost(null);
-  };
-
-  if (loading) return <div>Chargement des posts...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <PostSkeleton />;
+  if (error) return <ErrorMessage message={error} />;
 
   return (
-    <div className={`mt-5 ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-black'}`}>
-      {posts.length > 0 ? (
-        posts.map((post) => {
-          let imageArray: string[] = [];
-          try {
-            imageArray = JSON.parse(post.image);
-          } catch (e) {
-            console.error("Erreur lors de la conversion de l'image:", e);
-          }
-
-          const hasReacted = userReactions[post.id];
-
-          return (
-            <div key={post.id} className={`p-4 rounded mb-4 ${isDarkMode ? 'bg-gray-700' : 'bg-white'} shadow-md`}>
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center space-x-2">
-                  <img
-                    src={`http://localhost:5000/${post.photoProfil}`}
-                    alt={`${post.nomUtilisateur} profile`}
-                    className="w-12 h-12 rounded-full object-cover mr-2"
-                  />
-                  <div className="flex flex-col">
-                    <span className="font-bold text-lg">{post.nomUtilisateur}</span>
-                    <div className="text-xs text-gray-500">
-                      {post.datePublication} | {post.heurePublication}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h2 className="text-base">{post.description}</h2>
-              {imageArray.length > 0 && (
-                  <div className="mt-4 flex flex-wrap -m-1">
-                    {imageArray.length === 1 ? (
-                        <div className="w-full p-1">
-                          <img
-                              src={`http://localhost:5000/${imageArray[0].replace(/\\/g, '/')}`}
-                              alt="Publication"
-                              className="w-full aspect-square object-cover rounded-xl"
-                          />
-                        </div>
-                    ) : imageArray.length === 2 ? (
-                        <>
-                          {imageArray.map((image, index) => (
-                              <div key={index} className="w-1/2 p-1">
-                                <img
-                                    src={`http://localhost:5000/${image.replace(/\\/g, '/')}`}
-                                    alt={`Publication ${index + 1}`}
-                                    className="w-full aspect-square object-cover rounded-xl"
-                                />
-                              </div>
-                          ))}
-                        </>
-                    ) : (
-                        <div className="w-full flex flex-wrap">
-                          <div className="w-2/3 p-1">
-                            <img
-                                src={`http://localhost:5000/${imageArray[0].replace(/\\/g, '/')}`}
-                                alt="Publication 1"
-                                className="w-full aspect-square object-cover rounded-xl"
-                            />
-                          </div>
-                          <div className="w-1/3 flex flex-col">
-                            <div className="p-1">
-                              <img
-                                  src={`http://localhost:5000/${imageArray[1].replace(/\\/g, '/')}`}
-                                  alt="Publication 2"
-                                  className="w-full aspect-square object-cover rounded-xl"
-                              />
-                            </div>
-                            <div className="p-1 relative">
-                              <img
-                                  src={`http://localhost:5000/${imageArray[2].replace(/\\/g, '/')}`}
-                                  alt="Publication 3"
-                                  className="w-full aspect-square object-cover rounded-xl"
-                              />
-                              {imageArray.length > 3 && (
-                                  <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-xl">
-                                <span className="text-white text-lg font-bold">
-                                    +{imageArray.length - 3} Voir plus
-                                </span>
-                                    <Plus className="text-white ml-2" />
-                                    <button onClick={() => openModal(imageArray)} className="absolute inset-0" />
-                                  </div>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                    )}
-                  </div>
-              )}
-
-              <div
-                className={`mt-4 flex items-center justify-between p-2 border rounded ${isDarkMode ? 'bg-gray-700 border-gray-700' : 'bg-gray-100 border-gray-300'
-                  }`}
-              >
-                <div className="flex space-x-8">
-                  <div
-                    className={`flex items-center space-x-2 cursor-pointer ${hasReacted ? 'text-blue-600' : 'text-gray-500'
-                      }`}
-                    onClick={() => handleReact(post.id)}
-                  >
-                    <Heart className={`w-6 h-6 ${hasReacted ? 'fill-current text-blue-600' : ''}`} />
-                    <span>{reactionsCount[post.id] || 0}</span>
-                  </div>
-                  <div className="flex items-center space-x-2 cursor-pointer" onClick={() => handleOpenComments(post)}>
-                    <MessageCircle className="w-6 h-6" />
-                    <span>{post.commentaires.length}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })
-      ) : (
-        <div>Aucun post à afficher</div>
-      )}
-
-      {selectedPost && userProfile && ( // Vérifier si selectedPost et userProfile sont définis
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-          <div className={`p-6 rounded-lg shadow-lg max-w-lg w-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'} h-auto`}> {/* Hauteur ajustable */}
-            <div className={`flex justify-between items-center mb-4 ${isDarkMode ? 'text-white' : 'text-black'}`}>
-              <h2 className="text-lg font-bold">Commentaires</h2>
-              <button onClick={closeCommentsModal}>
-                <X className={`w-6 h-6 ${isDarkMode ? 'text-white' : 'text-black'}`} />
-              </button>
-            </div>
-
-            {/* Liste des commentaires */}
-            <ul>
-              {selectedPost.commentaires.length > 0 ? (
-                selectedPost.commentaires.map((comment) => (
-                  <li key={comment.id} className={`mb-4 flex space-x-3 ${isDarkMode ? 'text-white' : 'text-black'}`}>
-                    <img
-                      src={`http://localhost:5000/${comment.auteurCommentaire.photoProfil}`}
-                      alt={`${comment.auteurCommentaire.nomUtilisateur} profile`}
-                      className="w-10 h-10 rounded-full object-cover object-center"
-                    />
-                    <div className={`flex-1 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} p-3 rounded-lg`}>
-                      <div className={`flex items-center space-x-2 mb-1 ${isDarkMode ? 'text-white' : 'text-black'}`}>
-                        <span className="font-semibold">{comment.auteurCommentaire.nomUtilisateur}</span>
-                        <span className="text-xs text-gray-500">1 j</span>
-                      </div>
-                      <p className={`${isDarkMode ? 'text-white' : 'text-gray-700'}`}>{comment.text}</p>
-                      <div className={`flex items-center space-x-4 text-xs text-gray-500 mt-1 ${isDarkMode ? 'text-gray-400' : ''}`}>
-                        <button className="text-blue-600">J'aime</button>
-                        <button>Répondre</button>
-                      </div>
-                    </div>
-                  </li>
-                ))
-              ) : (
-                <p className={`${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>Aucun commentaire pour ce post.</p>
-              )}
-            </ul>
-
-            {/* Input pour le nouvel ajout de commentaire */}
-            <div className="mt-4 flex items-center">
-              <img
-                src={`http://localhost:5000/${userProfile.photoProfil}`} // Photo de profil de l'utilisateur connecté
-                alt="Votre profil"
-                className="w-10 h-10 rounded-full object-cover mr-2" // Image de profil avec marge à droite
-              />
-              <input
-                type="text"
-                placeholder="Ajouter un commentaire..."
-                className={`flex-1 border ${isDarkMode ? 'border-gray-600 bg-gray-800 text-white' : 'border-gray-300 bg-white text-black'} rounded-lg p-2`}
-              />
-              <button className="ml-2 bg-blue-500 text-white rounded-lg p-2 flex items-center">
-                <Send className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
+    <div className={`grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4 ${isDarkMode ? 'bg-gray-900' : 'bg-gray-100'}`}>
+      {posts.map((post) => (
+        <PostCard
+          key={post.id}
+          post={post}
+          isDarkMode={isDarkMode}
+          userReactions={userReactions}
+          reactionsCount={reactionsCount}
+          handleReact={handleReact}
+          handleOpenComments={handleOpenComments}
+        />
+      ))}
+      {selectedPost && (
+        <CommentsModal
+          post={selectedPost}
+          userProfile={userProfile}
+          isDarkMode={isDarkMode}
+          closeModal={() => setSelectedPost(null)}
+        />
       )}
     </div>
   );
 };
+
+const PostCard: React.FC<{
+  post: Post;
+  isDarkMode: boolean;
+  userReactions: { [key: string]: boolean };
+  reactionsCount: { [key: string]: number };
+  handleReact: (postId: string) => void;
+  handleOpenComments: (post: Post) => void;
+}> = ({
+  post,
+  isDarkMode,
+  userReactions,
+  reactionsCount,
+  handleReact,
+  handleOpenComments,
+}) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const imageArray = JSON.parse(post.image);
+  const hasReacted = userReactions[post.id];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === imageArray.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, [imageArray]);
+
+  const nextImage = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === imageArray.length - 1 ? 0 : prevIndex + 1
+    );
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === 0 ? imageArray.length - 1 : prevIndex - 1
+    );
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.5 }}
+      className={`rounded-lg overflow-hidden shadow-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+    >
+      <div className="p-4">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center space-x-2">
+            <img
+              src={`http://localhost:5000/${post.photoProfil}`}
+              alt={post.nomUtilisateur}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+            <div>
+              <p className={`font-semibold text-sm ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
+                {post.nomUtilisateur}
+              </p>
+              <p className="text-xs text-gray-500">
+                {post.datePublication} à {post.heurePublication}
+              </p>
+            </div>
+          </div>
+          <MoreHorizontal className="w-5 h-5 text-gray-500 cursor-pointer" />
+        </div>
+      </div>
+
+      <div className="relative aspect-square">
+        <img
+          src={`http://localhost:5000/${imageArray[currentImageIndex].replace(/\\/g, '/')}`}
+          alt={`Post ${currentImageIndex + 1}`}
+          className="w-full h-full object-cover"
+        />
+        {imageArray.length > 1 && (
+          <>
+            <button
+              onClick={prevImage}
+              className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 rounded-full p-1"
+            >
+              <ChevronLeft className="w-6 h-6 text-white" />
+            </button>
+            <button
+              onClick={nextImage}
+              className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 rounded-full p-1"
+            >
+              <ChevronRight className="w-6 h-6 text-white" />
+            </button>
+            <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-1">
+              {imageArray.map((_, index) => (
+                <div
+                  key={index}
+                  className={`w-2 h-2 rounded-full ${
+                    currentImageIndex === index ? 'bg-white' : 'bg-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </div>
+
+      <div className="p-4">
+        <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+          {post.description}
+        </p>
+        <div className="flex items-center justify-between">
+          <div className="flex space-x-4">
+            <button
+              onClick={() => handleReact(post.id)}
+              className={`flex items-center space-x-1 ${
+                hasReacted ? 'text-red-500' : isDarkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}
+            >
+              <Heart className={`w-5 h-5 ${hasReacted ? 'fill-current' : ''}`} />
+              <span className="text-xs">{reactionsCount[post.id] || 0}</span>
+            </button>
+            <button
+              onClick={() => handleOpenComments(post)}
+              className={`flex items-center space-x-1 ${
+                isDarkMode ? 'text-gray-400' : 'text-gray-600'
+              }`}
+            >
+              <MessageCircle className="w-5 h-5" />
+              <span className="text-xs">{post.commentaires.length}</span>
+            </button>
+          </div>
+          <Share2 className={`w-5 h-5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`} />
+        </div>
+      </div>
+    </motion.div>
+  );
+};
+
+const CommentsModal: React.FC<{
+  post: Post;
+  userProfile: User | null;
+  isDarkMode: boolean;
+  closeModal: () => void;
+}> = ({ post, userProfile, isDarkMode, closeModal }) => {
+  const [newComment, setNewComment] = useState('');
+
+  const handleSubmitComment = () => {
+    // Implement comment submission logic here
+    console.log('Submitting comment:', newComment);
+    setNewComment('');
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4 z-50"
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        exit={{ scale: 0.9, opacity: 0 }}
+        className={`w-full max-w-lg rounded-lg ${
+          isDarkMode ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+        } p-6 shadow-xl`}
+      >
+        <h2 className="text-xl font-bold mb-4">Commentaires</h2>
+        <div className="max-h-96 overflow-y-auto mb-4">
+          {post.commentaires.map((comment) => (
+            <div key={comment.id} className="mb-4">
+              <div className="flex items-start space-x-3">
+                <img
+                  src={`http://localhost:5000/${comment.auteurCommentaire.photoProfil}`}
+                  alt={comment.auteurCommentaire.nomUtilisateur}
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+                <div className={`flex-1 p-3 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'}`}>
+                  <p className="font-semibold text-sm">{comment.auteurCommentaire.nomUtilisateur}</p>
+                  <p className="text-sm">{comment.text}</p>
+                  <p className="text-xs text-gray-500 mt-1">{comment.date}</p>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        {userProfile && (
+          <div className="flex items-center space-x-2">
+            <img
+              src={`http://localhost:5000/${userProfile.photoProfil}`}
+              alt={userProfile.nomUtilisateur}
+              className="w-8 h-8 rounded-full object-cover"
+            />
+            <input
+              type="text"
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              placeholder="Ajouter un commentaire..."
+              className={`flex-1 p-2 rounded-full ${
+                isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-gray-900'
+              } focus:outline-none focus:ring-2 focus:ring-blue-500`}
+            />
+            <button
+              onClick={handleSubmitComment}
+              className="bg-blue-500 text-white rounded-full p-2 hover:bg-blue-600 transition-colors"
+            >
+              <MessageCircle className="w-5 h-5" />
+            </button>
+          </div>
+        )}
+        <button
+          onClick={closeModal}
+          className={`mt-4 px-4 py-2 rounded ${
+            isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-200 text-gray-900'
+          } hover:bg-opacity-80 transition-colors`}
+        >
+          Fermer
+        </button>
+      </motion.div>
+    </motion.div>
+  );
+};
+
+const PostSkeleton: React.FC = () => {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+      {[1, 2, 3, 4, 5, 6].map((i) => (
+        <div key={i} className="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden animate-pulse">
+          <div className="p-4">
+            <div className="flex items-center space-x-3">
+              <div className="rounded-full bg-gray-300 dark:bg-gray-600 h-10 w-10"></div>
+              <div className="flex-1">
+                <div className="h-4 bg-gray-300 dark:bg-gray-600 rounded w-3/4"></div>
+                <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-1/2 mt-2"></div>
+              </div>
+            </div>
+          </div>
+          <div className="bg-gray-300 dark:bg-gray-600 h-64 w-full"></div>
+          <div className="p-4">
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-full"></div>
+            <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded w-5/6 mt-2"></div>
+            <div className="flex justify-between items-center mt-4">
+              <div className="flex space-x-2">
+                <div className="rounded-full bg-gray-300 dark:bg-gray-600 h-8 w-8"></div>
+                <div className="rounded-full bg-gray-300 dark:bg-gray-600 h-8 w-8"></div>
+              </div>
+              <div className="rounded-full bg-gray-300 dark:bg-gray-600 h-8 w-8"></div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const ErrorMessage: React.FC<{ message: string }> = ({ message }) => (
+  <div className="flex items-center justify-center h-screen">
+    <div className="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded-lg shadow-md" role="alert">
+      <p className="font-bold">Erreur</p>
+      <p>{message}</p>
+    </div>
+  </div>
+);
 
 export default ProfilePosts;
