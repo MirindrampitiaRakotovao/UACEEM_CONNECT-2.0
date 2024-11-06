@@ -86,7 +86,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       allowNull: true,
       references: {
-        model: 'Reactions_Commentaires',
+        model: 'reactions_commentaires',
         key: 'id',
       },
       onDelete: 'CASCADE',

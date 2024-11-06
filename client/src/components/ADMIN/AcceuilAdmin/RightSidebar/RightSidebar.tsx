@@ -1,7 +1,7 @@
 import React from 'react';
-import Notifications from './Notifications';
-import Users from './Users';
-import Signalements from './Signalements';
+import Notifications from './Notifications.tsx';
+import Users from './Users.tsx';
+import Signalements from './Signalements.tsx';
 
 const RightSidebar: React.FC = () => {
     return (

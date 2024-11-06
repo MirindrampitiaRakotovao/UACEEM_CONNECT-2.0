@@ -4,7 +4,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import {Heart, MessageCircle, Share, MoreVertical, Send, X, CircleAlert, MoreHorizontal, ChevronRight, ChevronLeft} from 'lucide-react';
 import io from 'socket.io-client';
-import { useTheme } from '../../../../../context/ThemeContext';
+import { useTheme } from '../../../../../context/ThemeContext.tsx';
 import moment from 'moment';
 import 'moment/locale/fr';  // Importer la localisation française
 moment.locale('fr');  // Configurer moment pour utiliser le français

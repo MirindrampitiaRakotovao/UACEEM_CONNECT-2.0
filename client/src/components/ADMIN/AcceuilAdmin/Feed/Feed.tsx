@@ -1,6 +1,6 @@
 import React from 'react';
-import Posts from './FeedContain/Posts';
-import InputBox from './FeedContain/InputBox';
+import Posts from './FeedContain/Posts.tsx';
+import InputBox from './FeedContain/InputBox.tsx';
 
 const Feed = () => {
   return (

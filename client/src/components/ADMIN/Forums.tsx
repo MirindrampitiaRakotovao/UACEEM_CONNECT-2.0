@@ -4,7 +4,7 @@ import {
     MessageCircle, Mic, Send, Play, Pause, X, ChevronDown, ChevronUp,
     Share2, Heart, MessageSquare, BookmarkPlus, MoreHorizontal
 } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext.tsx';
 
 interface ForumPost {
     id: number;

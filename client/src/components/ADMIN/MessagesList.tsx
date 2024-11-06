@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Phone, Video, MoreHorizontal, Send, Paperclip, Mic, Smile, Image, Filter, Star, Pin, Plus } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext.tsx';
 
 // Types
 interface Message {

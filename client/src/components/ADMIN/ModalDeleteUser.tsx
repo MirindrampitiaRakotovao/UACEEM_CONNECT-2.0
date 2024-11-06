@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, AlertTriangle } from 'lucide-react';
-import { useTheme } from '../context/ThemeContext'; // Assurez-vous que le chemin est correct
+import { useTheme } from '../../context/ThemeContext.tsx'; // Assurez-vous que le chemin est correct
 
 interface ConfirmDeleteModalProps {
   isOpen: boolean;

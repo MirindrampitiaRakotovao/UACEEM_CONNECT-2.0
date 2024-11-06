@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useTheme } from '../../../../context/ThemeContext';
+import { useTheme } from '../../../../context/ThemeContext.tsx';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 

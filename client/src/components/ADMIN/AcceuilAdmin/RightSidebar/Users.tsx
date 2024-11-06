@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useTheme } from '../../../../context/ThemeContext'; // Assurez-vous d'importer votre contexte de thème
+import { useTheme } from '../../../../context/ThemeContext.tsx'; // Assurez-vous d'importer votre contexte de thème
 
 const UserCard = ({ imageUrl, name, role, isDarkMode }) => (
   <div className={`flex items-center space-x-3 mb-3 rounded-lg p-2 shadow-sm ${isDarkMode ? 'border-gray-700' : 'border-gray-300'} border`}>

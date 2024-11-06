@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { User, Upload, ArrowLeft, Save, Sun, Moon } from 'lucide-react';
 import { toast } from 'react-toastify';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTheme } from '../context/ThemeContext';
+import { useTheme } from '../../context/ThemeContext.tsx';
 interface FormData {
   nom: string;
   prenom: string;

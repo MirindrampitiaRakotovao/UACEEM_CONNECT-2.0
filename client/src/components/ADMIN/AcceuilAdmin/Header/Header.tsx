@@ -4,7 +4,7 @@ import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BellDot, MessageCircleMore, Search, Power, Plus, Menu, Sun, Moon } from 'lucide-react';
-import { useTheme } from '../../../../context/ThemeContext';
+import { useTheme } from '../../../../context/ThemeContext.tsx';
 
 interface UserProfile {
     nom: string;

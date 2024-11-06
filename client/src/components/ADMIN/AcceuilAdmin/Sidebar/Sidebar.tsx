@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { useTheme } from '../../../../context/ThemeContext'; 
+import { useTheme } from '../../../../context/ThemeContext.tsx';
 import { Archive, Bookmark, CalendarRange, House, LibraryBig, MessageSquareReply, Moon, Settings, Shield, Sun, Users } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../../../../public/assets/img/Logo Konnektea Blanc.png';

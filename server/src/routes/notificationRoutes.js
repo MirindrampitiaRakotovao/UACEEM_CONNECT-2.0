@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const NotificationsController = require('../controllers/notificationController');
-const latestNotificationsController = require('../controllers/latestNotificationsController');
+const latestNotificationsController = require('../controllers/LatestNotificationsController');
 const authMiddleware = require('../middleware/authMiddleware');
 
 

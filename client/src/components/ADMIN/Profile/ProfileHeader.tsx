@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Camera, Edit, UserPlus, Mail, Link as LinkIcon, Share2, Bell, MapPin, Calendar, Briefcase } from 'lucide-react';
-import { useTheme } from '../../../src/context/ThemeContext';
+import { useTheme } from '../../../context/ThemeContext.tsx';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { motion, AnimatePresence } from 'framer-motion';

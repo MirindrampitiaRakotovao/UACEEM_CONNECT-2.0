@@ -5,8 +5,8 @@ import Chart from 'react-apexcharts';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import { toast } from 'react-toastify';
-import { useTheme } from '../context/ThemeContext';
-import ConfirmDeleteModal from './ModalDeleteUser';
+import { useTheme } from '../../context/ThemeContext.tsx';
+import ConfirmDeleteModal from './ModalDeleteUser.tsx';
 interface User {
   id: number;
   prenom: string;

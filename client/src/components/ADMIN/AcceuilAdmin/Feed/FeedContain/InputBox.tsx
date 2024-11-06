@@ -3,9 +3,9 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { Image, FileText, Video, User, PenTool } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { useTheme } from '../../../../../context/ThemeContext';
+import { useTheme } from '../../../../../context/ThemeContext.tsx';
 import { motion } from 'framer-motion';
-import PublicationModal from '../../../../PublicationModal';
+import PublicationModal from '../../../PublicationModal.tsx';
 
 interface ProfilUtilisateur {
   photoProfil: string;

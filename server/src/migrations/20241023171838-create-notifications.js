@@ -70,7 +70,7 @@ module.exports = {
         type: Sequelize.UUID,
         allowNull: true,
         references: {
-          model: 'Reactions_Commentaires',
+          model: 'reactions_commentaires',
           key: 'id',
         },
         onDelete: 'CASCADE',

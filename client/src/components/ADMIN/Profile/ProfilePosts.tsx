@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
 import Cookies from 'js-cookie';
 import { Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
-import { useTheme } from '../../../src/context/ThemeContext';
+import { useTheme } from '../../../context/ThemeContext.tsx';
 import io from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
 

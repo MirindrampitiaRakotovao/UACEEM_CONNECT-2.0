@@ -1,8 +1,11 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { MoreVertical, AlertCircle, Eye, Calendar, TrendingUp } from 'lucide-react';
-import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
-import { useTheme } from '../context/ThemeContext';
+
+import { MoreVertical, AlertCircle, Eye, Calendar, TrendingUp } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Line } from 'react-chartjs-2';
+
+import { useTheme } from '../../context/ThemeContext.tsx';
+
 
 // Composant Modal
 const Modal = ({ isOpen, onClose, title, children, isDarkMode }) => {
@@ -109,7 +112,7 @@ const ChartSkeleton = () => (
   </div>
 );
 
-const Signalement = () => {
+const SignalementLists = () => {
   const { isDarkMode } = useTheme();
   const [isLoading, setIsLoading] = useState(true);
   const [signalements, setSignalements] = useState([
@@ -488,4 +491,4 @@ const getStatusStyle = (status, isDarkMode) => {
   }
 };
 
-export default Signalement;
+export default SignalementLists;

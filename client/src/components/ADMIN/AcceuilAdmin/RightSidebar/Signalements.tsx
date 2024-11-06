@@ -1,5 +1,5 @@
 import React from 'react';
-import { useTheme } from '../../../../context/ThemeContext'; // Assurez-vous d'importer votre contexte de thème
+import { useTheme } from '../../../../context/ThemeContext.tsx'; // Assurez-vous d'importer votre contexte de thème
 
 const SignalementCard = ({ color, message, isDarkMode }) => (
   <div className={`rounded-lg shadow-sm p-3 mb-2 flex items-start border ${isDarkMode ? 'border-gray-700' : 'border-gray-300'}`}>

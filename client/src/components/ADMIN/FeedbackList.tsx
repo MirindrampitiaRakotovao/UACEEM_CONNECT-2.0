@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import ModalFeedBack from './ModalFeedBack';
-import { useTheme } from '../context/ThemeContext';
+import ModalFeedBack from './ModalFeedBack.tsx';
+import { useTheme } from '../../context/ThemeContext.tsx';
 import { motion, AnimatePresence } from 'framer-motion';
 
 interface FeedbackItem {
