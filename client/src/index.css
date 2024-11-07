@@ -22,6 +22,25 @@
     box-shadow: var(--tw-ring-offset-shadow), var(--tw-ring-shadow);
 }
 
+.custom-audio-player {
+  border-radius: 0.75rem;
+  height: 36px;
+}
+
+.custom-audio-player::-webkit-media-controls-panel {
+  background: transparent;
+}
+
+.custom-audio-player::-webkit-media-controls-current-time-display,
+.custom-audio-player::-webkit-media-controls-time-remaining-display {
+  color: inherit;
+}
+
+.custom-audio-player::-webkit-media-controls-play-button,
+.custom-audio-player::-webkit-media-controls-timeline {
+  filter: invert(0.5);
+}
+
 
 @layer utilities {
     .font-light {

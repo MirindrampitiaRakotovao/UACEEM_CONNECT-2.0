@@ -13,6 +13,7 @@ import UserProfile from './Pages/ADMIN/Profile/UserProfile';
 import UserList from './Pages/ADMIN/UserManagment/UserList';
 import EmploiDuTemps from './Pages/ADMIN/EDT/EmploiDuTemps';
 import Parametre from './Pages/ADMIN/Parametres/Parametre';
+import EdtProfesseur from './Pages/PROF/EDT/EdtProfesseur';
 import UserAdd from './Pages/ADMIN/UserManagment/UserAdd';
 // Pages
 import LandingPage from './Pages/LandingPage/LandingPage';
@@ -64,6 +65,7 @@ const App: React.FC = () => {
           <Route path="/ParametreList" element={<Parametre />} />
           <Route path="/MessagesList" element={<Messages />} />
           <Route path="/forumProfesseur" element={<ForumProfesseur />} />
+          <Route path="/edtProfesseur" element={<EdtProfesseur />} />
           <Route path="/acceuilProfesseur" element={<ProtectedRoute><AcceuilProfesseur /></ProtectedRoute>} />
           <Route path="/acceuilAdmin" element={<ProtectedRoute><AcceuilAdmin /></ProtectedRoute>} />
           <Route path="/acceuilUser" element={<ProtectedRoute><AcceuilUser /></ProtectedRoute>} />

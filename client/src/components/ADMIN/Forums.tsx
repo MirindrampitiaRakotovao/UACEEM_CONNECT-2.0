@@ -94,7 +94,7 @@ const Forums = () => {
     }, []);
 
     return (
-        <div className={`p-4 ${isDarkMode ? 'bg-[#121212]' : 'bg-[#f8f9fa]'} min-h-screen`}>
+        <div className={`p-4 min-h-screen`}>
             {/* Header du forum */}
             <ForumHeader setIsModalOpen={setIsModalOpen} isDarkMode={isDarkMode} />
 

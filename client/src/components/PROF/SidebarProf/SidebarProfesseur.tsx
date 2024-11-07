@@ -77,7 +77,7 @@ const SidebarProfesseur = () => {
                 break;
 
             case 'calendar':
-                navigate('/EdtList');
+                navigate('/edtProfesseur');
                 break;
 
             case 'feedback':

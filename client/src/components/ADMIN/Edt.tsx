@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { Upload, Plus, ChevronLeft, ChevronRight, Minimize2, Maximize2, X, Sun, Moon, MapPin, Clock, User } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Upload, Plus, ChevronLeft, ChevronRight, Minimize, Maximize, Settings, X, Sun, Moon } from 'lucide-react';
-import { useTheme } from '../../context/ThemeContext.tsx';
+import { useSelector, useDispatch } from 'react-redux';
+import React, { useState, useEffect } from 'react';
+
+import { useTheme } from '../../context/ThemeContext';
+
 
 // Types
 interface Event {
@@ -13,6 +15,7 @@ interface Event {
   color: string;
   day: string;
   hour: number;
+  room: string;
 }
 
 interface RootState {
@@ -20,6 +23,13 @@ interface RootState {
     events: Event[];
   };
 }
+
+// Color Preview Component
+const ColorPreview = ({ color }: { color: string }) => (
+  <div className={`w-full h-10 rounded-lg ${color} mb-2 flex items-center justify-center shadow-sm`}>
+    <span className="text-white text-xs">Aperçu du cours</span>
+  </div>
+);
 
 // Actions
 export const ADD_EVENT = 'ADD_EVENT';
@@ -48,49 +58,40 @@ export const setEvents = (events: Event[]) => ({
   payload: events
 });
 
-// Jours de la semaine
-const weekDays = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven'];
-
-// Couleurs disponibles pour les événements
+// Constants
+const weekDays = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
 const eventColors = [
-  'bg-gradient-to-r from-blue-400 to-blue-500',
-  'bg-gradient-to-r from-green-400 to-green-500',
-  'bg-gradient-to-r from-yellow-400 to-yellow-500',
-  'bg-gradient-to-r from-red-400 to-red-500',
-  'bg-gradient-to-r from-purple-400 to-purple-500',
-  'bg-gradient-to-r from-pink-400 to-pink-500',
-  'bg-gradient-to-r from-indigo-400 to-indigo-500',
+  'bg-gradient-to-r from-blue-400 to-blue-500 text-white',
+  'bg-gradient-to-r from-green-400 to-green-500 text-white',
+  'bg-gradient-to-r from-purple-400 to-purple-500 text-white',
+  'bg-gradient-to-r from-red-400 to-red-500 text-white',
+  'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white',
+  'bg-gradient-to-r from-pink-400 to-pink-500 text-white',
+  'bg-gradient-to-r from-indigo-400 to-indigo-500 text-white',
 ];
 
-// Composant principal
-const Edt: React.FC = () => {
+const EdtListProfesseur: React.FC = () => {
   const { isDarkMode, toggleDarkMode } = useTheme();
   const [currentWeek, setCurrentWeek] = useState(new Date());
   const [isCondensed, setIsCondensed] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const events = useSelector((state: RootState) => state.edt.events);
   const dispatch = useDispatch();
-
-  const timeSlots = Array.from({ length: 12 }, (_, i) => i + 8);
-
   useEffect(() => {
     const savedEvents = localStorage.getItem('edtEvents');
     if (savedEvents) {
       dispatch(setEvents(JSON.parse(savedEvents)));
     }
   }, [dispatch]);
-
   useEffect(() => {
     localStorage.setItem('edtEvents', JSON.stringify(events));
   }, [events]);
-
   const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       console.log("Fichier importé:", file.name);
     }
   };
-
   const addNewEvent = () => {
     const newEvent: Event = {
       id: `event${events.length + 1}`,
@@ -98,11 +99,11 @@ const Edt: React.FC = () => {
       professor: 'Prof',
       color: eventColors[Math.floor(Math.random() * eventColors.length)],
       day: weekDays[Math.floor(Math.random() * weekDays.length)],
-      hour: timeSlots[Math.floor(Math.random() * timeSlots.length)]
+      hour: Math.floor(Math.random() * 12) + 8,
+      room: `Salle ${Math.floor(Math.random() * 100) + 1}`
     };
     dispatch(addEvent(newEvent));
   };
-
   const onDragEnd = (result: any) => {
     if (!result.destination) return;
     const { source, destination } = result;
@@ -118,15 +119,12 @@ const Edt: React.FC = () => {
       updatedEvent
     }));
   };
-
   const openEditModal = (event: Event) => {
     setEditingEvent(event);
   };
-
   const closeEditModal = () => {
     setEditingEvent(null);
   };
-
   const handleEventUpdate = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (editingEvent) {
@@ -134,149 +132,189 @@ const Edt: React.FC = () => {
       closeEditModal();
     }
   };
-
   return (
-    <div className={`min-h-screen text-gray-900 dark:text-white p-4 transition-colors duration-300`}>
-      <div className={`max-w-7xl mx-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-2xl overflow-hidden`}>
-        <div className={`p-4 ${isDarkMode ? 'bg-gray-700' : 'bg-blue-900 text-white'} flex justify-between items-center`}>
-          <h1 className="text-2xl font-bold">Emploi du temps</h1>
-          <div className="flex space-x-2">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`p-2 rounded-full ${isDarkMode ? 'bg-gray-600 hover:bg-gray-500' : 'bg-blue-500 hover:bg-blue-400'}`}
-              onClick={() => setIsCondensed(!isCondensed)}
-            >
-              {isCondensed ? <Maximize size={20} /> : <Minimize size={20} />}
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`p-2 rounded-full ${isDarkMode ? 'bg-gray-600 hover:bg-gray-500' : 'bg-blue-500 hover:bg-blue-400'}`}
-              onClick={toggleDarkMode}
-            >
-              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
-            </motion.button>
-          </div>
-        </div>
-        <div className={`flex justify-between items-center p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-          <button
-            onClick={() => setCurrentWeek(prev => {
-              const newDate = new Date(prev);
-              newDate.setDate(newDate.getDate() - 7);
-              return newDate;
-            })}
-            className={`${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}
-          >
-            <ChevronLeft size={24} />
-          </button>
-          
-          <div className="text-lg font-medium">
-            Semaine du {currentWeek.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
-          </div>
-          
-          <button
-            onClick={() => setCurrentWeek(prev => {
-              const newDate = new Date(prev);
-              newDate.setDate(newDate.getDate() + 7);
-              return newDate;
-            })}
-            className={`${isDarkMode ? 'text-blue-400 hover:text-blue-300' : 'text-blue-600 hover:text-blue-700'}`}
-          >
-            <ChevronRight size={24} />
-          </button>
-        </div>
-        <DragDropContext onDragEnd={onDragEnd}>
-          <div className={`grid grid-cols-6 gap-px ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} text-sm`}>
-            <div className={`p-3 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100 text-gray-700'} font-black text-center`}>
-              Heures
-            </div>
-            {weekDays.map((day, index) => (
-              <div
-                key={day}
-                className={`p-3 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100 text-gray-700'} font-medium text-center`}
-              >
-                {day}
+    <div className={`min-h-screen ${isDarkMode ? '' : ''} p-4`}>
+      <div className="max-w-[1800px] mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden">
+        {/* Header */}
+        <div className={`p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-indigo-600'} border-b border-gray-200 dark:border-gray-700`}>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div className="flex items-center gap-3">
+              <div className={`h-10 w-10 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-indigo-500'} flex items-center justify-center`}>
+                <Clock className="w-5 h-5 text-white" />
               </div>
-            ))}
+              <div>
+                <h1 className="text-xl font-bold text-white">Planning des cours</h1>
+                <p className="text-xs text-gray-200">Prof. Dupont</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setIsCondensed(!isCondensed)}
+                className={`p-1.5 rounded-md ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-indigo-500 hover:bg-indigo-400'} text-white transition-colors`}
+              >
+                {isCondensed ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
+              </button>
+              <button
+                onClick={toggleDarkMode}
+                className={`p-1.5 rounded-md ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-indigo-500 hover:bg-indigo-400'} text-white transition-colors`}
+              >
+                {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
+              </button>
+            </div>
           </div>
-          <div className={`grid grid-cols-6 gap-px ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
-            {timeSlots.map(hour => (
-              <React.Fragment key={hour}>
-                <div className={`p-2 ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100 text-gray-700'} text-center font-semibold text-sm`}>
-                  {`${hour}:00`}
+        </div>
+                {/* Navigation semaine */}
+                <div className={`p-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border-b border-gray-200 dark:border-gray-700`}>
+          <div className="flex justify-between items-center">
+            <button
+              onClick={() => setCurrentWeek(prev => {
+                const newDate = new Date(prev);
+                newDate.setDate(newDate.getDate() - 7);
+                return newDate;
+              })}
+              className={`p-1.5 rounded-md ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span className="text-sm font-medium">
+              Semaine du {currentWeek.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+            </span>
+            <button
+              onClick={() => setCurrentWeek(prev => {
+                const newDate = new Date(prev);
+                newDate.setDate(newDate.getDate() + 7);
+                return newDate;
+              })}
+              className={`p-1.5 rounded-md ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
+            >
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        </div>
+        {/* Grille EDT */}
+        <DragDropContext onDragEnd={onDragEnd}>
+          <div className="p-3">
+            <div className={`grid grid-cols-6 gap-1 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+              {/* En-tête des jours */}
+              <div className={`p-2 rounded-md ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} font-medium text-center text-xs`}>
+                Heures
+              </div>
+              {weekDays.map((day) => (
+                <div
+                  key={day}
+                  className={`p-2 rounded-md ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} font-medium text-center text-xs`}
+                >
+                  {day}
                 </div>
-                {weekDays.map((day, index) => (
-                  <Droppable key={`${index}-${hour}`} droppableId={`${index}-${hour}`}>
-                    {(provided, snapshot) => (
-                      <div
-                        ref={provided.innerRef}
-                        {...provided.droppableProps}
-                        className={`p-1 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} ${
-                          isCondensed ? 'h-12' : 'h-24'
-                        } transition-all duration-300 ${
-                          snapshot.isDraggingOver ? 'bg-blue-100 dark:bg-blue-900' : ''
-                        }`}
-                      >
-                        {events.filter(event => event.day === day && event.hour === hour).map((event, eventIndex) => (
-                          <Draggable key={event.id} draggableId={event.id} index={eventIndex}>
-                            {(provided, snapshot) => (
-                              <div
-                                ref={provided.innerRef}
-                                {...provided.draggableProps}
-                                {...provided.dragHandleProps}
-                                className={`${event.color} p-1 mb-1 rounded text-xs ${
-                                  snapshot.isDragging ? 'shadow-lg' : ''
-                                } ${isCondensed ? 'truncate' : ''}`}
-                                onClick={() => openEditModal(event)}
+              ))}
+              {/* Cellules horaires */}
+              {Array.from({ length: 11 }, (_, i) => i + 8).map((hour) => (
+                <React.Fragment key={hour}>
+                  <div className={`p-2 rounded-md ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} text-center text-xs`}>
+                    {`${hour}:00`}
+                  </div>
+                  {weekDays.map((day, dayIndex) => (
+                    <Droppable key={`${dayIndex}-${hour}`} droppableId={`${dayIndex}-${hour}`}>
+                      {(provided, snapshot) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          className={`
+                            rounded-md p-1
+                            ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}
+                            ${snapshot.isDraggingOver ? 'ring-1 ring-indigo-400' : ''}
+                            ${isCondensed ? 'h-10' : 'h-20'}
+                            transition-all duration-200
+                          `}
+                        >
+                          {events
+                            .filter(event => event.day === day && event.hour === hour)
+                            .map((event, index) => (
+                              <Draggable
+                                key={event.id}
+                                draggableId={event.id}
+                                index={index}
                               >
-                                <div className="font-medium truncate">{event.title}</div>
-                                {!isCondensed && (
-                                  <div className="text-xxs truncate">{event.professor}</div>
+                                {(provided, snapshot) => (
+                                  <div
+                                    ref={provided.innerRef}
+                                    {...provided.draggableProps}
+                                    {...provided.dragHandleProps}
+                                    onClick={() => openEditModal(event)}
+                                    className={`
+                                      ${event.color}
+                                      ${snapshot.isDragging ? 'ring-1 ring-offset-1 ring-indigo-500' : ''}
+                                      rounded-md p-1 mb-1 cursor-pointer
+                                      ${isCondensed ? 'truncate' : ''}
+                                      transform transition-all duration-200
+                                      hover:scale-[1.02] hover:shadow-sm
+                                    `}
+                                  >
+                                    <div className="font-medium text-xs truncate">
+                                      {event.title}
+                                    </div>
+                                    {!isCondensed && (
+                                      <>
+                                        <div className="flex items-center text-xs mt-0.5 opacity-90">
+                                          <User className="w-3 h-3 mr-1" />
+                                          <span className="text-[10px]">{event.professor}</span>
+                                        </div>
+                                        <div className="flex items-center text-xs mt-0.5 opacity-90">
+                                          <MapPin className="w-3 h-3 mr-1" />
+                                          <span className="text-[10px]">{event.room}</span>
+                                        </div>
+                                      </>
+                                    )}
+                                  </div>
                                 )}
-                              </div>
-                            )}
-                          </Draggable>
-                        ))}
-                        {provided.placeholder}
-                      </div>
-                    )}
-                  </Droppable>
-                ))}
-              </React.Fragment>
-            ))}
+                              </Draggable>
+                            ))}
+                          {provided.placeholder}
+                        </div>
+                      )}
+                    </Droppable>
+                  ))}
+                </React.Fragment>
+              ))}
+            </div>
           </div>
         </DragDropContext>
-        <div className="p-4 flex justify-end space-x-2">
-          <label className="relative cursor-pointer">
+                {/* Actions */}
+                <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
+          <label className="relative">
             <input
               type="file"
               className="hidden"
               onChange={handleFileImport}
               accept=".csv,.xlsx"
             />
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={`flex items-center px-4 py-2 ${
-                isDarkMode ? 'bg-blue-600 hover:bg-blue-500' : 'bg-blue-800 hover:bg-blue-900'
-              } text-white rounded-full text-sm font-medium`}
+            <button
+              className={`
+                flex items-center px-3 py-1.5 rounded-md text-xs font-medium
+                ${isDarkMode 
+                  ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+                  : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-600'}
+                transition-colors
+              `}
             >
-              <Upload size={16} className="mr-2" />
+              <Upload className="w-3 h-3 mr-1" />
               Importer
-            </motion.div>
+            </button>
           </label>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={`flex items-center px-4 py-2 ${
-              isDarkMode ? 'bg-blue-600 hover:bg-blue-500' : 'bg-blue-800 hover:bg-blue-900'
-            } text-white rounded-full text-sm font-medium`}
+          
+          <button
             onClick={addNewEvent}
+            className={`
+              flex items-center px-3 py-1.5 rounded-md text-xs font-medium
+              ${isDarkMode 
+                ? 'bg-indigo-600 hover:bg-indigo-500' 
+                : 'bg-indigo-600 hover:bg-indigo-500'}
+              text-white transition-colors
+            `}
           >
-            <Plus size={16} className="mr-2" />
+            <Plus className="w-3 h-3 mr-1" />
             Ajouter un cours
-          </motion.button>
+          </button>
         </div>
       </div>
 
@@ -287,60 +325,133 @@ const Edt: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
           >
             <motion.div
               initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.95 }}
-              className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} p-6 rounded-lg shadow-xl w-full max-w-md`}
+              className={`
+                w-full max-w-sm rounded-lg shadow-xl
+                ${isDarkMode ? 'bg-gray-800' : 'bg-white'}
+                overflow-hidden
+              `}
             >
-              <h2 className="text-2xl font-bold mb-4">Modifier l'événement</h2>
               <form onSubmit={handleEventUpdate}>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">Titre</label>
-                  <input
-                    type="text"
-                    value={editingEvent.title}
-                    onChange={(e) => setEditingEvent({ ...editingEvent, title: e.target.value })}
-                    className={`w-full p-2 border rounded ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'}`}
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">Professeur</label>
-                  <input
-                    type="text"
-                    value={editingEvent.professor}
-                    onChange={(e) => setEditingEvent({ ...editingEvent, professor: e.target.value })}
-                    className={`w-full p-2 border rounded ${isDarkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'}`}
-                  />
-                </div>
-                <div className="mb-4">
-                  <label className="block text-sm font-medium mb-1">Couleur</label>
-                  <div className="flex flex-wrap gap-2">
-                    {eventColors.map((color, index) => (
-                      <button
-                        key={index}
-                        type="button"
-                        className={`w-8 h-8 rounded-full ${color} ${editingEvent.color === color ? 'ring-2 ring-offset-2 ring-blue-500' : ''}`}
-                        onClick={() => setEditingEvent({ ...editingEvent, color })}
+                <div className="p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-sm font-medium">Modifier le cours</h3>
+                    <button
+                      type="button"
+                      onClick={closeEditModal}
+                      className="text-gray-400 hover:text-gray-500"
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-xs font-medium mb-1">
+                        Titre
+                      </label>
+                      <input
+                        type="text"
+                        value={editingEvent.title}
+                        onChange={e => setEditingEvent({
+                          ...editingEvent,
+                          title: e.target.value
+                        })}
+                        className={`
+                          w-full rounded-md p-1.5 text-sm border
+                          ${isDarkMode 
+                            ? 'bg-gray-700 border-gray-600' 
+                            : 'bg-white border-gray-300'}
+                        `}
                       />
-                    ))}
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">
+                        Professeur
+                      </label>
+                      <input
+                        type="text"
+                        value={editingEvent.professor}
+                        onChange={e => setEditingEvent({
+                          ...editingEvent,
+                          professor: e.target.value
+                        })}
+                        className={`
+                          w-full rounded-md p-1.5 text-sm border
+                          ${isDarkMode 
+                            ? 'bg-gray-700 border-gray-600' 
+                            : 'bg-white border-gray-300'}
+                        `}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">
+                        Salle
+                      </label>
+                      <input
+                        type="text"
+                        value={editingEvent.room}
+                        onChange={e => setEditingEvent({
+                          ...editingEvent,
+                          room: e.target.value
+                        })}
+                        className={`
+                          w-full rounded-md p-1.5 text-sm border
+                          ${isDarkMode 
+                            ? 'bg-gray-700 border-gray-600' 
+                            : 'bg-white border-gray-300'}
+                        `}
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium mb-1">
+                        Couleur
+                      </label>
+                      <ColorPreview color={editingEvent.color} />
+                      <select
+                        value={editingEvent.color}
+                        onChange={e => setEditingEvent({
+                          ...editingEvent,
+                          color: e.target.value
+                        })}
+                        className={`
+                          w-full rounded-md p-1.5 text-xs border
+                          ${isDarkMode 
+                            ? 'bg-gray-700 border-gray-600' 
+                            : 'bg-white border-gray-300'}
+                        `}
+                      >
+                        {eventColors.map(color => (
+                          <option key={color} value={color}>
+                            {color.split('from-')[1].split('-')[0]}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
-                <div className="flex justify-end space-x-2">
+                <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
                   <button
                     type="button"
                     onClick={closeEditModal}
-                    className={`px-4 py-2 rounded ${isDarkMode ? 'bg-gray-600 hover:bg-gray-500' : 'bg-gray-200 hover:bg-gray-300'}`}
+                    className={`
+                      px-3 py-1.5 rounded-md text-xs font-medium
+                      ${isDarkMode 
+                        ? 'bg-gray-700 hover:bg-gray-600' 
+                        : 'bg-gray-100 hover:bg-gray-200'}
+                    `}
                   >
                     Annuler
                   </button>
                   <button
                     type="submit"
-                    className={`px-4 py-2 ${isDarkMode ? 'bg-blue-600 hover:bg-blue-500' : 'bg-blue-500 hover:bg-blue-600'} text-white rounded`}
+                    className="px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium"
                   >
-                    Sauvegarder
+                    Enregistrer
                   </button>
                 </div>
               </form>
@@ -351,29 +462,5 @@ const Edt: React.FC = () => {
     </div>
   );
 };
-// Squelette de chargement
-const EdtSkeleton: React.FC = () => {
-  const { isDarkMode } = useTheme();
-  
-  return (
-    <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900' : 'bg-gray-100'} p-4`}>
-      <div className={`max-w-7xl mx-auto ${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-2xl shadow-2xl overflow-hidden animate-pulse`}>
-        <div className={`h-16 ${isDarkMode ? 'bg-gray-700' : 'bg-blue-600'}`}></div>
-        <div className="p-4">
-          <div className={`h-8 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded w-1/3 mb-4`}></div>
-          <div className="grid grid-cols-6 gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} className={`h-8 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} rounded`}></div>
-            ))}
-          </div>
-          <div className="mt-4 grid grid-cols-6 gap-4">
-            {[...Array(72)].map((_, i) => (
-              <div key={i} className={`h-24 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} rounded`}></div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-export default Edt;
+
+export default EdtListProfesseur;
