@@ -26,9 +26,7 @@ export default {
         '144': '36rem',
       },
       fontFamily: {
-        // Ajoutez des polices personnalisées ici
-        sans: ['Helvetica', 'Arial', 'sans-serif'],
-        serif: ['Georgia', 'Cambria', 'serif'],
+        sans: ['Poppins', 'sans-serif'],
       },
 
       keyframes: {
@@ -37,11 +35,11 @@ export default {
           '100%': { opacity: '1' },
         },
         modalSlideIn: {
-          '0%': { 
+          '0%': {
             opacity: '0',
             transform: 'translate(0, -1rem) scale(0.95)'
           },
-          '100%': { 
+          '100%': {
             opacity: '1',
             transform: 'translate(0, 0) scale(1)'
           },

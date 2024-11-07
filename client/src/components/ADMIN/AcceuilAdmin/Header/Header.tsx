@@ -1,10 +1,12 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import { useNavigate } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
 import { BellDot, MessageCircleMore, Search, Power, Plus, Menu, Sun, Moon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
+import axios from 'axios';
+
 import { useTheme } from '../../../../context/ThemeContext.tsx';
+
 
 interface UserProfile {
     nom: string;
@@ -202,13 +204,13 @@ const Header = () => {
                                         whileHover={{ scale: 1.05 }}
                                         whileTap={{ scale: 0.95 }}
                                         onClick={() => navigate('')}
-                                        className={`flex items-center px-4 py-2 rounded-full transition-all duration-300
+                                        className={`flex items-center px-4 py-2 rounded-md transition-all duration-300
                                         ${isDarkMode
                                                 ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
                                                 : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700'}`}
                                     >
-                                        <Plus className="w-5 h-5 mr-2" />
-                                        <span>Nouvelle publication</span>
+                                        <Plus className="w-4 h-4 mr-2" />
+                                        <span className="text-md">Nouvelle publication</span>
                                     </motion.button>
                                 </div>
                             </div>
@@ -221,7 +223,7 @@ const Header = () => {
                                             scale: isSearchFocused ? 1.02 : 1,
                                             boxShadow: isSearchFocused ? '0 4px 6px rgba(0, 0, 0, 0.1)' : 'none'
                                         }}
-                                        className={`relative rounded-full overflow-hidden
+                                        className={`relative rounded-md overflow-hidden
                                         ${isDarkMode ? 'bg-gray-800' : 'bg-gray-50'}`}
                                     >
                                         <input
@@ -414,9 +416,9 @@ const Header = () => {
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={handleLogout}
-                                    className="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white"
+                                    className="p-2 rounded-full bg-blue-900 hover:bg-blue-800 text-white"
                                 >
-                                    <Power className="h-5 w-5" />
+                                    <Power className="h-4 w-4" />
                                 </motion.button>
                             </div>
                         </div>

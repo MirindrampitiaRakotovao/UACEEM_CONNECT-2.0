@@ -6,6 +6,7 @@ import AcceuilProfesseur from './Pages/PROF/AcceuilProfesseur/AcceuilProfesseur'
 import SignalementList from './Pages/ADMIN/Signalement/SignalementList';
 import AcceuilAdmin from './Pages/ADMIN/AcceuilAdmin/AcceuilAdmin';
 import CourseList from './Pages/PROF/CourseManagement/CourseList';
+import ForumProfesseur from './Pages/PROF/Forum/ForumProfesseur';
 import UserModify from './Pages/ADMIN/UserManagment/UserModify';
 import AcceuilUser from './Pages/USER/AcceuilUser/AcceuilUser';
 import UserProfile from './Pages/ADMIN/Profile/UserProfile';
@@ -29,6 +30,7 @@ import { store } from './store'; // Assurez-vous d'avoir créé ce fichier
 
 
 // Assurez-vous d'avoir créé ce fichier
+
 
 
 const App: React.FC = () => {
@@ -61,6 +63,7 @@ const App: React.FC = () => {
           <Route path="/ArchiveList" element={<Archive />} />
           <Route path="/ParametreList" element={<Parametre />} />
           <Route path="/MessagesList" element={<Messages />} />
+          <Route path="/forumProfesseur" element={<ForumProfesseur />} />
           <Route path="/acceuilProfesseur" element={<ProtectedRoute><AcceuilProfesseur /></ProtectedRoute>} />
           <Route path="/acceuilAdmin" element={<ProtectedRoute><AcceuilAdmin /></ProtectedRoute>} />
           <Route path="/acceuilUser" element={<ProtectedRoute><AcceuilUser /></ProtectedRoute>} />

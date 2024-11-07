@@ -73,7 +73,7 @@ const SidebarProfesseur = () => {
                 break;
 
             case 'forums':
-                navigate('/forumList');
+                navigate('/forumProfesseur');
                 break;
 
             case 'calendar':

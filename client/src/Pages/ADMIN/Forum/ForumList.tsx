@@ -6,8 +6,8 @@ import Forums from '../../../components/ADMIN/Forums';
 
 
 const ForumList = () => {
-  return (
-<div className="flex h-screen">
+    return (
+        <div className="flex h-screen">
             {/* Sidebar fixe à gauche */}
             <div className="w-64 h-screen fixed left-0 top-0">
                 <Sidebar />
@@ -29,7 +29,7 @@ const ForumList = () => {
                 </div>
             </div>
         </div>
-  );
+    );
 };
 
 export default ForumList;
