@@ -81,7 +81,7 @@ const SidebarProfesseur = () => {
                 break;
 
             case 'feedback':
-                navigate('/FeedbackList');
+                navigate('/feedbackProfesseur');
                 break;
 
             case 'shield':

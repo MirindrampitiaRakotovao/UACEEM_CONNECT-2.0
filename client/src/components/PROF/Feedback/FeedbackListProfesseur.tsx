@@ -1,9 +1,13 @@
-import { Star, ThumbsUp, ThumbsDown, MessageCircle, Filter, Search, ChevronDown, Calendar, PenSquare } from 'lucide-react';
+import { Star, ThumbsUp, ThumbsDown, MessageCircle, Filter, Search, ChevronDown, Calendar, Flag, Sun, Moon } from 'lucide-react';
 import React, { useState } from 'react';
 
-import ModalAjoutFeedback from './Feedback/ModalAjoutFeedback';
+import { useTheme } from '../../../context/ThemeContext'; // Assurez-vous que le chemin est correct
 
 
+// Assurez-vous que le chemin est correct
+
+
+// Assurez-vous que le chemin est correct
 interface Feedback {
   id: string;
   studentId: string;
@@ -14,23 +18,13 @@ interface Feedback {
   likes: number;
   dislikes: number;
   responses: number;
+  reported?: boolean;
 }
-
-const FeedbackList: React.FC = () => {
+const FeedbackListProfesseur: React.FC = () => {
+  const { isDarkMode, toggleDarkMode } = useTheme();
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [sortBy, setSortBy] = useState('date');
-  const [isModalOpen, setIsModalOpen] = useState(false); // Nouvel état pour gérer l'ouverture du modal
-
-
-  const handleOpenModal = () => {
-    setIsModalOpen(true);
-  };
-  // Fonction pour fermer le modal
-  const handleCloseModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const feedbacks: Feedback[] = [
+  const [feedbacks, setFeedbacks] = useState<Feedback[]>([
     {
       id: '1',
       studentId: 'Anonyme',
@@ -41,6 +35,7 @@ const FeedbackList: React.FC = () => {
       likes: 24,
       dislikes: 2,
       responses: 3,
+      reported: false,
     },
     {
       id: '2',
@@ -52,6 +47,7 @@ const FeedbackList: React.FC = () => {
       likes: 15,
       dislikes: 1,
       responses: 2,
+      reported: false,
     },
     {
       id: '3',
@@ -63,29 +59,42 @@ const FeedbackList: React.FC = () => {
       likes: 8,
       dislikes: 3,
       responses: 1,
+      reported: false,
     },
-  ];
-
+  ]);
+  const handleReport = (feedbackId: string) => {
+    setFeedbacks(prevFeedbacks => 
+      prevFeedbacks.map(feedback => 
+        feedback.id === feedbackId 
+          ? { ...feedback, reported: !feedback.reported }
+          : feedback
+      )
+    );
+  };
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white p-3">
+    <div className={`min-h-screen p-3 `}>
       <div className="max-w-[1800px] mx-auto">
-        {/* Header avec bouton */}
-        <div className="mb-4 flex justify-between items-start">
+        {/* Header avec toggle mode sombre/clair */}
+        <div className="mb-4 flex justify-between items-center">
           <div>
-            <h1 className="text-lg font-medium text-gray-800 mb-1">Feedbacks reçus</h1>
-            <p className="text-xs text-gray-600">
-              Consultez et analysez les retours des professeurs
+            <h1 className={`text-lg font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'} mb-1`}>
+              Feedbacks reçus
+            </h1>
+            <p className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+              Consultez et analysez les retours de vos étudiants
             </p>
           </div>
-          <button
-            onClick={handleOpenModal} // Ajout du gestionnaire de clic
-            className="flex items-center gap-1 px-2.5 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-xs transition-colors"
+          <button 
+            onClick={toggleDarkMode}
+            className={`p-2 rounded-full transition-colors ${
+              isDarkMode 
+                ? 'bg-gray-700 hover:bg-gray-600 text-white' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
+            }`}
           >
-            <PenSquare className="w-3 h-3" />
-            Donner un feedback
+            {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
           </button>
         </div>
-
         {/* Stats Overview */}
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 mb-4">
           {[
@@ -94,11 +103,22 @@ const FeedbackList: React.FC = () => {
             { label: 'Total feedbacks', value: '12', icon: MessageCircle, color: 'bg-blue-500' },
             { label: 'Ce mois', value: '8', icon: Calendar, color: 'bg-purple-500' },
           ].map((stat, index) => (
-            <div key={index} className="bg-white rounded-md shadow-sm border border-gray-100 p-2">
+            <div 
+              key={index} 
+              className={`${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-700' 
+                  : 'bg-white border-gray-100'
+              } rounded-md shadow-sm border p-2`}
+            >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-xs text-gray-600">{stat.label}</p>
-                  <p className="text-base font-medium mt-0.5">{stat.value}</p>
+                  <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                    {stat.label}
+                  </p>
+                  <p className={`text-base font-medium mt-0.5 ${isDarkMode ? 'text-white' : ''}`}>
+                    {stat.value}
+                  </p>
                 </div>
                 <div className={`p-1.5 rounded-md ${stat.color} bg-opacity-10`}>
                   <stat.icon className={`w-3.5 h-3.5 ${stat.color.replace('bg-', 'text-')}`} />
@@ -107,22 +127,29 @@ const FeedbackList: React.FC = () => {
             </div>
           ))}
         </div>
-
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-2 mb-4">
           <div className="flex-1 relative">
-            <Search className="w-3 h-3 absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <Search className={`w-3 h-3 absolute left-2 top-1/2 transform -translate-y-1/2 ${isDarkMode ? 'text-gray-400' : 'text-gray-400'}`} />
             <input
               type="text"
               placeholder="Rechercher un feedback..."
-              className="w-full pl-7 pr-2 py-1.5 rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-xs"
+              className={`w-full pl-7 pr-2 py-1.5 rounded-md border ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-700 text-white focus:ring-gray-600' 
+                  : 'bg-white border-gray-200 focus:ring-blue-500'
+              } focus:outline-none focus:ring-1 focus:border-transparent text-xs`}
             />
           </div>
           <div className="flex gap-2">
             <select
               value={selectedFilter}
               onChange={(e) => setSelectedFilter(e.target.value)}
-              className="px-2 py-1.5 rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-xs"
+              className={`px-2 py-1.5 rounded-md border text-xs ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-700 text-white focus:ring-gray-600' 
+                  : 'bg-white border-gray-200 focus:ring-blue-500'
+              } focus:outline-none focus:ring-1 focus:border-transparent`}
             >
               <option value="all">Tous les cours</option>
               <option value="recent">Cours récents</option>
@@ -131,7 +158,11 @@ const FeedbackList: React.FC = () => {
             <select
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
-              className="px-2 py-1.5 rounded-md border border-gray-200 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-transparent text-xs"
+              className={`px-2 py-1.5 rounded-md border text-xs ${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-700 text-white focus:ring-gray-600' 
+                  : 'bg-white border-gray-200 focus:ring-blue-500'
+              } focus:outline-none focus:ring-1 focus:border-transparent`}
             >
               <option value="date">Date</option>
               <option value="rating">Note</option>
@@ -139,14 +170,20 @@ const FeedbackList: React.FC = () => {
             </select>
           </div>
         </div>
-
         {/* Feedback List */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
           {feedbacks.map((feedback) => (
-            <div key={feedback.id} className="bg-white rounded-md shadow-sm border border-gray-100 p-3 hover:shadow-md transition-shadow">
+            <div 
+              key={feedback.id} 
+              className={`${
+                isDarkMode 
+                  ? 'bg-gray-800 border-gray-700 text-white' 
+                  : 'bg-white border-gray-100'
+              } rounded-md shadow-sm border p-3 hover:shadow-md transition-shadow`}
+            >
               <div className="flex justify-between items-start mb-2">
                 <div>
-                  <h3 className="text-xs font-medium text-gray-800">{feedback.courseTitle}</h3>
+                  <h3 className="text-xs font-medium">{feedback.courseTitle}</h3>
                   <p className="text-[10px] text-gray-500">
                     {new Date(feedback.date).toLocaleDateString('fr-FR', {
                       year: 'numeric',
@@ -159,15 +196,16 @@ const FeedbackList: React.FC = () => {
                   {[...Array(5)].map((_, i) => (
                     <Star
                       key={i}
-                      className={`w-3 h-3 ${i < feedback.rating
+                      className={`w-3 h-3 ${
+                        i < feedback.rating
                           ? 'text-yellow-400 fill-current'
                           : 'text-gray-300'
-                        }`}
+                      }`}
                     />
                   ))}
                 </div>
               </div>
-              <p className="text-xs text-gray-600 mb-2 line-clamp-3">{feedback.comment}</p>
+              <p className="text-xs mb-2 line-clamp-3">{feedback.comment}</p>
               <div className="flex items-center gap-3 text-[10px] text-gray-500">
                 <div className="flex items-center gap-0.5">
                   <ThumbsUp className="w-3 h-3" />
@@ -179,22 +217,21 @@ const FeedbackList: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-0.5">
                   <MessageCircle className="w-3 h-3" />
-                  {feedback.responses} réponses
+                  {feedback.responses}
                 </div>
+                <button 
+                  onClick={() => handleReport(feedback.id)} 
+                  className={`flex items-center gap-0.5 ${feedback.reported ? 'text-red-500' : 'text-gray-500'}`}
+                >
+                  <Flag className="w-3 h-3" />
+                  {feedback.reported ? 'Signalé' : 'Signaler'}
+                </button>
               </div>
             </div>
           ))}
         </div>
-        {/* Modal Ajout Feedback */}
-        {isModalOpen && (
-          <ModalAjoutFeedback
-            isOpen={isModalOpen}
-            onClose={handleCloseModal}
-          />
-        )}
       </div>
     </div>
   );
 };
-
-export default FeedbackList;
+export default FeedbackListProfesseur;
