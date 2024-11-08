@@ -84,10 +84,6 @@ const SidebarProfesseur = () => {
                 navigate('/feedbackProfesseur');
                 break;
 
-            case 'shield':
-                navigate('/signalementList');
-                break;
-
             case 'bookmark':
                 navigate('/FavorisList');
                 break;
@@ -150,7 +146,6 @@ const SidebarProfesseur = () => {
                     { icon: LibraryBig, label: 'Forums', id: 'forums' },
                     { icon: CalendarRange, label: 'Emploi du temps', id: 'calendar' },
                     { icon: MessageSquareReply, label: 'Feed-back', id: 'feedback' },
-                    { icon: Shield, label: 'Signalements', id: 'shield' },
                     { icon: Bookmark, label: 'Favoris', id: 'bookmark' },
                     { icon: Archive, label: 'Archive', id: 'archive' },
                     { icon: Settings, label: 'Paramètres', id: 'settings' },

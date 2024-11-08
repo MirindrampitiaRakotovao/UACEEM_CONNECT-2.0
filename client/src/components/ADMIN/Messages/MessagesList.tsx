@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
-import { useTheme } from '../../context/ThemeContext';
+import { useTheme } from '../../../context/ThemeContext.tsx';
 
 
 interface Message {

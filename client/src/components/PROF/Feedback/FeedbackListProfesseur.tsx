@@ -8,6 +8,9 @@ import { useTheme } from '../../../context/ThemeContext'; // Assurez-vous que le
 
 
 // Assurez-vous que le chemin est correct
+
+
+// Assurez-vous que le chemin est correct
 interface Feedback {
   id: string;
   studentId: string;
@@ -84,16 +87,7 @@ const FeedbackListProfesseur: React.FC = () => {
               Consultez et analysez les retours de vos étudiants
             </p>
           </div>
-          <button 
-            onClick={toggleDarkMode}
-            className={`p-2 rounded-full transition-colors ${
-              isDarkMode 
-                ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-            }`}
-          >
-            {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
-          </button>
+          
         </div>
         {/* Stats Overview */}
         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2 mb-4">

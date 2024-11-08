@@ -347,7 +347,7 @@ const Header = () => {
                                                 initial={{ opacity: 0, y: 10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                                 exit={{ opacity: 0, y: 10 }}
-                                                onClick={() => handleMessageClick(messages.id)}
+                                                
                                                 className={`absolute right-0 mt-3 w-96 rounded-xl shadow-lg overflow-hidden
                     ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
                                             >
@@ -356,7 +356,9 @@ const Header = () => {
                                                         <h3 className={`font-semibold ${isDarkMode ? 'text-white' : 'text-gray-900'}`}>
                                                             Messages
                                                         </h3>
-                                                        <span className="text-xs text-blue-500 cursor-pointer hover:text-blue-600">
+                                                        <span
+                                                            onClick={() => handleMessageClick(messages.id)}
+                                                            className="text-xs text-blue-500 cursor-pointer hover:text-blue-600">
                                                             Voir tous les messages
                                                         </span>
                                                     </div>

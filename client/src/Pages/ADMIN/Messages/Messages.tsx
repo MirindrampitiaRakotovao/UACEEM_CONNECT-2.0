@@ -2,7 +2,8 @@ import React from 'react';
 
 import Sidebar from '../../../components/ADMIN/AcceuilAdmin/Sidebar/Sidebar';
 import Header from '../../../components/ADMIN/AcceuilAdmin/Header/Header';
-import MessagesList from '../../../components/ADMIN/MessagesList';
+import MessagesView from '../../../components/ADMIN/Messages/MessagesView.tsx';
+import MessagesList from '../../../components/ADMIN/Messages/MessagesList.tsx';
 
 
 const Messages = () => {
@@ -25,6 +26,7 @@ const Messages = () => {
           {/* Feed central */}
           <div className="flex-1 p-6">
             <MessagesList />
+            
           </div>
         </div>
       </div>

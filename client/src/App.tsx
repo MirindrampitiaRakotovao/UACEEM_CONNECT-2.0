@@ -14,6 +14,7 @@ import UserProfile from './Pages/ADMIN/Profile/UserProfile';
 import UserList from './Pages/ADMIN/UserManagment/UserList';
 import EmploiDuTemps from './Pages/ADMIN/EDT/EmploiDuTemps';
 import Parametre from './Pages/ADMIN/Parametres/Parametre';
+import MessagesView from './components/ADMIN/Messages/MessagesView.tsx';
 import EdtProfesseur from './Pages/PROF/EDT/EdtProfesseur';
 import UserAdd from './Pages/ADMIN/UserManagment/UserAdd';
 // Pages
@@ -29,6 +30,12 @@ import Archive from './Pages/ADMIN/Archive/Archive';
 import { useTheme } from './context/ThemeContext';
 import Form from './components/Form';
 import { store } from './store'; // Assurez-vous d'avoir créé ce fichier
+
+
+// Assurez-vous d'avoir créé ce fichier
+
+
+// Assurez-vous d'avoir créé ce fichier
 
 
 // Assurez-vous d'avoir créé ce fichier
@@ -68,6 +75,7 @@ const App: React.FC = () => {
           <Route path="/ArchiveList" element={<Archive />} />
           <Route path="/ParametreList" element={<Parametre />} />
           <Route path="/MessagesList" element={<Messages />} />
+          <Route path="/MessagesView/:id" element={<MessagesView />} />
           <Route path="/forumProfesseur" element={<ForumProfesseur />} />
           <Route path="/edtProfesseur" element={<EdtProfesseur />} />
           <Route path="/feedbackProfesseur" element={<FeedbackProfesseur />} />
