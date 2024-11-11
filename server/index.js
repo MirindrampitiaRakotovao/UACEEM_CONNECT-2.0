@@ -1,24 +1,52 @@
+const { Sequelize, Op } = require('sequelize');
 const express = require('express');
-const http = require('http'); // Importer le module http
+const http = require('http');
 const cors = require('cors');
 const path = require('path');
-const { initSocket } = require('./socket'); // Importer initSocket
+const { initSocket } = require('./socket');
+const multer = require('multer');
 
 const app = express();
 
-// Middleware CORS
+// Configuration CORS améliorée
 app.use(cors({
   origin: 'http://localhost:5173',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
 }));
 
-// Middleware pour parser le JSON du corps des requêtes
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Augmenter les limites pour les fichiers
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ 
+  extended: true,
+  limit: '50mb'
+}));
 
 // Connexion à la base de données
 require('./connectDB');
+
+// Configuration de multer pour la gestion des fichiers
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+
+// Configuration du middleware multer
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB max
+  }
+});
+
+// Servir les fichiers statiques
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Importer les routes
 const personnelRouter = require('./src/routes/personnel');
@@ -38,9 +66,9 @@ const tousPersonnelRoutes = require('./src/routes/tousPersonnelRoutes');
 const reactionRoutes = require('./src/routes/reactionRoutes');
 const commentairesRoutes = require('./src/routes/commentairesRoutes');
 const notificationsRoutes = require('./src/routes/notificationRoutes');
-
-// Servir le répertoire 'uploads' comme fichiers statiques
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+const messageRoutes = require('./src/routes/messageRoutes');
+const forumRoutes = require('./src/routes/forumRoutes');
+const importRoute = require('./src/routes/importRoute');
 
 // Définir les routes
 app.use('/api/personnel', personnelRouter);
@@ -60,13 +88,50 @@ app.use('/api', tousPersonnelRoutes);
 app.use('/api/reactions', reactionRoutes);
 app.use('/api/commentaires', commentairesRoutes);
 app.use('/api/notif', notificationsRoutes);
+app.use('/api', forumRoutes);
+app.use('/api', importRoute);
 
-// Créer le serveur HTTP et initialiser Socket.IO
+// Créer le serveur HTTP
 const server = http.createServer(app);
-initSocket(server);
+
+// Initialiser Socket.IO
+const io = initSocket(server);
+
+// Configuration des routes de messages avec Socket.IO
+app.use('/api', messageRoutes(io));
+
+// Gestion globale des erreurs
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  if (err instanceof multer.MulterError) {
+    return res.status(400).json({
+      message: "Erreur lors du téléchargement du fichier",
+      error: err.message
+    });
+  }
+  res.status(500).json({
+    message: 'Une erreur est survenue',
+    error: err.message
+  });
+});
+
+// Créer le dossier uploads s'il n'existe pas
+const fs = require('fs');
+if (!fs.existsSync('uploads')) {
+  fs.mkdirSync('uploads');
+}
 
 // Lancer le serveur
-server.listen(5000, () => {
-  console.log('Serveur en marche sur le port 5000');
-  console.log('Socket.IO fonctionne correctement.'); // Log pour confirmer le bon fonctionnement de Socket.IO
+const PORT = process.env.PORT || 5000;
+server.listen(PORT, () => {
+  console.log(`Serveur en marche sur le port ${PORT}`);
+  console.log('Socket.IO et gestion des fichiers configurés correctement.');
+});
+
+// Gestion propre de l'arrêt du serveur
+process.on('SIGTERM', () => {
+  server.close(() => {
+    console.log('Serveur arrêté proprement');
+    process.exit(0);
+  });
 });
