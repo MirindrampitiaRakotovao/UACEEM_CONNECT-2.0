@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Message } = require('../models'); // Importez le modèle Message
 const MessageController = require('../controllers/messageController');
-const upload = require('../middleware/uploads'); // Importer le middleware d'upload
+const {uploadMultiple} = require('../middleware/uploads'); // Importer le middleware d'upload
 const authMiddleware = require('../middleware/authMiddleware');
 const { getIO } = require('../../socket'); // Importez getIO
 module.exports = (io) => {
@@ -10,7 +10,7 @@ module.exports = (io) => {
   // Route pour envoyer un message avec fichiers
   router.post('/messages', 
     authMiddleware.authenticate, 
-    upload.array('fichiers', 5), // Limiter à 5 fichiers maximum
+    uploadMultiple('fichiers', 5), // Limiter à 5 fichiers maximum
     messageController.envoyerMessage.bind(messageController)
   );
   // Route pour récupérer les messages d'un destinataire spécifique

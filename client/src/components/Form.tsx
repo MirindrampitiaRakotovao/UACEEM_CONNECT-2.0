@@ -1,11 +1,13 @@
+import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 import React, { useState, ChangeEvent, FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
-import LOGO from '/assets/img/Logo Konnektea Bleu.png';
-import Cookies from 'js-cookie';
 import { toast } from 'react-toastify';
+import Cookies from 'js-cookie';
+import axios from 'axios';
+
 import { useTheme } from '../../src/context/ThemeContext';
-import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
+import LOGO from '/assets/img/Logo Konnektea Bleu.png';
+
 
 interface FormState {
   nomUtilisateur: string;
@@ -69,7 +71,7 @@ const Form: React.FC = () => {
         const routes = {
           admin: '/acceuilAdmin',
           professeur: '/acceuilProfesseur',
-          president_club: '/acceuilClub',
+          etudiant: '/acceuilClub',
           president_association: '/acceuilAssociation'
         };
 

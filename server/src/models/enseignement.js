@@ -1,13 +1,24 @@
 'use strict';
 const { Model } = require('sequelize');
+
 module.exports = (sequelize, DataTypes) => {
   class Enseignement extends Model {
     static associate(models) {
-      // Vous pouvez ajouter des associations ici si nécessaire
-      // Par exemple :
-      // this.belongsTo(models.Departement, { foreignKey: 'departementId', as: 'departement' });
+      this.hasMany(models.Cours, {
+        foreignKey: 'enseignementId',
+        as: 'cours'
+      });
+
+      this.belongsTo(models.Personnel, { 
+        foreignKey: {
+          name: 'personnelId',
+          allowNull: true
+        }, 
+        as: 'personnel' 
+      });
     }
   }
+
   Enseignement.init({
     id: {
       type: DataTypes.UUID,
@@ -19,7 +30,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notNull: { msg: "L'année universitaire est obligatoire" },
         notEmpty: { msg: "L'année universitaire ne peut pas être vide" }
       }
     },
@@ -27,7 +37,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notNull: { msg: "Le niveau est obligatoire" },
         notEmpty: { msg: "Le niveau ne peut pas être vide" }
       }
     },
@@ -35,7 +44,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notNull: { msg: "La mention est obligatoire" },
         notEmpty: { msg: "La mention ne peut pas être vide" }
       }
     },
@@ -43,7 +51,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        notNull: { msg: "Le semestre est obligatoire" },
         isInt: { msg: "Le semestre doit être un nombre entier" },
         min: { args: [1], msg: "Le semestre doit être au moins 1" },
         max: { args: [6], msg: "Le semestre ne peut pas dépasser 6" }
@@ -53,7 +60,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.ENUM('Fondamentale', 'Découverte', 'Méthodologie'),
       allowNull: false,
       validate: {
-        notNull: { msg: "Le type d'UE est obligatoire" },
         isIn: {
           args: [['Fondamentale', 'Découverte', 'Méthodologie']],
           msg: "Le type d'UE doit être Fondamentale, Découverte ou Méthodologie"
@@ -64,7 +70,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING,
       allowNull: false,
       validate: {
-        notNull: { msg: "Le nom de la matière est obligatoire" },
         notEmpty: { msg: "Le nom de la matière ne peut pas être vide" }
       }
     },
@@ -86,7 +91,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.INTEGER,
       allowNull: false,
       validate: {
-        notNull: { msg: "Le volume horaire total est obligatoire" },
         min: { args: [0], msg: "Le volume horaire total doit être positif" }
       }
     },
@@ -94,7 +98,6 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
-        notNull: { msg: "Les crédits sont obligatoires" },
         min: { args: [0], msg: "Les crédits doivent être positifs" }
       }
     },
@@ -102,17 +105,20 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.FLOAT,
       allowNull: false,
       validate: {
-        notNull: { msg: "Le coefficient est obligatoire" },
         min: { args: [0], msg: "Le coefficient doit être positif" }
+      }
+    },
+    personnelId: {
+      type: DataTypes.UUID,
+      allowNull: true,
+      references: {
+        model: 'Personnel',
+        key: 'id'
       }
     },
     nomEnseignant: {
       type: DataTypes.STRING,
-      allowNull: true,
-      validate: {
-        notNull: { msg: "Le nom de l'enseignant est obligatoire" },
-        notEmpty: { msg: "Le nom de l'enseignant ne peut pas être vide" }
-      }
+      allowNull: true
     },
     prenomEnseignant: {
       type: DataTypes.STRING,
@@ -126,7 +132,8 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'Enseignement',
     tableName: 'enseignements',
-    timestamps: true  // Ajout des timestamps createdAt et updatedAt
+    timestamps: true
   });
+
   return Enseignement;
 };

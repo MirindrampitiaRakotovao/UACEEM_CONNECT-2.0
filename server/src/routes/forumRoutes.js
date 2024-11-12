@@ -3,12 +3,12 @@ const express = require('express');
 const router = express.Router();
 const forumController = require('../controllers/forumController');
 const authMiddleware = require('../middleware/authMiddleware');
-const upload = require('../middleware/uploads');
+const {uploadMultiple} = require('../middleware/uploads');
 
 // Routes pour les forums
 router.post('/forums', 
   authMiddleware.authenticate,
-  upload.array('fichiers', 5), // Limite à 5 fichiers
+  uploadMultiple('fichiers', 5), // Limite à 5 fichiers
   forumController.creerForum
 );
 

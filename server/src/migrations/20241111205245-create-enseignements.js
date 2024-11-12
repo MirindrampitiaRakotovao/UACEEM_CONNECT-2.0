@@ -52,6 +52,16 @@ module.exports = {
         type: Sequelize.FLOAT,
         allowNull: false
       },
+      personnelId: {
+        type: Sequelize.UUID,
+        allowNull: true,
+        references: {
+          model: 'personnel',
+          key: 'id'
+        },
+        onUpdate: 'CASCADE',
+        onDelete: 'SET NULL'
+      },
       nomEnseignant: {
         type: Sequelize.STRING,
         allowNull: true

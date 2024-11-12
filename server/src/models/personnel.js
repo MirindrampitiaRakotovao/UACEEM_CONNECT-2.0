@@ -12,6 +12,14 @@ module.exports = (sequelize, DataTypes) => {
 
       // Association avec le modèle Commentaire
       this.hasMany(models.Commentaire, { foreignKey: 'auteurId', as: 'commentaires' });
+
+      this.hasMany(models.Enseignement, { 
+        foreignKey: {
+          name: 'personnelId',
+          allowNull: true
+        }, 
+        as: 'enseignements' 
+      });
     }
   }
 
@@ -129,13 +137,13 @@ module.exports = (sequelize, DataTypes) => {
       },
     },
     role: {
-      type: DataTypes.ENUM('admin', 'professeur', 'president_club', 'president_association', 'utilisateur_simple'),
+      type: DataTypes.ENUM('admin', 'professeur', 'etudiant', 'president_association', 'utilisateur_simple'),
       allowNull: false,
       validate: {
         notNull: { msg: 'Le rôle est obligatoire' },
         isIn: {
-          args: [['admin', 'professeur', 'president_club', 'president_association', 'utilisateur_simple']],
-          msg: 'Le rôle doit être l’une de ces valeurs : admin, professeur, president_club, president_association, utilisateur_simple',
+          args: [['admin', 'professeur', 'etudiant', 'president_association', 'utilisateur_simple']],
+          msg: 'Le rôle doit être l’une de ces valeurs : admin, professeur, etudiant, president_association, utilisateur_simple',
         },
       },
     },

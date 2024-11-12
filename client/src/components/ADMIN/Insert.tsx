@@ -1,9 +1,12 @@
+import { User, Upload, ArrowLeft, Save, Sun, Moon } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Upload, ArrowLeft, Save, Sun, Moon } from 'lucide-react';
 import { toast } from 'react-toastify';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import { useTheme } from '../../context/ThemeContext.tsx';
+
+
 interface FormData {
   nom: string;
   prenom: string;
@@ -241,7 +244,7 @@ const Insert: React.FC = () => {
                       { value: "", label: "Sélectionnez un rôle" },
                       { value: "admin", label: "Administrateur" },
                       { value: "professeur", label: "Professeur" },
-                      { value: "president_club", label: "Président de Club" },
+                      { value: "etudiant", label: "Etudiant" },
                       { value: "president_association", label: "Président d'Association" },
                       { value: "utilisateur_simple", label: "Utilisateur Simple" },
                     ]}

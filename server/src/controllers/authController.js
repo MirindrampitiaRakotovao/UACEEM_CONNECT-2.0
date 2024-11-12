@@ -45,8 +45,8 @@ const authController = {
         case 'professeur':
           messageBienvenue = 'Bienvenue Professeur !';
           break;
-        case 'president_club':
-          messageBienvenue = 'Bienvenue President du club !';
+        case 'etudiant':
+          messageBienvenue = 'Bienvenue Etudiant !';
           break;
         case 'president_association':
           messageBienvenue = 'Bienvenue President Association !';
