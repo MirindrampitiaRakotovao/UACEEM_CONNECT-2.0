@@ -1,16 +1,12 @@
-// middlewares/upload.js
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-
 // Configuration du stockage
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         const uploadDir = 'uploads/';
         // Créer le dossier s'il n'existe pas
-        if (!fs.existsSync(uploadDir)) {
-            fs.mkdirSync(uploadDir, { recursive: true });
-        }
+        fs.mkdirSync(uploadDir, { recursive: true });
         cb(null, uploadDir);
     },
     filename: (req, file, cb) => {
@@ -18,54 +14,62 @@ const storage = multer.diskStorage({
         cb(null, file.fieldname + '-' + uniqueSuffix + path.extname(file.originalname));
     }
 });
-
-// Configuration de base de Multer
-const multerConfig = {
-    storage: storage,
-    limits: {
-        fileSize: 10 * 1024 * 1024 // Limite de 10 Mo par fichier
-    },
-    fileFilter: (req, file, cb) => {
-        const allowedTypes = [
-            'image/jpeg',
-            'image/png',
-            'image/gif',
-            'application/pdf',
-            'application/msword',
-            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'audio/mpeg',
-            'audio/wav',
-            'application/vnd.ms-excel',
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            'application/vnd.ms-powerpoint',
-            'application/vnd.openxmlformats-officedocument.presentationml.presentation'
-        ];
-
-        if (allowedTypes.includes(file.mimetype)) {
-            cb(null, true);
-        } else {
-            cb(new Error('Type de fichier non supporté.'), false);
-        }
+// Configuration des types de fichiers autorisés
+const fileFilter = (req, file, cb) => {
+    const allowedTypes = [
+        'image/jpeg',
+        'image/png',
+        'image/gif',
+        'application/pdf',
+        'application/msword',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'audio/mpeg',
+        'audio/wav',
+        'audio/webm',
+        'application/vnd.ms-excel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.ms-powerpoint',
+        'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+    ];
+    if (allowedTypes.includes(file.mimetype)) {
+        cb(null, true);
+    } else {
+        cb(new Error('Type de fichier non supporté'), false);
     }
 };
-
-// Créer l'instance multer
-const uploadInstance = multer(multerConfig);
-
+// Configuration de Multer
+const createMulterMiddleware = (options = {}) => {
+    const config = {
+        storage: storage,
+        fileFilter: fileFilter,
+        limits: {
+            fileSize: 10 * 1024 * 1024, // 10 Mo
+            ...options.limits
+        }
+    };
+    return multer(config);
+};
 // Middleware de gestion des erreurs
 const handleUploadError = (err, req, res, next) => {
     if (err instanceof multer.MulterError) {
-        if (err.code === 'LIMIT_FILE_SIZE') {
-            return res.status(400).json({
-                success: false,
-                message: 'Le fichier est trop volumineux. Taille maximum: 10 Mo'
-            });
+        switch (err.code) {
+            case 'LIMIT_FILE_SIZE':
+                return res.status(400).json({
+                    success: false,
+                    message: 'Le fichier est trop volumineux. Taille maximum: 10 Mo'
+                });
+            case 'LIMIT_UNEXPECTED_FILE':
+                return res.status(400).json({
+                    success: false,
+                    message: 'Nombre de fichiers incorrect'
+                });
+            default:
+                return res.status(400).json({
+                    success: false,
+                    message: 'Erreur lors du téléchargement du fichier',
+                    error: err.message
+                });
         }
-        return res.status(400).json({
-            success: false,
-            message: 'Erreur lors du téléchargement du fichier',
-            error: err.message
-        });
     } else if (err) {
         return res.status(400).json({
             success: false,
@@ -74,21 +78,32 @@ const handleUploadError = (err, req, res, next) => {
     }
     next();
 };
-
-// Exportation des différentes configurations d'upload
+// Exportation des méthodes d'upload
 module.exports = {
-    // Pour un seul fichier
-    uploadSingle: (fieldName) => uploadInstance.single(fieldName),
-
-    // Pour plusieurs fichiers
-    uploadMultiple: (fieldName, maxCount = 5) => uploadInstance.array(fieldName, maxCount),
-
-    // Pour différents champs de fichiers
-    uploadFields: (fields) => uploadInstance.fields(fields),
-
-    // Upload de base
-    upload: uploadInstance,
-
-    // Gestionnaire d'erreurs
+    // Upload d'un seul fichier
+    uploadSingle: (fieldName) => {
+        const upload = createMulterMiddleware();
+        return [
+            upload.single(fieldName),
+            handleUploadError
+        ];
+    },
+    // Upload de plusieurs fichiers
+    uploadMultiple: (fieldName, maxCount = 5) => {
+        const upload = createMulterMiddleware();
+        return [
+            upload.array(fieldName, maxCount),
+            handleUploadError
+        ];
+    },
+    // Upload de fichiers par champs
+    uploadFields: (fields) => {
+        const upload = createMulterMiddleware();
+        return [
+            upload.fields(fields),
+            handleUploadError
+        ];
+    },
+    // Middleware de gestion des erreurs
     handleUploadError
 };

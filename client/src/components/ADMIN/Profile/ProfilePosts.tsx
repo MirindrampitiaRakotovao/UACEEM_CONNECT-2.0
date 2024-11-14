@@ -1,12 +1,14 @@
-import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
 import { Heart, MessageCircle, Share2, ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
-import { useTheme } from '../../../context/ThemeContext.tsx';
-import io from 'socket.io-client';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import io from 'socket.io-client';
+import Cookies from 'js-cookie';
+import axios from 'axios';
 
-const socket = io('http://localhost:5000');
+import { useTheme } from '../../../context/ThemeContext.tsx';
+
+
+const socket = io('http://localhost:5173');
 
 interface User {
   nomUtilisateur: string;

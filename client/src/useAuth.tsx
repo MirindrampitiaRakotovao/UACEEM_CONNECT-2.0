@@ -72,8 +72,11 @@ const useAuth = () => {
       navigate('/'); // Redirigez vers la page de connexion
     }
   }, [navigate]);
+  const getToken = () => {
+    return Cookies.get('token') || null;
+  };
 
-  return { user, loading, error };
+  return { user, loading, error, getToken };
 };
 
 export default useAuth;

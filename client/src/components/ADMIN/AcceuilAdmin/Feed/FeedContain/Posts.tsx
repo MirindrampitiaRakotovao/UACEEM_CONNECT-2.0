@@ -1,16 +1,21 @@
+import 'moment/locale/fr'; // Importer la localisation française
+
+import { Heart, MessageCircle, Share, MoreVertical, Send, X, CircleAlert, MoreHorizontal, ChevronRight, ChevronLeft } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
-import {useNavigate} from "react-router-dom";
-import axios from 'axios';
-import Cookies from 'js-cookie';
-import {Heart, MessageCircle, Share, MoreVertical, Send, X, CircleAlert, MoreHorizontal, ChevronRight, ChevronLeft} from 'lucide-react';
+import { useNavigate } from "react-router-dom";
 import io from 'socket.io-client';
-import { useTheme } from '../../../../../context/ThemeContext.tsx';
+import Cookies from 'js-cookie';
 import moment from 'moment';
-import 'moment/locale/fr';  // Importer la localisation française
+import axios from 'axios';
+
+import { useTheme } from '../../../../../context/ThemeContext.tsx';
+
+
+// Importer la localisation française
 moment.locale('fr');  // Configurer moment pour utiliser le français
 import { motion, AnimatePresence } from 'framer-motion';
 
-const socket = io('http://localhost:5000');
+const socket = io('http://localhost:5173');
 
 // Définir les interfaces pour TypeScript
 interface User {
@@ -676,7 +681,7 @@ const PublicationCard: React.FC<{
                                         e.stopPropagation();
                                         nextImage();
                                     }}
-                                >
+                                >       
                                     <ChevronRight size={24} />
                                 </button>
                                 {/* Indicateurs de position */}

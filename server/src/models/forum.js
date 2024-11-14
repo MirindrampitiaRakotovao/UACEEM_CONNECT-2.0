@@ -84,9 +84,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
       set(value) {
-        // Assure que value est un tableau
-        const motsCles = Array.isArray(value) ? value : 
-                         (typeof value === 'string' ? JSON.parse(value) : []);
+        const motsCles = Array.isArray(value) ? value : (typeof value === 'string' ? JSON.parse(value) : []);
         this.setDataValue('motsCles', JSON.stringify(motsCles));
       },
       validate: {
@@ -117,9 +115,7 @@ module.exports = (sequelize, DataTypes) => {
         }
       },
       set(value) {
-        // Assure que value est un tableau
-        const pieceJointes = Array.isArray(value) ? value : 
-                             (typeof value === 'string' ? JSON.parse(value) : []);
+        const pieceJointes = Array.isArray(value) ? value : (typeof value === 'string' ? JSON.parse(value) : []);
         this.setDataValue('pieceJointes', JSON.stringify(pieceJointes));
       },
       validate: {
@@ -135,6 +131,17 @@ module.exports = (sequelize, DataTypes) => {
             }
           } catch (error) {
             throw new Error(error.message);
+          }
+        }
+      }
+    },
+    audio: {
+      type: DataTypes.TEXT, // ou JSON selon votre besoin
+      allowNull: true,
+      validate: {
+        isValidAudio(value) {
+          if (value && typeof value !== 'string') {
+            throw new Error('L\'audio doit être une chaîne de caractères');
           }
         }
       }
@@ -170,9 +177,7 @@ module.exports = (sequelize, DataTypes) => {
     timestamps: true,
     paranoid: true,
     hooks: {
-      // Avant validation, normaliser les données
       beforeValidate: (forum, options) => {
-        // Convertir les mots-clés et pièces jointes si nécessaire
         if (typeof forum.motsCles === 'string') {
           try {
             forum.motsCles = JSON.parse(forum.motsCles);
@@ -187,7 +192,6 @@ module.exports = (sequelize, DataTypes) => {
             forum.pieceJointes = [];
           }
         }
-        // Valeur par défaut pour la catégorie
         if (!forum.categorie) {
           forum.categorie = 'Général';
         }
