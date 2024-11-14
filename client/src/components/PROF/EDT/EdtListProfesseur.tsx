@@ -1,182 +1,259 @@
-import { ChevronLeft, ChevronRight, Clock, MapPin, Calendar, List, Grid, Moon, Sun } from 'lucide-react';
-import React, { useState } from 'react';
+import { Clock, MapPin, Calendar, List, Grid, X, User } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 
 import { useTheme } from '../../../context/ThemeContext';
+import apiService from '../../../services/api';
 
 
-const EdtListProfesseur = () => {
-  const [viewMode, setViewMode] = useState('grid');
-  const { isDarkMode, toggleDarkMode } = useTheme();
+// Types
+interface Professeur {
+  nom: string;
+  prenom: string;
+}
+interface EmploiDuTemps {
+  id: string;
+  mention: string;
+  niveau: string;
+  jour: string;s
+  heureDebut: string;
+  heureFin: string;
+  nomMatiere: string;
+  salle: string;
+  couleur: string;
+  professeur: Professeur;
+}
+interface EmploisGroupes {
+  [mention: string]: {
+    [niveau: string]: EmploiDuTemps[];
+  };
+}
+const EdtListProfesseur: React.FC = () => {
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
+  const { isDarkMode } = useTheme();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [emploisGroupes, setEmploisGroupes] = useState<EmploisGroupes>({});
+  const [selectedEvent, setSelectedEvent] = useState<EmploiDuTemps | null>(null);
   const timeSlots = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
   const days = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
-  
-  const courses = [
-    {
-      day: 'Lundi',
-      startTime: '08:00',
-      endTime: '10:00',
-      course: 'Mathématiques',
-      room: 'A101',
-      color: 'bg-yellow-100/80 dark:bg-yellow-900/30 border-yellow-200 dark:border-yellow-800'
-    },
-    {
-      day: 'Lundi',
-      startTime: '14:00',
-      endTime: '16:00',
-      course: 'Physique',
-      room: 'B203',
-      color: 'bg-gray-100/80 dark:bg-gray-800/30 border-gray-200 dark:border-gray-700'
-    },
-    {
-      day: 'Mardi',
-      startTime: '10:00',
-      endTime: '12:00',
-      course: 'Chimie',
-      room: 'C305',
-      color: 'bg-yellow-50/80 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800'
-    },
-  ];
+  useEffect(() => {
+    const fetchEmploiDuTemps = async () => {
+      try {
+        setLoading(true);
+        const response = await apiService.get<EmploisGroupes>('/list');
+        setEmploisGroupes(response.data);
+        setError(null);
+      } catch (err) {
+        setError("Erreur lors de la récupération des emplois du temps");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchEmploiDuTemps();
+  }, []);
+  const formatTimeDisplay = (time: string) => {
+    const timeParts = time.split(':');
+    return `${timeParts[0]}h${timeParts[1]}`;
+  };
+  const getFilteredEmploisTemps = (): EmploiDuTemps[] => {
+    const allEmplois: EmploiDuTemps[] = [];
+    Object.values(emploisGroupes).forEach(niveaux => {
+      Object.values(niveaux).forEach(emplois => {
+        allEmplois.push(...emplois);
+      });
+    });
+    return allEmplois;
+  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-500">{error}</div>
+      </div>
+    );
+  }
+  const filteredEmploisTemps = getFilteredEmploisTemps();
   return (
-    <div className={`min-h-screen ${
-      isDarkMode 
-        ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100' 
-        : 'bg-gradient-to-b from-white to-gray-100 text-gray-800'
-    }`}>
+    <div className={`min-h-screen ${isDarkMode
+      ? 'bg-gradient-to-b from-gray-900 to-gray-800 text-gray-100'
+      : 'bg-gradient-to-b from-white to-gray-100 text-gray-800'
+      }`}>
       <div className="max-w-[1600px] mx-auto p-2 sm:p-4">
         {/* Header */}
-        <div className={`${
-          isDarkMode ? 'bg-gray-800/50' : 'bg-white'
-        } rounded-lg shadow-sm p-4 mb-4`}>
+        <div className={`${isDarkMode ? 'bg-gray-800/50' : 'bg-white'} rounded-lg shadow-sm p-4 mb-4`}>
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div className="flex items-center gap-2">
               <Calendar className={`w-5 h-5 ${isDarkMode ? 'text-yellow-500' : 'text-yellow-600'}`} />
-              <h1 className="text-lg font-semibold">Emploi du temps - Prof. Dupont</h1>
+              <h1 className="text-lg font-semibold">Emploi du temps</h1>
             </div>
-            <div className="flex items-center gap-2 w-full sm:w-auto">
-              <button 
-                onClick={() => setViewMode('grid')} 
-                className={`p-1 rounded transition-colors ${
-                  viewMode === 'grid' 
-                    ? (isDarkMode ? 'bg-gray-700' : 'bg-gray-200') 
-                    : ''
-                }`}
-              >
-                <Grid className="w-4 h-4" />
-              </button>
-              <button 
-                onClick={() => setViewMode('list')} 
-                className={`p-1 rounded transition-colors ${
-                  viewMode === 'list' 
-                    ? (isDarkMode ? 'bg-gray-700' : 'bg-gray-200') 
-                    : ''
-                }`}
-              >
-                <List className="w-4 h-4" />
-              </button>
-              <div className={`flex items-center ${
-                isDarkMode ? 'bg-gray-700' : 'bg-gray-200'
-              } rounded px-2 py-1 flex-1 sm:flex-initial`}>
-                <ChevronLeft className="w-4 h-4 cursor-pointer" />
-                <span className="text-xs font-medium px-2">Semaine du 1 au 7 Mai</span>
-                <ChevronRight className="w-4 h-4 cursor-pointer" />
+            <div className="flex items-center gap-4 w-full sm:w-auto">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-2 rounded transition-colors ${viewMode === 'list' ? (isDarkMode ? 'bg-gray-700' : 'bg-gray-200') : ''
+                    }`}
+                >
+                  <List className="w-4 h-4" />
+                </button>
               </div>
-              <button 
-                onClick={toggleDarkMode} 
-                className={`p-1 rounded transition-colors ${
-                  isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'
-                }`}
-              >
-                {isDarkMode ? (
-                  <Sun size={18} className="text-gray-300" />
-                ) : (
-                  <Moon size={18} className="text-gray-600" />
-                )}
-              </button>
             </div>
           </div>
         </div>
-        {viewMode === 'grid' ? (
-          // Vue Grille
-          <div className={`${
-            isDarkMode ? 'bg-gray-800/50' : 'bg-white'
-          } rounded-lg shadow-sm overflow-x-auto`}>
-            <table className="w-full min-w-[1000px]">
-              <thead>
-                <tr>
-                  <th className={`p-2 ${
-                    isDarkMode ? 'border-gray-700' : 'border-gray-200'
-                  } border-b`}></th>
-                  {days.map((day) => (
-                    <th key={day} className={`p-2 ${
-                      isDarkMode ? 'border-gray-700 text-gray-300' : 'border-gray-200 text-gray-600'
-                    } border-b text-xs font-medium`}>{day}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {timeSlots.map((time) => (
-                  <tr key={time}>
-                    <td className={`p-2 ${
-                      isDarkMode ? 'border-gray-700 text-gray-400' : 'border-gray-200 text-gray-500'
-                    } border-r text-xs`}>{time}</td>
-                    {days.map((day) => {
-                      const course = courses.find(c => c.day === day && c.startTime === time);
-                      return (
-                        <td key={`${day}-${time}`} className={`p-1 ${
-                          isDarkMode ? 'border-gray-700' : 'border-gray-200'
-                        } border relative h-16`}>
-                          {course && (
-                            <div className={`absolute inset-0 m-1 ${course.color} rounded p-1 text-xs`}>
-                              <div className="font-medium">{course.course}</div>
-                              <div className="flex items-center mt-1">
-                                <MapPin className="w-3 h-3 mr-1" /> {course.room}
-                              </div>
+        {/* Content */}
+        {viewMode === 'list' ? (
+          <div className={`${isDarkMode ? 'bg-gray-800/50' : 'bg-white'} rounded-lg shadow-sm p-4`}>
+            {Object.entries(emploisGroupes).map(([mention, niveaux]) => (
+              <div key={mention} className="mb-6">
+                <h2 className="text-lg font-semibold mb-4">{mention}</h2>
+                {Object.entries(niveaux).map(([niveau, emplois]) => (
+                  <div key={`${mention}-${niveau}`} className="mb-4">
+                    <h3 className="text-sm font-medium mb-2">{niveau}</h3>
+                    <div className="space-y-2">
+                      {emplois.map((emploi) => (
+                        <div 
+                          key={emploi.id} 
+                          className={`${emploi.couleur} rounded-lg p-3 flex justify-between items-center`}
+                          onClick={() => setSelectedEvent(emploi)}
+                        >
+                          <div className="flex-grow">
+                            <div className="flex justify-between items-start">
+                              <span className="font-medium text-xs">{emploi.nomMatiere}</span>
+                              <span className="text-xs text-gray-600">
+                                {formatTimeDisplay(emploi.heureDebut)} - {formatTimeDisplay(emploi.heureFin)}
+                              </span>
                             </div>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          // Vue Liste
-          <div className={`${
-            isDarkMode ? 'bg-gray-800/50' : 'bg-white'
-          } rounded-lg shadow-sm p-4`}>
-            {days.map((day) => {
-              const dayCourses = courses.filter(c => c.day === day);
-              return (
-                <div key={day} className="mb-4 last:mb-0">
-                  <h3 className="text-sm font-medium mb-2">{day}</h3>
-                  {dayCourses.map((course, idx) => (
-                    <div key={idx} className={`${course.color} rounded p-2 mb-2 text-xs`}>
-                      <div className="flex justify-between items-start">
-                        <span className="font-medium">{course.course}</span>
-                        <span className={`${
-                          isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                        } flex items-center`}>
-                          <Clock className="w-3 h-3 mr-1" />
-                          {`${course.startTime} - ${course.endTime}`}
-                        </span>
-                      </div>
-                      <div className={`${
-                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                      } mt-1 flex items-center`}>
-                        <MapPin className="w-3 h-3 mr-1" /> {course.room}
-                      </div>
+                            <div className="mt-1 flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <MapPin className="w-3 h-3 text-gray-500" />
+                                <span className="text-xs">{emploi.salle}</span>
+                              </div>
+                              <span className="text-xs text-gray-600">{emploi.jour}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
+                ))}
+              </div>
+            ))}
+          </div>
+        ) : null}
+        {/* Modal de détails */}
+        {selectedEvent && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+            <div className={`${isDarkMode ? 'bg-gray-800' : 'bg-white'} rounded-lg p-6 max-w-md w-full`}>
+              <div className="flex justify-between items-start mb-4">
+                <div>
+                  <h2 className="text-lg font-semibold">{selectedEvent.nomMatiere}</h2>
+                  <p className="text-sm text-gray-600">{selectedEvent.mention} - {selectedEvent.niveau}</p>
                 </div>
-              );
-            })}
+                <button 
+                  onClick={() => setSelectedEvent(null)}
+                  className="text-gray-500 hover:text-gray-800"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <Clock className="w-5 h-5 text-gray-500" />
+                  <span>
+                    {formatTimeDisplay(selectedEvent.heureDebut)} - {formatTimeDisplay(selectedEvent.heureFin)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <MapPin className="w-5 h-5 text-gray-500" />
+                  <span>{selectedEvent.salle}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <Calendar className="w-5 h-5 text-gray-500" />
+                  <span>{selectedEvent.jour}</span>
+                </div>
+                {selectedEvent.professeur && (
+                  <div className="flex items-center gap-3">
+                    <User className="w-5 h-5 text-gray-500" />
+                    <span>
+                      {selectedEvent.professeur.nom} {selectedEvent.professeur.prenom}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
       </div>
     </div>
   );
 };
-
+// Fonction utilitaire pour obtenir une couleur dynamique
+const getColorForSubject = (matiere: string): string => {
+  const colorMap: { [key: string]: string } = {
+    'DROIT CIVIL I': 'bg-blue-100',
+    'DROIT CONSTITUTIONNEL I': 'bg-green-100',
+    'MACROECONOMIE': 'bg-red-100',
+    'GENRE ET DEVELOPPEMENT': 'bg-purple-100',
+    'CULTURE ET CIVILISATIONS MALAGASY': 'bg-yellow-100',
+    'DYNAMIQUE INTERCULTURELLE': 'bg-indigo-100',
+    'INFORMATIQUE': 'bg-pink-100',
+    'DEFAULT': 'bg-gray-100'
+  };
+  return colorMap[matiere.toUpperCase()] || colorMap['DEFAULT'];
+};
+// Composant de filtre optionnel
+const EmploiDuTempsFilter: React.FC<{
+  onFilterChange: (filters: {
+    mention?: string;
+    niveau?: string;
+    jour?: string;
+  }) => void;
+}> = ({ onFilterChange }) => {
+  const [filters, setFilters] = useState({
+    mention: '',
+    niveau: '',
+    jour: ''
+  });
+  const handleFilterChange = (key: string, value: string) => {
+    const newFilters = { ...filters, [key]: value };
+    setFilters(newFilters);
+    onFilterChange(newFilters);
+  };
+  return (
+    <div className="flex gap-4 mb-4">
+      <select 
+        value={filters.mention}
+        onChange={(e) => handleFilterChange('mention', e.target.value)}
+        className="p-2 border rounded"
+      >
+        <option value="">Toutes les mentions</option>
+        {/* Générer dynamiquement les options */}
+      </select>
+      <select 
+        value={filters.niveau}
+        onChange={(e) => handleFilterChange('niveau', e.target.value)}
+        className="p-2 border rounded"
+      >
+        <option value="">Tous les niveaux</option>
+        {/* Générer dynamiquement les options */}
+      </select>
+      <select 
+        value={filters.jour}
+        onChange={(e) => handleFilterChange('jour', e.target.value)}
+        className="p-2 border rounded"
+      >
+        <option value="">Tous les jours</option>
+        {['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'].map(jour => (
+          <option key={jour} value={jour}>{jour}</option>
+        ))}
+      </select>
+    </div>
+  );
+};
 export default EdtListProfesseur;

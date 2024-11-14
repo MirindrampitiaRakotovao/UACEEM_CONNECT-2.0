@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import axios from 'axios';
-import Cookies from 'js-cookie';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import Cookies from 'js-cookie';
+import axios from 'axios';
+
 
 interface User {
   id: string;
@@ -43,7 +44,7 @@ const useAuth = () => {
             case 'professeur':
               navigate('/acceuilProfesseur');
               break;
-            case 'president_club':
+            case 'etudiant':
               navigate('/acceuilClub');
               break;
             case 'president_association':

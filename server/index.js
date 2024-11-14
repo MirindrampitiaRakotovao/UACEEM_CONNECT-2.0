@@ -71,6 +71,7 @@ const forumRoutes = require('./src/routes/forumRoutes');
 const importRoute = require('./src/routes/importRoute');
 const coursRoute = require('./src/routes/coursRoutes');
 const feedbackRoute = require('./src/routes/feedbackRoutes');
+const EdtRoute = require('./src/routes/emploiDuTempsRoutes');
 
 // Définir les routes
 app.use('/api/personnel', personnelRouter);
@@ -94,6 +95,7 @@ app.use('/api', forumRoutes);
 app.use('/api', importRoute);
 app.use('/api', coursRoute);
 app.use('/api', feedbackRoute);
+app.use('/api', EdtRoute);
 
 // Créer le serveur HTTP
 const server = http.createServer(app);

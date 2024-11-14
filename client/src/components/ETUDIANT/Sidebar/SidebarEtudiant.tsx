@@ -1,12 +1,12 @@
-import { Archive, Bookmark, CalendarRange, House, LibraryBig, MessageSquareReply, Moon, Settings, Shield, Sun, Users } from 'lucide-react';
+import { Archive, Bookmark, BookOpenText, CalendarRange, House, LibraryBig, MessageSquareReply, Moon, Settings, Shield, Sun, Users } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import React, { useEffect, useState } from 'react';
 import Cookies from 'js-cookie';
 import axios from 'axios';
 
-import logo_sombre from '../../../../../public/assets/img/Logo Konnektea Bleu.png';
-import logo from '../../../../../public/assets/img/Logo Konnektea Blanc.png';
-import { useTheme } from '../../../../context/ThemeContext.tsx';
+import logo_sombre from '../../../../public/assets/img/Logo Konnektea Bleu.png';
+import logo from '../../../../public/assets/img/Logo Konnektea Blanc.png';
+import { useTheme } from '../../../context/ThemeContext';
 
 
 interface UserProfile {
@@ -15,7 +15,7 @@ interface UserProfile {
     role: string;
 }
 
-const Sidebar = () => {
+const SidebarEtudiant = () => {
     const { isDarkMode, toggleDarkMode } = useTheme();
     const [loadingProgress, setLoadingProgress] = useState(0);
     const navigate = useNavigate();
@@ -146,11 +146,9 @@ const Sidebar = () => {
             <div className="flex-grow space-y-2 px-4">
                 {[
                     { icon: House, label: 'Accueil', id: 'house' },
-                    { icon: Users, label: 'Utilisateurs', id: 'users' },
+                    { icon: BookOpenText, label: 'Mes cours', id: 'cours' },
                     { icon: LibraryBig, label: 'Forums', id: 'forums' },
-                    { icon: CalendarRange, label: 'Emploi du temps', id: 'calendar' },
                     { icon: MessageSquareReply, label: 'Feed-back', id: 'feedback' },
-                    { icon: Shield, label: 'Signalements', id: 'shield' },
                     { icon: Bookmark, label: 'Favoris', id: 'bookmark' },
                     { icon: Archive, label: 'Archive', id: 'archive' },
                     { icon: Settings, label: 'Paramètres', id: 'settings' },
@@ -237,4 +235,4 @@ const Sidebar = () => {
     );
 };
 
-export default Sidebar;
+export default SidebarEtudiant;

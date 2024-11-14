@@ -1,466 +1,333 @@
-import { Upload, Plus, ChevronLeft, ChevronRight, Minimize2, Maximize2, X, Sun, Moon, MapPin, Clock, User } from 'lucide-react';
-import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useSelector, useDispatch } from 'react-redux';
 import React, { useState, useEffect } from 'react';
+import { X, CheckCircle } from 'lucide-react';
 
-import { useTheme } from '../../context/ThemeContext';
+import { DonneesFormulaire, EmploiDuTemps, NouvelEmploiDuTemps } from '../../types/emploi-du-temps';
+import { TimeTableFilters } from './EDTADMIN/TimeTableFilter';
+import { EditCourseModal } from './EDTADMIN/EditCourseModal';
+import { AddCourseModal } from './EDTADMIN/AddCourseModal';
+import { TimeTableGrid } from './EDTADMIN/TimeTableGrid';
+import { PageHeader } from './EDTADMIN/PageHeader';
+import apiService from '../../services/api';
 
-
-// Types
-interface Event {
-  id: string;
-  title: string;
-  professor: string;
-  color: string;
-  day: string;
-  hour: number;
-  room: string;
-}
-
-interface RootState {
-  edt: {
-    events: Event[];
-  };
-}
-
-// Color Preview Component
-const ColorPreview = ({ color }: { color: string }) => (
-  <div className={`w-full h-10 rounded-lg ${color} mb-2 flex items-center justify-center shadow-sm`}>
-    <span className="text-white text-xs">Aperçu du cours</span>
-  </div>
-);
-
-// Actions
-export const ADD_EVENT = 'ADD_EVENT';
-export const MOVE_EVENT = 'MOVE_EVENT';
-export const UPDATE_EVENT = 'UPDATE_EVENT';
-export const SET_EVENTS = 'SET_EVENTS';
-
-// Action creators
-export const addEvent = (event: Event) => ({
-  type: ADD_EVENT as typeof ADD_EVENT,
-  payload: event
-});
-
-export const moveEvent = (result: any) => ({
-  type: MOVE_EVENT as typeof MOVE_EVENT,
-  payload: result
-});
-
-export const updateEvent = (event: Event) => ({
-  type: UPDATE_EVENT as typeof UPDATE_EVENT,
-  payload: event
-});
-
-export const setEvents = (events: Event[]) => ({
-  type: SET_EVENTS as typeof SET_EVENTS,
-  payload: events
-});
 
 // Constants
 const weekDays = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi'];
-const eventColors = [
-  'bg-gradient-to-r from-blue-400 to-blue-500 text-white',
-  'bg-gradient-to-r from-green-400 to-green-500 text-white',
-  'bg-gradient-to-r from-purple-400 to-purple-500 text-white',
-  'bg-gradient-to-r from-red-400 to-red-500 text-white',
-  'bg-gradient-to-r from-yellow-400 to-yellow-500 text-white',
-  'bg-gradient-to-r from-pink-400 to-pink-500 text-white',
-  'bg-gradient-to-r from-indigo-400 to-indigo-500 text-white',
-];
-
+const timeSlots = Array.from({ length: 11 }, (_, i) => i + 8); // Cela donnera [8, 9, 10, ..., 18]
 const EdtListProfesseur: React.FC = () => {
-  const { isDarkMode, toggleDarkMode } = useTheme();
-  const [currentWeek, setCurrentWeek] = useState(new Date());
-  const [isCondensed, setIsCondensed] = useState(false);
-  const [editingEvent, setEditingEvent] = useState<Event | null>(null);
-  const events = useSelector((state: RootState) => state.edt.events);
-  const dispatch = useDispatch();
+  // States
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<EmploiDuTemps | null>(null);
+  const [emploisTemps, setEmploisTemps] = useState<EmploiDuTemps[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  // Initialisation du state avec une valeur par défaut pour l'année universitaire
+  const [newEvent, setNewEvent] = useState<NouvelEmploiDuTemps>({
+    anneeUniversitaire: '2023-2024',
+    statut: 'Actif'
+  });
+  const [formData, setFormData] = useState<DonneesFormulaire>({
+    enseignements: {},
+    couleurs: [],
+    jours: [],
+    heures: []
+  });
+  const [selectedMention, setSelectedMention] = useState<string>('');
+  const [selectedNiveau, setSelectedNiveau] = useState<string>('');
+  // Fetch Data
   useEffect(() => {
-    const savedEvents = localStorage.getItem('edtEvents');
-    if (savedEvents) {
-      dispatch(setEvents(JSON.parse(savedEvents)));
+    console.log('Composant monté - Démarrage du chargement');
+    fetchInitialData();
+  }, []);
+  const fetchInitialData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      console.log('Début du chargement des données');
+      const [emploisResponse, donneesResponse] = await Promise.all([
+        apiService.get<any>('/list'),
+        apiService.get<any>('/donnees-formulaire')
+      ]);
+      console.log('Données reçues:', { emplois: emploisResponse, donnees: donneesResponse });
+      // Traitement des emplois du temps
+      if (emploisResponse?.data) {
+        const emploisData = emploisResponse.data;
+        const allEmplois: EmploiDuTemps[] = [];
+        // Parcourir les mentions
+        Object.entries(emploisData).forEach(([mention, niveauxData]: [string, any]) => {
+          // Parcourir les niveaux
+          Object.entries(niveauxData).forEach(([niveau, emplois]: [string, any[]]) => {
+            // Parcourir les emplois du temps
+            emplois.forEach((emploi: any) => {
+              // Créer l'objet emploi du temps sans transformation
+              allEmplois.push({
+                ...emploi,
+                mention,
+                niveau,
+                salle: emploi.salle || 'Non définie',
+                couleur: emploi.couleur || 'bg-gray-200'
+              });
+            });
+          });
+        });
+        console.log('Emplois non transformés:', allEmplois);
+        setEmploisTemps(allEmplois);
+      }
+      // Traitement des données du formulaire
+      if (donneesResponse?.data) {
+        const formDataReceived = donneesResponse.data;
+        setFormData({
+          enseignements: formDataReceived.enseignements || {},
+          couleurs: formDataReceived.couleurs || [],
+          jours: formDataReceived.jours || [],
+          heures: formDataReceived.heures || []
+        });
+      }
+    } catch (error: any) {
+      console.error('Erreur lors du chargement:', error);
+      setError(error.message || 'Erreur lors du chargement des données');
+    } finally {
+      setLoading(false);
     }
-  }, [dispatch]);
-  useEffect(() => {
-    localStorage.setItem('edtEvents', JSON.stringify(events));
-  }, [events]);
-  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      console.log("Fichier importé:", file.name);
+  };
+  // Filtrage des emplois du temps
+  const filteredEmploisTemps = emploisTemps.filter(event =>
+    (!selectedMention || event.mention === selectedMention) &&
+    (!selectedNiveau || event.niveau === selectedNiveau)
+  );
+  // Reset filters
+  const resetFilters = () => {
+    setSelectedMention('');
+    setSelectedNiveau('');
+  };
+  // Helpers avec vérifications
+  const getMentions = () => {
+    console.log('Récupération des mentions depuis:', formData.enseignements);
+    try {
+      return formData.enseignements ? Object.keys(formData.enseignements) : [];
+    } catch (err) {
+      console.error('Erreur lors de la récupération des mentions:', err);
+      return [];
     }
   };
-  const addNewEvent = () => {
-    const newEvent: Event = {
-      id: `event${events.length + 1}`,
-      title: 'Nouveau cours',
-      professor: 'Prof',
-      color: eventColors[Math.floor(Math.random() * eventColors.length)],
-      day: weekDays[Math.floor(Math.random() * weekDays.length)],
-      hour: Math.floor(Math.random() * 12) + 8,
-      room: `Salle ${Math.floor(Math.random() * 100) + 1}`
+  const getNiveaux = (mention: string) => {
+    console.log(`Récupération des niveaux pour la mention: ${mention}`);
+    try {
+      return formData.enseignements[mention] ? Object.keys(formData.enseignements[mention]) : [];
+    } catch (err) {
+      console.error('Erreur lors de la récupération des niveaux:', err);
+      return [];
+    }
+  };
+  const getMatieres = (mention: string, niveau: string) => {
+    console.log(`Récupération des matières pour ${mention} - ${niveau}`);
+    try {
+      return formData.enseignements[mention]?.[niveau] || [];
+    } catch (err) {
+      console.error('Erreur lors de la récupération des matières:', err);
+      return [];
+    }
+  };
+  const validateForm = () => {
+    const requiredFields = {
+      nomMatiere: "La matière",
+      personnelId: "Le professeur",
+      jour: "Le jour",
+      heureDebut: "L'heure de début",
+      heureFin: "L'heure de fin",
+      salle: "La salle",
+      couleur: "La couleur",
+      mention: "La mention",
+      niveau: "Le niveau",
+      anneeUniversitaire: "L'année universitaire"
     };
-    dispatch(addEvent(newEvent));
+    for (const [field, label] of Object.entries(requiredFields)) {
+      if (!newEvent[field]) {
+        setError(`${label} est obligatoire. Veuillez le remplir.`);
+        return false;
+      }
+    }
+    return true;
   };
-  const onDragEnd = (result: any) => {
-    if (!result.destination) return;
-    const { source, destination } = result;
-    const updatedEvent = {
-      ...events.find(event => event.id === result.draggableId),
-      day: weekDays[parseInt(destination.droppableId.split('-')[0])],
-      hour: parseInt(destination.droppableId.split('-')[1])
-    };
-    dispatch(moveEvent({
-      source,
-      destination,
-      draggableId: result.draggableId,
-      updatedEvent
-    }));
-  };
-  const openEditModal = (event: Event) => {
-    setEditingEvent(event);
-  };
-  const closeEditModal = () => {
-    setEditingEvent(null);
-  };
-  const handleEventUpdate = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (editingEvent) {
-      dispatch(updateEvent(editingEvent));
-      closeEditModal();
+    // Validation du formulaire
+    if (!validateForm()) return;
+    try {
+      setLoading(true);
+      const eventData = {
+        ...newEvent,
+        heureDebut: `00:00:${newEvent.heureDebut}`,
+        heureFin: `00:00:${newEvent.heureFin}`,
+        parcours: newEvent.mention,
+        anneeUniversitaire: newEvent.anneeUniversitaire || '2023-2024',
+        statut: 'Actif'
+      };
+      const response = await apiService.post<{ data: EmploiDuTemps }>('/emploi-du-temps', eventData);
+      if (response?.data?.data) {
+        // Transformation de l'événement pour l'affichage
+        const newEmploiTemps = {
+          ...response.data.data,
+          heureDebut: response.data.data.heureDebut.split(':')[2],
+          heureFin: response.data.data.heureFin.split(':')[2]
+        };
+        // Mise à jour immédiate de la liste
+        setEmploisTemps(prev => [...prev, newEmploiTemps]);
+        // Message de succès personnalisé
+        setSuccessMessage(`Le cours ${newEvent.nomMatiere} a été ajouté avec succès !`);
+        // Fermeture du modal et réinitialisation
+        setIsAddModalOpen(false);
+        setNewEvent({
+          anneeUniversitaire: '2023-2024',
+          statut: 'Actif'
+        });
+        // Effacement du message après 3 secondes
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 3000);
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de l\'ajout:', error);
+      setError(error.response?.data?.message || 'Erreur lors de l\'ajout du cours');
+    } finally {
+      setLoading(false);
     }
   };
+
+  const handleUpdateEvent = async (updatedEvent: EmploiDuTemps) => {
+    try {
+      setLoading(true);
+      setError(null);
+  
+      const eventData = {
+        ...updatedEvent,
+        heureDebut: `00:00:${updatedEvent.heureDebut}`,
+        heureFin: `00:00:${updatedEvent.heureFin}`,
+        parcours: updatedEvent.mention,
+        anneeUniversitaire: updatedEvent.anneeUniversitaire || '2023-2024',
+        statut: 'Actif'
+      };
+  
+      const response = await apiService.put<{ data: EmploiDuTemps }>(
+        `/edit/${updatedEvent.id}`,
+        eventData
+      );
+  
+      if (response?.data?.data) {
+        // Mise à jour de la liste des emplois du temps
+        setEmploisTemps(prev =>
+          prev.map(evt =>
+            evt.id === updatedEvent.id
+              ? {
+                  ...response.data.data,
+                  heureDebut: response.data.data.heureDebut.split(':')[2],
+                  heureFin: response.data.data.heureFin.split(':')[2]
+                }
+              : evt
+          )
+        );
+  
+        setSuccessMessage(`Le cours ${updatedEvent.nomMatiere} a été modifié avec succès !`);
+        setIsEditModalOpen(false);
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 3000);
+      }
+    } catch (error: any) {
+      console.error('Erreur lors de la modification:', error);
+      setError(error.response?.data?.message || 'Erreur lors de la modification du cours');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const handleDeleteEvent = async (id: string) => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer ce cours ?')) return;
+    console.log('Suppression de l\'événement:', id);
+    try {
+      setLoading(true);
+      await apiService.delete(`/${id}`);
+      setEmploisTemps(prev => {
+        const updated = prev.filter(evt => evt.id !== id);
+        console.log('Liste mise à jour après suppression:', updated);
+        return updated;
+      });
+      setError(null);
+    } catch (error: any) {
+      console.error('Erreur lors de la suppression:', error);
+      setError(error.response?.data?.message || 'Erreur lors de la suppression');
+    } finally {
+      setLoading(false);
+    }
+  };
+  // Rendu conditionnel pour le chargement
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-white bg-opacity-75 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
   return (
-    <div className={`min-h-screen ${isDarkMode ? '' : ''} p-4`}>
-      <div className="max-w-[1800px] mx-auto bg-white dark:bg-gray-800 rounded-xl shadow-xl overflow-hidden">
-        {/* Header */}
-        <div className={`p-4 ${isDarkMode ? 'bg-gray-800' : 'bg-indigo-600'} border-b border-gray-200 dark:border-gray-700`}>
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <div className="flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-lg ${isDarkMode ? 'bg-gray-700' : 'bg-indigo-500'} flex items-center justify-center`}>
-                <Clock className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-white">Planning des cours</h1>
-                <p className="text-xs text-gray-200">Prof. Dupont</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsCondensed(!isCondensed)}
-                className={`p-1.5 rounded-md ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-indigo-500 hover:bg-indigo-400'} text-white transition-colors`}
-              >
-                {isCondensed ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
-              </button>
-              <button
-                onClick={toggleDarkMode}
-                className={`p-1.5 rounded-md ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-indigo-500 hover:bg-indigo-400'} text-white transition-colors`}
-              >
-                {isDarkMode ? <Sun size={16} /> : <Moon size={16} />}
-              </button>
-            </div>
-          </div>
-        </div>
-                {/* Navigation semaine */}
-                <div className={`p-3 ${isDarkMode ? 'bg-gray-800' : 'bg-white'} border-b border-gray-200 dark:border-gray-700`}>
-          <div className="flex justify-between items-center">
-            <button
-              onClick={() => setCurrentWeek(prev => {
-                const newDate = new Date(prev);
-                newDate.setDate(newDate.getDate() - 7);
-                return newDate;
-              })}
-              className={`p-1.5 rounded-md ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
-            >
-              <ChevronLeft size={16} />
-            </button>
-            <span className="text-sm font-medium">
-              Semaine du {currentWeek.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
-            </span>
-            <button
-              onClick={() => setCurrentWeek(prev => {
-                const newDate = new Date(prev);
-                newDate.setDate(newDate.getDate() + 7);
-                return newDate;
-              })}
-              className={`p-1.5 rounded-md ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'} transition-colors`}
-            >
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </div>
-        {/* Grille EDT */}
-        <DragDropContext onDragEnd={onDragEnd}>
-          <div className="p-3">
-            <div className={`grid grid-cols-6 gap-1 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-              {/* En-tête des jours */}
-              <div className={`p-2 rounded-md ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} font-medium text-center text-xs`}>
-                Heures
-              </div>
-              {weekDays.map((day) => (
-                <div
-                  key={day}
-                  className={`p-2 rounded-md ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} font-medium text-center text-xs`}
-                >
-                  {day}
-                </div>
-              ))}
-              {/* Cellules horaires */}
-              {Array.from({ length: 11 }, (_, i) => i + 8).map((hour) => (
-                <React.Fragment key={hour}>
-                  <div className={`p-2 rounded-md ${isDarkMode ? 'bg-gray-700' : 'bg-gray-100'} text-center text-xs`}>
-                    {`${hour}:00`}
-                  </div>
-                  {weekDays.map((day, dayIndex) => (
-                    <Droppable key={`${dayIndex}-${hour}`} droppableId={`${dayIndex}-${hour}`}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.droppableProps}
-                          className={`
-                            rounded-md p-1
-                            ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}
-                            ${snapshot.isDraggingOver ? 'ring-1 ring-indigo-400' : ''}
-                            ${isCondensed ? 'h-10' : 'h-20'}
-                            transition-all duration-200
-                          `}
-                        >
-                          {events
-                            .filter(event => event.day === day && event.hour === hour)
-                            .map((event, index) => (
-                              <Draggable
-                                key={event.id}
-                                draggableId={event.id}
-                                index={index}
-                              >
-                                {(provided, snapshot) => (
-                                  <div
-                                    ref={provided.innerRef}
-                                    {...provided.draggableProps}
-                                    {...provided.dragHandleProps}
-                                    onClick={() => openEditModal(event)}
-                                    className={`
-                                      ${event.color}
-                                      ${snapshot.isDragging ? 'ring-1 ring-offset-1 ring-indigo-500' : ''}
-                                      rounded-md p-1 mb-1 cursor-pointer
-                                      ${isCondensed ? 'truncate' : ''}
-                                      transform transition-all duration-200
-                                      hover:scale-[1.02] hover:shadow-sm
-                                    `}
-                                  >
-                                    <div className="font-medium text-xs truncate">
-                                      {event.title}
-                                    </div>
-                                    {!isCondensed && (
-                                      <>
-                                        <div className="flex items-center text-xs mt-0.5 opacity-90">
-                                          <User className="w-3 h-3 mr-1" />
-                                          <span className="text-[10px]">{event.professor}</span>
-                                        </div>
-                                        <div className="flex items-center text-xs mt-0.5 opacity-90">
-                                          <MapPin className="w-3 h-3 mr-1" />
-                                          <span className="text-[10px]">{event.room}</span>
-                                        </div>
-                                      </>
-                                    )}
-                                  </div>
-                                )}
-                              </Draggable>
-                            ))}
-                          {provided.placeholder}
-                        </div>
-                      )}
-                    </Droppable>
-                  ))}
-                </React.Fragment>
-              ))}
-            </div>
-          </div>
-        </DragDropContext>
-                {/* Actions */}
-                <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
-          <label className="relative">
-            <input
-              type="file"
-              className="hidden"
-              onChange={handleFileImport}
-              accept=".csv,.xlsx"
-            />
-            <button
-              className={`
-                flex items-center px-3 py-1.5 rounded-md text-xs font-medium
-                ${isDarkMode 
-                  ? 'bg-gray-700 hover:bg-gray-600 text-white' 
-                  : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-600'}
-                transition-colors
-              `}
-            >
-              <Upload className="w-3 h-3 mr-1" />
-              Importer
-            </button>
-          </label>
-          
-          <button
-            onClick={addNewEvent}
-            className={`
-              flex items-center px-3 py-1.5 rounded-md text-xs font-medium
-              ${isDarkMode 
-                ? 'bg-indigo-600 hover:bg-indigo-500' 
-                : 'bg-indigo-600 hover:bg-indigo-500'}
-              text-white transition-colors
-            `}
-          >
-            <Plus className="w-3 h-3 mr-1" />
-            Ajouter un cours
+    <div className="min-h-screen bg-gray-50 p-4">
+      {error && (
+        <div className="fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg">
+          {error}
+          <button onClick={() => setError(null)} className="ml-2 hover:text-red-200">
+            <X className="w-4 h-4" />
           </button>
         </div>
-      </div>
+      )}
+      {successMessage && (
+        <div className="fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-md shadow-lg z-50 flex items-center">
+          <CheckCircle className="w-5 h-5 mr-2" />
+          {successMessage}
+        </div>
+      )}
+      <PageHeader setIsAddModalOpen={setIsAddModalOpen} />
+      <TimeTableFilters
+        selectedMention={selectedMention}
+        selectedNiveau={selectedNiveau}
+        setSelectedMention={setSelectedMention}
+        setSelectedNiveau={setSelectedNiveau}
+        filteredEmploisTemps={filteredEmploisTemps}
+        getMentions={getMentions}
+        getNiveaux={getNiveaux}
+        resetFilters={resetFilters}
+      />
+      <TimeTableGrid
+        filteredEmploisTemps={filteredEmploisTemps}
+        handleDeleteEvent={handleDeleteEvent}
+        onEventClick={(event) => {
+          setSelectedEvent(event);
+          setIsEditModalOpen(true);
+        }}
+      />
+      <AddCourseModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        newEvent={newEvent}
+        setNewEvent={setNewEvent}
+        handleAddEvent={handleAddEvent}
+        getMentions={getMentions}
+        getNiveaux={getNiveaux}
+        getMatieres={getMatieres}
+        setError={setError} // Passer setError ici
+      />
 
-      {/* Modal d'édition */}
-      <AnimatePresence>
-        {editingEvent && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.95 }}
-              animate={{ scale: 1 }}
-              exit={{ scale: 0.95 }}
-              className={`
-                w-full max-w-sm rounded-lg shadow-xl
-                ${isDarkMode ? 'bg-gray-800' : 'bg-white'}
-                overflow-hidden
-              `}
-            >
-              <form onSubmit={handleEventUpdate}>
-                <div className="p-4">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-sm font-medium">Modifier le cours</h3>
-                    <button
-                      type="button"
-                      onClick={closeEditModal}
-                      className="text-gray-400 hover:text-gray-500"
-                    >
-                      <X size={16} />
-                    </button>
-                  </div>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-xs font-medium mb-1">
-                        Titre
-                      </label>
-                      <input
-                        type="text"
-                        value={editingEvent.title}
-                        onChange={e => setEditingEvent({
-                          ...editingEvent,
-                          title: e.target.value
-                        })}
-                        className={`
-                          w-full rounded-md p-1.5 text-sm border
-                          ${isDarkMode 
-                            ? 'bg-gray-700 border-gray-600' 
-                            : 'bg-white border-gray-300'}
-                        `}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1">
-                        Professeur
-                      </label>
-                      <input
-                        type="text"
-                        value={editingEvent.professor}
-                        onChange={e => setEditingEvent({
-                          ...editingEvent,
-                          professor: e.target.value
-                        })}
-                        className={`
-                          w-full rounded-md p-1.5 text-sm border
-                          ${isDarkMode 
-                            ? 'bg-gray-700 border-gray-600' 
-                            : 'bg-white border-gray-300'}
-                        `}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1">
-                        Salle
-                      </label>
-                      <input
-                        type="text"
-                        value={editingEvent.room}
-                        onChange={e => setEditingEvent({
-                          ...editingEvent,
-                          room: e.target.value
-                        })}
-                        className={`
-                          w-full rounded-md p-1.5 text-sm border
-                          ${isDarkMode 
-                            ? 'bg-gray-700 border-gray-600' 
-                            : 'bg-white border-gray-300'}
-                        `}
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs font-medium mb-1">
-                        Couleur
-                      </label>
-                      <ColorPreview color={editingEvent.color} />
-                      <select
-                        value={editingEvent.color}
-                        onChange={e => setEditingEvent({
-                          ...editingEvent,
-                          color: e.target.value
-                        })}
-                        className={`
-                          w-full rounded-md p-1.5 text-xs border
-                          ${isDarkMode 
-                            ? 'bg-gray-700 border-gray-600' 
-                            : 'bg-white border-gray-300'}
-                        `}
-                      >
-                        {eventColors.map(color => (
-                          <option key={color} value={color}>
-                            {color.split('from-')[1].split('-')[0]}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-3 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-2">
-                  <button
-                    type="button"
-                    onClick={closeEditModal}
-                    className={`
-                      px-3 py-1.5 rounded-md text-xs font-medium
-                      ${isDarkMode 
-                        ? 'bg-gray-700 hover:bg-gray-600' 
-                        : 'bg-gray-100 hover:bg-gray-200'}
-                    `}
-                  >
-                    Annuler
-                  </button>
-                  <button
-                    type="submit"
-                    className="px-3 py-1.5 rounded-md bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium"
-                  >
-                    Enregistrer
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <EditCourseModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        event={selectedEvent}
+        handleUpdateEvent={handleUpdateEvent}
+        getMentions={getMentions}
+        getNiveaux={getNiveaux}
+        getMatieres={getMatieres}
+        setError={setError}
+      />
     </div>
   );
 };
-
 export default EdtListProfesseur;

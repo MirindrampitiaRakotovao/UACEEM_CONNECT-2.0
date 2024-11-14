@@ -5,6 +5,8 @@ import { Provider } from 'react-redux';
 import AcceuilProfesseur from './Pages/PROF/AcceuilProfesseur/AcceuilProfesseur';
 import FeedbackProfesseur from './Pages/PROF/FeedBack/FeedbackProfesseur';
 import SignalementList from './Pages/ADMIN/Signalement/SignalementList';
+import MessagesView from './components/ADMIN/Messages/MessagesView.tsx';
+import AcceuilClub from './Pages/ETUDIANT/AcceuilClub/AcceuilClub';
 import AcceuilAdmin from './Pages/ADMIN/AcceuilAdmin/AcceuilAdmin';
 import CourseList from './Pages/PROF/CourseManagement/CourseList';
 import ForumProfesseur from './Pages/PROF/Forum/ForumProfesseur';
@@ -14,7 +16,6 @@ import UserProfile from './Pages/ADMIN/Profile/UserProfile';
 import UserList from './Pages/ADMIN/UserManagment/UserList';
 import EmploiDuTemps from './Pages/ADMIN/EDT/EmploiDuTemps';
 import Parametre from './Pages/ADMIN/Parametres/Parametre';
-import MessagesView from './components/ADMIN/Messages/MessagesView.tsx';
 import EdtProfesseur from './Pages/PROF/EDT/EdtProfesseur';
 import UserAdd from './Pages/ADMIN/UserManagment/UserAdd';
 // Pages
@@ -30,6 +31,18 @@ import Archive from './Pages/ADMIN/Archive/Archive';
 import { useTheme } from './context/ThemeContext';
 import Form from './components/Form';
 import { store } from './store'; // Assurez-vous d'avoir créé ce fichier
+
+
+// Assurez-vous d'avoir créé ce fichier
+
+
+// Assurez-vous d'avoir créé ce fichier
+
+
+// Assurez-vous d'avoir créé ce fichier
+
+
+// Assurez-vous d'avoir créé ce fichier
 
 
 // Assurez-vous d'avoir créé ce fichier
@@ -81,6 +94,7 @@ const App: React.FC = () => {
           <Route path="/feedbackProfesseur" element={<FeedbackProfesseur />} />
           <Route path="/acceuilProfesseur" element={<ProtectedRoute><AcceuilProfesseur /></ProtectedRoute>} />
           <Route path="/acceuilAdmin" element={<ProtectedRoute><AcceuilAdmin /></ProtectedRoute>} />
+          <Route path="/acceuilClub" element={<ProtectedRoute><AcceuilClub /></ProtectedRoute>} />
           <Route path="/acceuilUser" element={<ProtectedRoute><AcceuilUser /></ProtectedRoute>} />
           <Route path="/userlist" element={<UserList />} />
           <Route path="/courseList" element={<CourseList />} />
