@@ -1,85 +1,164 @@
 import { Paperclip, Image, Mic, Send } from 'lucide-react';
 import React, { useState, useRef } from 'react';
 
-import { useTheme } from '../../../context/ThemeContext'; // Importez le hook pour accéder au mode
+import { useTheme } from '../../../context/ThemeContext';
+import apiService from '../../../services/api';
 
-
-// Importez le hook pour accéder au mode
 
 interface MessageInputProps {
-  onSendMessage: (content: string, type: 'text' | 'file' | 'image' | 'voice', metadata?: any) => void;
+  destinataireId: string;
+  conversationId?: string;
+  onMessageSent?: () => void;
 }
 
-const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
-  const { isDarkMode } = useTheme(); // Utilisez le hook pour accéder à l'état du mode sombre
+const MessageInput: React.FC<MessageInputProps> = ({
+  destinataireId,
+  conversationId,
+  onMessageSent
+}) => {
+  console.log('Props reçues:', { destinataireId, conversationId }); // Debug des props
+
+  const { isDarkMode } = useTheme();
   const [message, setMessage] = useState('');
+  const [isSending, setIsSending] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const audioRecorderRef = useRef<MediaRecorder | null>(null);
   const [isRecording, setIsRecording] = useState(false);
 
-  // Handle sending text messages
-  const handleSendTextMessage = () => {
-    if (message.trim()) {
-      onSendMessage(message, 'text');
-      setMessage('');
+  const handleSendTextMessage = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (!message.trim() || !destinataireId) {
+      return;
     }
-  };
-
-  // Handle file upload (generic, could be document or image)
-  const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>, type: 'file' | 'image') => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        // Send a document file or an image depending on the type
-        onSendMessage(file.name, type, {
-          fileName: file.name,
-          fileSize: file.size,
-          fileType: file.type,
-          ...(type === 'image' && { imageUrl: e.target?.result as string })
-        });
+    setIsSending(true);
+    try {
+      const messageData = {
+        contenu: message.trim(),
+        destinataireId,
+        ...(conversationId && { conversationId })
       };
-
-      if (type === 'image') {
-        reader.readAsDataURL(file); // Image will be sent as a data URL
-      } else {
-        // For other files (documents, PDFs, etc.), we simply send the file name and metadata
-        onSendMessage(file.name, 'file', {
-          fileName: file.name,
-          fileSize: file.size,
-          fileType: file.type
-        });
+      const response = await apiService.post('/messages', messageData);
+      if (response.status === 201 || response.status === 200) {
+        // Retournez le message envoyé
+        const sentMessage = {
+          id: response.data.id, // Assurez-vous que votre API renvoie l'ID du message
+          contenu: message.trim(),
+          dateEnvoi: new Date().toISOString(),
+          expediteurId: response.data.expediteurId, // ID de l'utilisateur connecté
+          destinataireId,
+          type: 'text'
+        };
+        setMessage('');
+        onMessageSent?.(sentMessage); // Passez le message complet
+        console.log('Message envoyé avec succès');
       }
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du message:', error);
+    } finally {
+      setIsSending(false);
     }
   };
 
-  // Start recording audio
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'file' | 'image') => {
+    const file = event.target.files?.[0];
+    console.log('Fichier sélectionné:', { file, type });
+
+    if (!file || !destinataireId) {
+      console.log('Upload annulé:', {
+        fichierManquant: !file,
+        destinataireManquant: !destinataireId
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('fichier', file);
+    formData.append('destinataireId', destinataireId);
+    if (conversationId) {
+      formData.append('conversationId', conversationId);
+    }
+
+    console.log('FormData créé:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      destinataireId,
+      conversationId
+    });
+
+    try {
+      const response = await apiService.post('/messages', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      console.log('Réponse upload:', response);
+      onMessageSent?.();
+    } catch (error) {
+      console.error('Erreur détaillée lors de l\'upload:', {
+        error,
+        fileInfo: {
+          name: file.name,
+          size: file.size,
+          type: file.type
+        }
+      });
+    }
+  };
+
   const handleStartRecording = async () => {
+    console.log('Démarrage de l\'enregistrement audio');
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
       const audioChunks: Blob[] = [];
+
       mediaRecorder.ondataavailable = (event) => {
         audioChunks.push(event.data);
+        console.log('Chunk audio reçu:', event.data.size);
       };
-      mediaRecorder.onstop = () => {
+
+      mediaRecorder.onstop = async () => {
+        console.log('Enregistrement terminé, taille totale:',
+          audioChunks.reduce((acc, chunk) => acc + chunk.size, 0)
+        );
+
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        const audioUrl = URL.createObjectURL(audioBlob);
-        onSendMessage(audioUrl, 'voice', {
-          voiceDuration: audioChunks.length // Approximation
-        });
+        const formData = new FormData();
+        formData.append('fichier', audioBlob, 'audio.webm');
+        formData.append('destinataireId', destinataireId);
+        if (conversationId) {
+          formData.append('conversationId', conversationId);
+        }
+
+        try {
+          const response = await apiService.post('/messages', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data'
+            }
+          });
+          console.log('Réponse upload audio:', response);
+          onMessageSent?.();
+        } catch (error) {
+          console.error('Erreur détaillée lors de l\'upload audio:', {
+            error,
+            audioSize: audioBlob.size
+          });
+        }
       };
+
       mediaRecorder.start();
       setIsRecording(true);
       audioRecorderRef.current = mediaRecorder;
+      console.log('Enregistrement démarré');
     } catch (error) {
-      console.error('Error recording audio', error);
+      console.error('Erreur lors de l\'initialisation de l\'enregistrement:', error);
     }
   };
 
-  // Stop recording audio
   const handleStopRecording = () => {
+    console.log('Arrêt de l\'enregistrement');
     if (audioRecorderRef.current) {
       audioRecorderRef.current.stop();
       setIsRecording(false);
@@ -87,7 +166,10 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
   };
 
   return (
-    <div className={`p-4 border-t flex items-center ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}>
+    <form
+      onSubmit={handleSendTextMessage}
+      className={`p-4 border-t flex items-center ${isDarkMode ? 'bg-gray-800 border-gray-700' : 'bg-white border-gray-200'}`}
+    >
       <input
         type="text"
         value={message}
@@ -95,17 +177,14 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
         placeholder="Tapez votre message..."
         className={`flex-1 p-2 rounded-lg mr-2 text-sm ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-gray-100 text-black'}`}
       />
-      
+
       <div className="flex items-center space-x-2">
-        {/* Hidden input for file upload (generic file or document) */}
         <input
           type="file"
           ref={fileInputRef}
           className="hidden"
           onChange={(e) => handleFileUpload(e, 'file')}
         />
-
-        {/* Hidden input for image upload */}
         <input
           type="file"
           accept="image/*"
@@ -113,25 +192,24 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
           className="hidden"
           onChange={(e) => handleFileUpload(e, 'image')}
         />
-        
-        {/* File and image buttons */}
+
         <button
+          type="button"
           onClick={() => fileInputRef.current?.click()}
           className={`p-1 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}
         >
           <Paperclip size={16} />
         </button>
-
         <button
+          type="button"
           onClick={() => imageInputRef.current?.click()}
           className={`p-1 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}
         >
           <Image size={16} />
         </button>
-
-        {/* Audio recording buttons */}
         {!isRecording ? (
           <button
+            type="button"
             onClick={handleStartRecording}
             className={`p-1 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}
           >
@@ -139,22 +217,23 @@ const MessageInput: React.FC<MessageInputProps> = ({ onSendMessage }) => {
           </button>
         ) : (
           <button
+            type="button"
             onClick={handleStopRecording}
             className="p-1 rounded-full bg-red-500 text-white"
           >
             Stop
           </button>
         )}
-
-        {/* Send button */}
         <button
-          onClick={handleSendTextMessage}
-          className={`p-1 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'}`}
+          type="submit"
+          disabled={!message.trim() || isSending}
+          className={`p-1 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-200'} ${isSending ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
         >
           <Send size={16} />
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 

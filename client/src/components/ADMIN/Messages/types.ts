@@ -14,13 +14,31 @@ export interface Message {
   };
 }
 export interface Conversation {
-  id: number;
-  sender: string;
-  avatar: string;
-  lastMessage: string;
-  timestamp: string;
-  unreadCount: number;
-  messages: Message[];
+  id?: string;
+  interlocuteur?: {
+    id: string;
+    nom: string;
+    prenom: string;
+    photoProfil?: string;
+  };
+  destinataire?: {
+    id: string;
+    nom: string;
+    prenom: string;
+    photoProfil?: string;
+  };
+  expediteur?: {
+    id: string;
+    nom: string;
+    prenom: string;
+    photoProfil?: string;
+  };
+  messages?: Message[];
+  dernierMessage?: {
+    contenu: string;
+    dateEnvoi: string;
+  };
+  messagesNonLus?: number;
 }
   export interface ConversationListProps {
     conversations: Conversation[];
@@ -36,4 +54,12 @@ export interface Conversation {
     conversations: Conversation[];
     selectedConversation: Conversation | null;
     onSelectConversation: (conversation: Conversation) => void;
+  }
+
+  export interface User {
+    id: string;
+    nom: string;
+    prenom: string;
+    nomUtilisateur: string;
+    email?: string;
   }

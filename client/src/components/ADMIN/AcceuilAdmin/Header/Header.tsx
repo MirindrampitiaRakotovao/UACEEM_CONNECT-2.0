@@ -418,7 +418,7 @@ const Header = () => {
                                     whileHover={{ scale: 1.1 }}
                                     whileTap={{ scale: 0.9 }}
                                     onClick={handleLogout}
-                                    className="p-2 rounded-full bg-blue-900 hover:bg-blue-800 text-white"
+                                    className="p-2 rounded-full bg-yellow-500 hover:bg-yellow-600 text-white"
                                 >
                                     <Power className="h-4 w-4" />
                                 </motion.button>

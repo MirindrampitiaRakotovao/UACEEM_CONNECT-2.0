@@ -40,7 +40,7 @@ const ConversationList: React.FC<ConversationListProps> = ({
                 className="w-10 h-10 rounded-full"
               />
             ) : (
-              <User Circle2
+              <UserCircle2
                 className={`
                   w-10 h-10
                   ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}

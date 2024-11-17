@@ -80,6 +80,7 @@ const handleUploadError = (err, req, res, next) => {
 };
 // Exportation des méthodes d'upload
 module.exports = {
+    createMulterMiddleware,
     // Upload d'un seul fichier
     uploadSingle: (fieldName) => {
         const upload = createMulterMiddleware();

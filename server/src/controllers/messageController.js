@@ -103,23 +103,7 @@ class MessageController {
     throw new Error('Type de message non reconnu');
   }
   // Méthode pour sauvegarder les fichiers
-  async _sauvegarderFichiers(fichiers) {
-    if (!fichiers || fichiers.length === 0) return [];
-    const fichiersSauvegardes = fichiers.map(fichier => {
-      if (!fichier.path) {
-        console.error('Fichier sans chemin:', fichier);
-        throw new Error('Fichier invalide : aucun chemin');
-      }
-      return {
-        nom: fichier.filename,
-        originalName: fichier.originalname,
-        mimetype: fichier.mimetype,
-        taille: fichier.size,
-        chemin: fichier.path
-      };
-    });
-    return fichiersSauvegardes;
-  }
+
   // Création de message via socket
   async creerMessageSocket(expediteurId, donneesMessage) {
     const { contenu, destinataireId, fichiers } = donneesMessage;
@@ -191,6 +175,111 @@ class MessageController {
       });
     }
   }
+
+  // Méthode pour uploader des fichiers
+  async uploadFichiers(req, res) {
+    try {
+        console.log('Début de uploadFichiers');
+        console.log('Body:', req.body);
+        console.log('Files:', req.files);
+        
+        const expediteurId = req.personnel.id;
+        const destinataireId = req.body.destinataireId;
+        const fichiers = req.files;
+
+        // Vérification plus détaillée des fichiers
+        if (!fichiers) {
+            console.log('req.files est undefined');
+            throw new Error('Aucun fichier n\'a été reçu');
+        }
+
+        if (!Array.isArray(fichiers)) {
+            console.log('req.files n\'est pas un tableau');
+            throw new Error('Format de fichiers invalide');
+        }
+
+        if (fichiers.length === 0) {
+            console.log('req.files est un tableau vide');
+            throw new Error('Aucun fichier n\'a été uploadé');
+        }
+
+        // Vérifier que le destinataire existe
+        const destinataire = await Personnel.findByPk(destinataireId);
+        if (!destinataire) {
+            throw new Error('Destinataire non trouvé');
+        }
+
+        // Déterminer le type de message en fonction de l'extension du premier fichier
+        const determinerType = (fichier) => {
+            console.log('Détermination du type pour:', fichier);
+            const mimeType = fichier.mimetype.toLowerCase();
+            if (mimeType.startsWith('image/')) return 'image';
+            if (mimeType.startsWith('video/')) return 'multimedia';
+            if (mimeType.startsWith('audio/')) return 'vocal';
+            if (mimeType.startsWith('application/') || mimeType.startsWith('text/')) return 'document';
+            return 'multimedia';
+        };
+
+        const type = determinerType(fichiers[0]);
+        console.log('Type déterminé:', type);
+
+        // Préparer les données des fichiers
+        const fichiersData = fichiers.map(fichier => ({
+            nom: fichier.originalname,
+            nomFichier: fichier.filename,
+            chemin: fichier.path,
+            taille: fichier.size,
+            type: fichier.mimetype,
+            dateUpload: new Date().toISOString()
+        }));
+
+        console.log('Données des fichiers préparées:', fichiersData);
+
+        // Créer le message
+        const message = await Message.create({
+            id: uuidv4(),
+            contenu: null,
+            type,
+            fichiers: fichiersData.map(f => f.chemin),
+            metadonneesFichiers: fichiersData,
+            statut: 'envoye',
+            expediteurId,
+            destinataireId,
+            dateEnvoi: new Date()
+        });
+
+        // Récupérer les détails de l'expéditeur
+        const expediteur = await Personnel.findByPk(expediteurId, {
+            attributes: ['id', 'nom', 'prenom', 'email']
+        });
+
+        console.log('Message créé avec succès:', message.id);
+
+        // Émettre le message via Socket.IO
+        const io = getIO();
+        io.to(destinataireId.toString()).emit('nouveauMessage', {
+            ...message.toJSON(),
+            expediteur: expediteur.toJSON()
+        });
+
+        res.status(201).json({
+            message: 'Fichiers uploadés et message créé avec succès',
+            data: {
+                ...message.toJSON(),
+                expediteur: expediteur.toJSON()
+            }
+        });
+    } catch (erreur) {
+        console.error('Erreur détaillée lors de l\'upload des fichiers:', erreur);
+        res.status(500).json({
+            message: 'Erreur lors de l\'upload des fichiers',
+            erreur: erreur.message,
+            details: erreur.stack
+        });
+    }
+}
+
+
   // Méthode pour récupérer les messages
   async recupererMessages(req, res) {
     try {

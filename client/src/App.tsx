@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { Provider } from 'react-redux';
 
 import AcceuilProfesseur from './Pages/PROF/AcceuilProfesseur/AcceuilProfesseur';
+import FeedbackEtudiant from './Pages/ETUDIANT/Feedback/FeedbackEtudiant.tsx';
 import FeedbackProfesseur from './Pages/PROF/FeedBack/FeedbackProfesseur';
 import SignalementList from './Pages/ADMIN/Signalement/SignalementList';
 import MessagesView from './components/ADMIN/Messages/MessagesView.tsx';
@@ -31,31 +32,6 @@ import Archive from './Pages/ADMIN/Archive/Archive';
 import { useTheme } from './context/ThemeContext';
 import Form from './components/Form';
 import { store } from './store'; // Assurez-vous d'avoir créé ce fichier
-
-
-// Assurez-vous d'avoir créé ce fichier
-
-
-// Assurez-vous d'avoir créé ce fichier
-
-
-// Assurez-vous d'avoir créé ce fichier
-
-
-// Assurez-vous d'avoir créé ce fichier
-
-
-// Assurez-vous d'avoir créé ce fichier
-
-
-// Assurez-vous d'avoir créé ce fichier
-
-
-// Assurez-vous d'avoir créé ce fichier
-
-
-// Assurez-vous d'avoir créé ce fichier
-
 
 
 const App: React.FC = () => {
@@ -92,6 +68,7 @@ const App: React.FC = () => {
           <Route path="/forumProfesseur" element={<ForumProfesseur />} />
           <Route path="/edtProfesseur" element={<EdtProfesseur />} />
           <Route path="/feedbackProfesseur" element={<FeedbackProfesseur />} />
+          <Route path="/feedbackEtudiant" element={<FeedbackEtudiant />} />
           <Route path="/acceuilProfesseur" element={<ProtectedRoute><AcceuilProfesseur /></ProtectedRoute>} />
           <Route path="/acceuilAdmin" element={<ProtectedRoute><AcceuilAdmin /></ProtectedRoute>} />
           <Route path="/acceuilClub" element={<ProtectedRoute><AcceuilClub /></ProtectedRoute>} />

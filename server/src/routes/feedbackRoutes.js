@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const feedbackController = require('../controllers/feedbackController');
 const { authenticate, authorizeRoles } = require('../middleware/authMiddleware');
+const authMiddleware = require('../middleware/authMiddleware');
 
 // Middleware d'authentification pour toutes les routes
 router.use(authenticate);
@@ -41,6 +42,26 @@ router.get(
     feedbackController.getFeedbackById
 );
 
+router.get(
+    '/professeur/feedbacks', 
+    authMiddleware.authenticate, 
+    feedbackController.getFeedbacksByPersonnel
+);
+
+router.get(
+    '/cours-feedback', 
+    authMiddleware.authenticate, 
+    feedbackController.listCoursForFeedback);
+
+router.get(
+    '/tous-feedback', 
+    authMiddleware.authenticate, 
+    feedbackController.listAllFeedbacks);
+
+router.get(
+    '/student-feedback', 
+    authMiddleware.authenticate, 
+    feedbackController.listFeedbacksByStudent);
 module.exports = router;
 
 /**

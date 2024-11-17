@@ -2,7 +2,7 @@ import { Search, MessageCircle, Filter, Plus, ArrowLeft } from "lucide-react";
 import React, { useMemo, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { useTheme } from "../../../context/ThemeContext"; // Importation du hook du contexte de thème
+import { useTheme } from "../../../context/ThemeContext";
 import { ConversationSidebarProps } from './types';
 
 
@@ -13,28 +13,26 @@ const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
   selectedConversation,
   onSelectConversation
 }) => {
-  const navigate = useNavigate(); // Hook de navigation
-  const containerRef = useRef<HTMLDivElement>(null); // Référence pour la liste des conversations
-  const { isDarkMode } = useTheme(); // Utilisation du contexte du thème
+  const navigate = useNavigate();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { isDarkMode } = useTheme();
 
-  // Filtrage des conversations en fonction du terme de recherche
   const filteredConversations = useMemo(() => {
-    return conversations.filter(conversation => 
-      conversation.sender?.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    return conversations?.filter(conversation => 
+      conversation.dernierMessage?.contenu.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      conversation.interlocuteur?.nom.toLowerCase().includes(searchTerm.toLowerCase())
+    ) || [];
   }, [conversations, searchTerm]);
 
-  // Retour à la page précédente
   const handleGoBack = () => {
     navigate(-1);
   };
 
-  // Faire défiler la liste vers le haut lorsque le dernier message arrive
   useEffect(() => {
     if (containerRef.current) {
-      containerRef.current.scrollTop = 0; // Défiler vers le haut
+      containerRef.current.scrollTop = 0;
     }
-  }, [conversations]); // On effectue le défilement chaque fois que la liste des conversations change
+  }, [conversations]);
 
   return (
     <div className={`
@@ -84,7 +82,6 @@ const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
           </button>
         </div>
       </div>
-
       {/* Barre de recherche */}
       <div className="p-3">
         <div className={`
@@ -113,74 +110,31 @@ const ConversationSidebar: React.FC<ConversationSidebarProps> = ({
           />
         </div>
       </div>
-
       {/* Liste des conversations */}
       <div 
         className="flex-1 overflow-y-auto"
-        ref={containerRef} // Référence pour le scroll
+        ref={containerRef}
       >
         {filteredConversations.map((conversation) => (
-          <div
-            key={conversation.id}
+          <div 
+            key={conversation.dernierMessage.id}
+            className={`px-4 py-3 flex items-center justify-between border-b ${isDarkMode ? 'border-gray-800' : 'border-gray-200'}`}
             onClick={() => onSelectConversation(conversation)}
-            className={`
-              px-4 py-3 flex items-center gap-2 cursor-pointer
-              transition-colors duration-200
-              ${selectedConversation?.id === conversation.id
-                ? isDarkMode 
-                  ? 'bg-[#FFAA00] text-black' 
-                  : 'bg-[#FFAA00] text-black'
-                : ''
-              }
-              ${isDarkMode 
-                ? 'hover:bg-gray-800 border-gray-800' 
-                : 'hover:bg-gray-50 border-gray-100'}
-              border-b
-            `}
           >
-            <div className="relative">
-              {conversation.avatar ? (
-                <img
-                  src={conversation.avatar}
-                  alt={conversation.sender}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              ) : (
-                <div className={`
-                  w-10 h-10 rounded-full flex items-center justify-center
-                  ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}
-                `}>
-                  <span className="text-sm font-medium">
-                    {conversation.sender.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              )}
-              {conversation.isOnline && (
-                <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white" />
-              )}
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex justify-between items-center mb-0.5">
-                <h3 className={`
-                  text-sm font-medium truncate
-                  ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}
-                `}>
-                  {conversation.sender}
-                </h3>
-                <time className={`
-                  text-xs font-light
-                  ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}
-                `}>
-                  {conversation.time}
-                </time>
+            <div className="flex items-center gap-2">
+              <img 
+                src={`http://localhost:5000/${conversation.interlocuteur.photoProfil?.replace(/\\/g, '/')}`}
+                alt={`${conversation.interlocuteur.nom} ${conversation.interlocuteur.prenom}`} 
+                className="w-10 h-10 rounded-full object-cover" 
+              />
+              <div>
+                <h2 className="text-sm font-semibold">{`${conversation.interlocuteur.nom} ${conversation.interlocuteur.prenom}`}</h2>
+                <p className="text-xs text-gray-500">{conversation.dernierMessage.contenu}</p>
               </div>
-              <p className={`
-                text-xs truncate
-                ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}
-              `}>
-                {conversation.lastMessage}
-              </p>
             </div>
+            <span className="text-xs text-gray-400">
+              {new Date(conversation.dernierMessage.dateEnvoi).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </span>
           </div>
         ))}
       </div>

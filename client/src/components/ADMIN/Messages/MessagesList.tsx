@@ -1,276 +1,217 @@
-import { ChevronRight, Check, Mail, Clock, Star, Sun, Moon, MessageSquare, Archive, Inbox, Menu, Search, Bell, Users, Paperclip, ArrowLeft } from 'lucide-react';
+import { Check, Mail, Clock, Sun, Moon, Menu, Search, MessageSquarePlus } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 
+import ConversationMiniWindow from './ConversationMiniWindow.tsx';
 import { useTheme } from '../../../context/ThemeContext.tsx';
+import NewMessageModal from './NewMessageModal.tsx';
+import apiService from '../../../services/api.ts';
 
 
-interface Message {
-    id: number;
-    sender: string;
-    preview: string;
-    timestamp: string;
-    avatar: string;
-    unread?: boolean;
+interface User {
+    id: string;
+    nom: string;
+    prenom: string;
+    photoProfil: string;
+    email: string;
+}
+interface Conversation {
+    id: string;
+    interlocuteur: User;
+    dernierMessage: {
+        id: string;
+        contenu: string;
+        dateEnvoi: string;
+    };
+    messagesNonLus: number;
 }
 const MessageList: React.FC = () => {
     const navigate = useNavigate();
-    const { isDarkMode, toggleDarkMode } = useTheme();
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const { isDarkMode } = useTheme();
     const [searchQuery, setSearchQuery] = useState('');
-    const messages: Message[] = [
-        {
-          id: 1,
-          sender: 'John Anderson',
-          preview: 'Hey, I\'ve reviewed the project proposal you sent. Let\'s discuss the details tomorrow.',
-          timestamp: '2h ago',
-          avatar: 'https://randomuser.me/api/portraits/men/1.jpg',
-          unread: true,
-        },
-        {
-          id: 2,
-          sender: 'Jane Smith',
-          preview: 'Let\'s catch up this weekend. It’s been a while!',
-          timestamp: '1d ago',
-          avatar: 'https://randomuser.me/api/portraits/women/2.jpg',
-        },
-        {
-          id: 3,
-          sender: 'Alice Johnson',
-          preview: 'I sent you the documents you requested. Please check your email.',
-          timestamp: '3d ago',
-          avatar: 'https://randomuser.me/api/portraits/women/3.jpg',
-          unread: true,
-        },
-        {
-          id: 4,
-          sender: 'Michael Brown',
-          preview: 'Are we still on for the meeting next week?',
-          timestamp: '5d ago',
-          avatar: 'https://randomuser.me/api/portraits/men/4.jpg',
-        },
-        {
-          id: 5,
-          sender: 'Chris Evans',
-          preview: 'Just wanted to share this article with you. It might interest you.',
-          timestamp: '1w ago',
-          avatar: 'https://randomuser.me/api/portraits/men/5.jpg',
-        },
-        {
-          id: 6,
-          sender: 'Emma Watson',
-          preview: 'I loved the movie we watched last night! We should do it again.',
-          timestamp: '1w ago',
-          avatar: 'https://randomuser.me/api/portraits/women/6.jpg',
-          unread: true,
-        },
-        {
-          id: 7,
-          sender: 'Sophia Turner',
-          preview: 'Can you send me the latest updates on the project?',
-          timestamp: '2w ago',
-          avatar: 'https://randomuser.me/api/portraits/women/7.jpg',
-        },
-        {
-          id: 8,
-          sender: 'Robert Downey',
-          preview: 'Don’t forget about the deadline next Friday!',
-          timestamp: '2w ago',
-          avatar: 'https://randomuser.me/api/portraits/men/8.jpg',
-        },
-        {
-          id: 9,
-          sender: 'Natalie Portman',
-          preview: 'I’ll be in town next month. Let’s meet up!',
-          timestamp: '3w ago',
-          avatar: 'https://randomuser.me/api/portraits/women/9.jpg',
-        },
-        {
-          id: 10,
-          sender: 'Tom Holland',
-          preview: 'Can you help me with the presentation for tomorrow?',
-          timestamp: '3w ago',
-          avatar: 'https://randomuser.me/api/portraits/men/10.jpg',
-          unread: true,
-        },
-      ];
-      
-    const statsData = [
-        {
-            label: 'Messages',
-            value: '24',
-            icon: Mail,
-            color: 'bg-blue-500',
-            bgColor: 'bg-blue-50'
-        },
-        {
-            label: 'Non lus',
-            value: '3',
-            icon: Bell,
-            color: 'bg-red-500',
-            bgColor: 'bg-red-50'
-        },
-        {
-            label: 'Contacts',
-            value: '42',
-            icon: Users,
-            color: 'bg-green-500',
-            bgColor: 'bg-green-50'
-        },
-        {
-            label: 'Pièces',
-            value: '12',
-            icon: Paperclip,
-            color: 'bg-purple-500',
-            bgColor: 'bg-purple-50'
-        },
-    ];
-    const filteredMessages = messages.filter(message =>
-        message.sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        message.preview.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-    const handleMessageClick = (message: Message) => {
-        navigate(`/MessagesView/${message.id}`, { 
-            state: { 
-                message: message 
-            } 
+    const [conversations, setConversations] = useState<Conversation[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const handleNewMessageClick = () => {
+        setIsModalOpen(true);
+    };
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+    const handleSelectUser = (user: User) => {
+        setSelectedUser(user);
+        setIsModalOpen(false);
+    };
+    const handleCloseMiniWindow = () => {
+        setSelectedUser(null);
+    };
+    const fetchConversations = async () => {
+        try {
+            const response = await apiService.get('/conversations');
+            const conversationsData = response.conversations || (response.data && response.data.conversations);
+            if (conversationsData && conversationsData.length > 0) {
+                setConversations(conversationsData);
+            } else {
+                console.error('Aucune conversation trouvée', response);
+            }
+        } catch (error) {
+            console.error('Erreur lors de la récupération des conversations:', error);
+        }
+    };
+    useEffect(() => {
+        fetchConversations();
+    }, []);
+    const filteredConversations = conversations.filter(conversation => {
+        const sender = conversation.interlocuteur?.nom || '';
+        const preview = conversation.dernierMessage?.contenu || '';
+        return sender.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            preview.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+    const handleMessageClick = (conversation: Conversation) => {
+        navigate(`/MessagesView/${conversation.id}`, {
+            state: {
+                conversation: conversation
+            }
         });
     };
+    const handleQuickMessageClick = (user: User) => {
+        setSelectedUser(user);
+    };
+    const totalNonLus = conversations.reduce((acc, curr) => acc + curr.messagesNonLus, 0);
     return (
-        <div className={`min-h-screen p-3 ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'} md:p-6 lg:p-8`}>
-            {/* Mobile Header */}
-            <div className="md:hidden mb-4 flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                    <button
-                        onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        className={`p-2 rounded-full ${isDarkMode ? 'bg-gray-800 text-white' : 'bg-gray-100 text-gray-800'}`}
-                    >
-                        <Menu className="w-5 h-5" />
-                    </button>
-                    <h1 className="text-lg font-bold">Messages</h1>
-                </div>
-                <button
-                    onClick={toggleDarkMode}
-                    className={`p-2 rounded-full ${isDarkMode ? 'bg-gray-800 text-yellow-500' : 'bg-gray-100 text-gray-600'}`}
-                >
-                    {isDarkMode ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                </button>
-            </div>
-            {/* Search Bar */}
-            <div className="mb-4 relative">
-                <input
-                    type="text"
-                    placeholder="Rechercher des messages..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`w-full p-3 rounded-lg ${isDarkMode ? 'bg-gray-800 text-white placeholder-gray-500' : 'bg-white text-gray-800 placeholder-gray-400'} shadow-sm focus:ring-2 focus:ring-blue-500 outline-none`}
-                />
-                <Search className={`absolute right-4 top-1/2 -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
-            </div>
-            {/* Contenu principal */}
-            <div className="grid md:grid-cols-3 gap-6">
-                {/* Statistiques (visible sur md et plus) */}
-                <div className="hidden md:flex flex-col gap-4 h-fit">
-                    {statsData.map((stat, index) => (
-                        <motion.div
-                            key={index}
-                            initial={{ opacity: 0, translateX: -20 }}
-                            animate={{ opacity: 1, translateX: 0 }}
-                            transition={{
-                                duration: 0.3,
-                                delay: index * 0.1
-                            }}
-                            className={`
-                                rounded-xl p-3 flex items-center 
-                                ${isDarkMode ? 'bg-gray-800' : 'bg-white'} 
-                                shadow-md hover:shadow-lg 
-                                transition-all duration-300 
-                                space-x-3
-                            `}
-                            whileHover={{ scale: 1.03 }}
-                        >
-                            <div className={`
-                                p-2 rounded-lg 
-                                ${isDarkMode ? 'bg-gray-700' : stat.bgColor}
-                            `}>
-                                <stat.icon className={`
-                                    w-4 h-4 
-                                    ${stat.color.replace('bg-', 'text-')}
-                                `} />
-                            </div>
-                            <div className="flex-grow">
-                                <p className={`
-                                    text-xs font-medium mb-0.5
-                                    ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}
-                                `}>
-                                    {stat.label}
-                                </p>
-                                <p className={`
-                                    text-base font-bold
-                                    ${isDarkMode ? 'text-white' : 'text-gray-800'}
-                                `}>
-                                    {stat.value}
-                                </p>
-                            </div>
-                        </motion.div>
-                    ))}
-                </div>
-                {/* Liste des messages */}
-                <div className="md:col-span-2">
-                    <div className={`rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}>
-                        {filteredMessages.map((message, index) => (
-                            <motion.div
-                                key={message.id}
-                                initial={{ opacity: 0, translateY: 10 }}
-                                animate={{ opacity: 1, translateY: 0 }}
-                                transition={{ duration: 0.2, delay: index * 0.05 }}
-                                onClick={() => handleMessageClick(message)}
-                                className={`
-                                    flex items-center p-3 border-b 
-                                    ${isDarkMode ? 'border-gray-700 hover:bg-gray-700' 
-                                        : 'border-gray-100 hover:bg-gray-50'
-                                        } 
-                                        cursor-pointer 
-                                        ${message.unread ? 'bg-blue-50/30' : ''}
-                                    `}
-                                >
-                                    {/* Avatar */}
-                                    <div className="relative mr-3">
-                                        <div className={`w-8 h-8 rounded-full ring-1 ${message.unread ? 'ring-blue-400/50 animate-pulse' : `${isDarkMode ? 'ring-gray-700' : 'ring-gray-200'}`}`}>
-                                            <img src={message.avatar} alt={message.sender} className="w-full h-full object-cover rounded-full" />
-                                        </div>
-                                        {message.unread && (
-                                            <div className="absolute -top-1 -right-1 bg-blue-500 text-white rounded-full w-3 h-3 flex items-center justify-center">
-                                                <Check className="w-2 h-2" />
-                                            </div>
-                                        )}
-                                    </div>
-                                    {/* Contenu du message */}
-                                    <div className="flex-grow overflow-hidden">
-                                        <div className="flex justify-between items-center mb-1">
-                                            <h3 className={`text-xs font-medium truncate ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                                                {message.sender}
-                                            </h3>
-                                            <div className="flex items-center gap-1 text-gray-400">
-                                                <Clock className="w-3 h-3" />
-                                                <span className="text-xs">{message.timestamp}</span>
-                                            </div>
-                                        </div>
-                                        <p className={`
-                                            text-xs truncate 
-                                            ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}
-                                        `}>
-                                            {message.preview}
-                                        </p>
-                                    </div>
-                                    <ChevronRight className={`w-4 h-4 ml-2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`} />
-                                </motion.div>
-                            ))}
+        <div className={`min-h-screen ${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gray-50 text-gray-900'} transition-all duration-300`}>
+            {/* Header */}
+            <div className={`sticky top-0 z-50 ${isDarkMode ? 'bg-gray-900/95' : 'bg-white/95'} backdrop-blur-sm shadow-sm -z-0`}>
+                <div className="max-w-7xl mx-auto px-4 py-3">
+                    <div className="flex justify-between items-center">
+                        <h1 className="text-sm font-medium">Messagerie</h1>
+                        <div className="flex items-center space-x-2">
+                            <button
+                                onClick={handleNewMessageClick}
+                                className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800 hover:bg-gray-700' : 'bg-gray-100 hover:bg-gray-200'} transition duration-200`}
+                            >
+                                <MessageSquarePlus className="w-4 h-4" />
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
-        );
-    };
-    export default MessageList;
+            {/* Modal de nouveau message */}
+            {isModalOpen && (
+                <NewMessageModal
+                    isOpen={isModalOpen}
+                    onClose={handleCloseModal}
+                    onSelectUser={handleSelectUser}
+                />
+            )}
+            {/* Mini-fenêtre de conversation */}
+            {selectedUser && (
+                <ConversationMiniWindow
+                    user={selectedUser}
+                    onClose={handleCloseMiniWindow}
+                />
+            )}
+            <div className="max-w-7xl mx-auto px-4 py-4 space-y-4">
+                {/* Search Bar */}
+                <div className="relative w-full">
+                    <input
+                        type="text"
+                        placeholder="Rechercher des messages..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className={`w-full pl-10 pr-4 py-2 text-sm rounded-lg ${isDarkMode ? 'bg-gray-800 text-white placeholder-gray-400 focus:bg-gray-700' : 'bg-white text-gray-800 placeholder-gray-400'} shadow-sm focus:ring-1 focus:ring-blue-500 focus:outline-none transition duration-200`}
+                    />
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                </div>
+                {/* Statistics Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm transition duration-200`}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total conversations</p>
+                                <p className="text-lg font-medium">{conversations.length}</p>
+                            </div>
+                            <div className={`p-2 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-blue-50'}`}>
+                                <Mail className="w-4 h-4 text-blue-500" />
+                            </div>
+                        </div>
+                    </motion.div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.1 }}
+                        className={`p-4 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm transition duration-200`}
+                    >
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Messages non lus</p>
+                                <p className="text-lg font-medium">{totalNonLus}</p>
+                            </div>
+                            <div className={`p-2 rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-purple-50'}`}>
+                                <Clock className="w-4 h-4 text-purple-500" />
+                            </div>
+                            </div>
+                    </motion.div>
+                </div>
+                {/* Messages List */}
+                <div className="space-y-2">
+                    {filteredConversations.map((conversation, index) => (
+                        <motion.div
+                            key={conversation.id}
+                            initial={{ opacity: 0, translateY: 20 }}
+                            animate={{ opacity: 1, translateY: 0 }}
+                            transition={{ duration: 0.3, delay: index * 0.05 }}
+                            onClick={() => handleMessageClick(conversation)}
+                            className={`group relative p-3 rounded-lg cursor-pointer ${isDarkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-50'} ${conversation.messagesNonLus > 0 ? 'ring-1 ring-blue-500' : ''} transition duration-200 shadow-sm`}
+                        >
+                            <div className="flex items-center space-x-3">
+                                <div className="relative">
+                                    <img
+                                        src={`http://localhost:5000/${conversation.interlocuteur.photoProfil?.replace(/\\/g, '/')}`}
+                                        alt={`${conversation.interlocuteur.nom} ${conversation.interlocuteur.prenom}`}
+                                        className="w-12 h-12 rounded-full object-cover ring-1 ring-offset-2 ring-blue-500"
+                                    />
+                                    {conversation.messagesNonLus > 0 && (
+                                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-500 text-white text-xs flex items-center justify-center rounded-full">
+                                            {conversation.messagesNonLus}
+                                        </span>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <div className="flex justify-between items-center mb-1">
+                                        <h3 className={`text-sm font-medium truncate ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                                            {conversation.interlocuteur.nom} {conversation.interlocuteur.prenom}
+                                        </h3>
+                                        <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                            {new Date(conversation.dernierMessage.dateEnvoi).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <p className={`text-xs truncate ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
+                                        {conversation.dernierMessage.contenu}
+                                    </p>
+                                    <div className="absolute top-1/2 right-3 transform -translate-y-1/2 opacity-0 group-hover:opacity-100 transition duration-200">
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                handleQuickMessageClick(conversation.interlocuteur);
+                                            }}
+                                            className={`p-1 rounded-full ${isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'}`}
+                                        >
+                                            <MessageSquarePlus className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+export default MessageList;

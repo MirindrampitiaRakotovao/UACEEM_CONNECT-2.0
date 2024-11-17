@@ -8,21 +8,38 @@ import { Conversation } from './types';
 interface ConversationHeaderProps {
   conversation: Conversation;
   onBack: () => void;
-  onVideoCall?: (conversation: Conversation) => void; // Rendre onVideoCall optionnel
-  isDarkMode: boolean; // Ajouter isDarkMode
+  isDarkMode: boolean;
 }
+
 const ConversationHeader: React.FC<ConversationHeaderProps> = ({
   conversation,
   onBack,
-  onVideoCall, // Destructurer onVideoCall
-  isDarkMode // Ajouter isDarkMode
+  isDarkMode
 }) => {
-  const handleVideoCallStart = () => {
-    // Vérifier si onVideoCall existe avant de l'appeler
-    if (onVideoCall) {
-      onVideoCall(conversation);
-    }
-  };
+  const interlocuteur = conversation.interlocuteur || conversation.destinataire;
+
+  if (!interlocuteur) {
+    return (
+      <div className={`
+        px-4 py-3 flex items-center
+        ${isDarkMode ? 'bg-gray-900' : 'bg-white'}
+      `}>
+        <motion.div
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <ArrowLeft
+            className={`
+              cursor-pointer w-5 h-5
+              ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}
+            `}
+            onClick={onBack}
+          />
+        </motion.div>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
@@ -52,11 +69,12 @@ const ConversationHeader: React.FC<ConversationHeaderProps> = ({
             onClick={onBack}
           />
         </motion.div>
+        
         <div className="flex items-center space-x-3">
           <div className="relative">
             <img
-              src={conversation.avatar}
-              alt={conversation.sender}
+              src={`http://localhost:5000/${interlocuteur.photoProfil?.replace(/\\/g, '/')}`}
+              alt={`${interlocuteur.prenom} ${interlocuteur.nom}`}
               className={`
                 w-10 h-10 rounded-full object-cover 
                 ring-2
@@ -66,16 +84,17 @@ const ConversationHeader: React.FC<ConversationHeaderProps> = ({
               `}
             />
             <div
-              className="
+              className={`
                 absolute bottom-0 right-0
                 w-2.5 h-2.5
                 bg-green-500
                 rounded-full
                 border-2
-                border-white
-              "
+                ${isDarkMode ? 'border-gray-900' : 'border-white'}
+              `}
             />
           </div>
+          
           <div>
             <h3
               className={`
@@ -83,7 +102,7 @@ const ConversationHeader: React.FC<ConversationHeaderProps> = ({
                 ${isDarkMode ? 'text-white' : 'text-gray-800'}
               `}
             >
-              {conversation.sender}
+              {`${interlocuteur.prenom} ${interlocuteur.nom}`}
             </h3>
             <p
               className={`
@@ -98,26 +117,31 @@ const ConversationHeader: React.FC<ConversationHeaderProps> = ({
           </div>
         </div>
       </div>
+
       <div className="flex items-center space-x-3">
         {[
-          { 
-            Icon: Phone, 
-            onClick: () => {/* Logique appel audio */} 
+          {
+            Icon: Phone,
+            onClick: () => {/* Logique appel audio */},
+            tooltip: 'Appel audio'
           },
-          { 
-            Icon: Video, 
-            onClick: handleVideoCallStart // Utiliser la nouvelle méthode
+          {
+            Icon: Video,
+            onClick: () => {/* Logique appel vidéo */},
+            tooltip: 'Appel vidéo'
           },
-          { 
-            Icon: MoreVertical, 
-            onClick: () => {/* Options supplémentaires */} 
+          {
+            Icon: MoreVertical,
+            onClick: () => {/* Options supplémentaires */},
+            tooltip: 'Plus d\'options'
           }
-        ].map(({ Icon, onClick }, index) => (
+        ].map(({ Icon, onClick, tooltip }, index) => (
           <motion.div
             key={index}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
             onClick={onClick}
+            title={tooltip}
           >
             <Icon
               className={`
@@ -135,4 +159,5 @@ const ConversationHeader: React.FC<ConversationHeaderProps> = ({
     </motion.div>
   );
 };
+
 export default ConversationHeader;
