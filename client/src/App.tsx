@@ -34,6 +34,9 @@ import Form from './components/Form';
 import { store } from './store'; // Assurez-vous d'avoir créé ce fichier
 
 
+// Assurez-vous d'avoir créé ce fichier
+
+
 const App: React.FC = () => {
   const { isDarkMode } = useTheme();
 
@@ -76,6 +79,7 @@ const App: React.FC = () => {
           <Route path="/userlist" element={<UserList />} />
           <Route path="/courseList" element={<CourseList />} />
           <Route path="/signalementList" element={<SignalementList />} />
+          
         </Routes>
       </div>
     </Provider>

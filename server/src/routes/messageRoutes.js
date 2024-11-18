@@ -15,12 +15,10 @@ module.exports = (io) => {
     messageController.envoyerMessage.bind(messageController)
   );
 
-  router.post('/messages/upload-fichiers', 
-      authMiddleware.authenticate, 
-      upload.array('fichiers', 5),  // Spécifiez explicitement 'fichiers' et le nombre max de fichiers
-      handleUploadError,  // Ajoutez le middleware de gestion des erreurs
-      messageController.uploadFichiers
-  );
+  router.post('/upload-fichiers', 
+    uploadMultiple('fichiers', 10), // 'fichiers' doit correspondre au nom du champ dans le FormData
+    messageController.uploadFichiers
+);
 
 
   // Route pour récupérer les messages d'un destinataire spécifique

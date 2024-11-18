@@ -1,11 +1,18 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import { BrowserRouter as Router } from 'react-router-dom';
-import App from './App'; // L'application avec toutes les routes
-import { ThemeProvider } from './context/ThemeContext'; // Importer le ThemeProvider
 import 'react-toastify/dist/ReactToastify.css';
 import './index.css'; // Vos styles globaux
+
+import { BrowserRouter as Router } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
+import { createRoot } from 'react-dom/client';
+import React from 'react';
+
+import { ThemeProvider } from './context/ThemeContext'; // Importer le ThemeProvider
+import ChatBot from './Pages/ChatBot/ChatBot';
+import App from './App'; // L'application avec toutes les routes
+
+
+// L'application avec toutes les routes
+
 
 const rootElement = document.getElementById('root');
 const root = createRoot(rootElement!); // Utilisation de createRoot pour React 18
@@ -26,6 +33,7 @@ root.render(
           draggable // Permettre le glissement pour fermer
           pauseOnHover // Mettre en pause au survol
         />
+        <ChatBot/>
       </Router>
     </ThemeProvider>
   </React.StrictMode>

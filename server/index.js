@@ -1,5 +1,6 @@
 const { Sequelize, Op } = require('sequelize');
 const express = require('express');
+require('dotenv').config();
 const http = require('http');
 const cors = require('cors');
 const path = require('path');
@@ -72,6 +73,7 @@ const importRoute = require('./src/routes/importRoute');
 const coursRoute = require('./src/routes/coursRoutes');
 const feedbackRoute = require('./src/routes/feedbackRoutes');
 const EdtRoute = require('./src/routes/emploiDuTempsRoutes');
+
 
 // Définir les routes
 app.use('/api/personnel', personnelRouter);

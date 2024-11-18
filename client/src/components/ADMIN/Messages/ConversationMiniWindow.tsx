@@ -190,41 +190,104 @@ const ConversationMiniWindow: React.FC<ConversationMiniWindowProps> = ({
             handleSendMessage();
         }
     };
-    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+// Frontend
+const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
-        if (!files || files.length === 0) return;
-        
-        try {
-            console.log('Fichiers à uploader:', files); // Debug log
-            
-            const formData = new FormData();
-            for (let i = 0; i < files.length; i++) {
-                console.log('Ajout du fichier:', files[i].name); // Debug log
-                formData.append('fichiers', files[i]);
+        if (!files || files.length === 0) {
+            setError('Aucun fichier sélectionné');
+            return;
+        }
+
+        const maxFileSize = 10 * 1024 * 1024; // 10 MB
+        const allowedTypes = [
+            'image/jpeg', 
+            'image/png',
+            'image/gif',
+            'application/pdf',
+            'application/msword',
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+            'audio/mpeg',
+            'audio/wav',
+            'audio/webm',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'application/vnd.ms-powerpoint',
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation'
+        ];
+
+        const validFiles = Array.from(files).filter(file => {
+            if (!allowedTypes.includes(file.type)) {
+                setError(`Type de fichier non autorisé : ${file.name}`);
+                return false;
             }
-            formData.append('destinataireId', user.id);
-    
-            // Log pour vérifier le contenu du FormData
+            if (file.size > maxFileSize) {
+                setError(`Fichier trop volumineux : ${file.name} (max 10 Mo)`);
+                return false;
+            }
+            return true;
+        });
+
+        if (validFiles.length === 0) {
+            return;
+        }
+
+        const formData = new FormData();
+        
+        // Ajouter les fichiers
+        validFiles.forEach(file => {
+            formData.append('fichiers', file);
+        });
+
+        // Ajouter les autres données
+        formData.append('ty', 'gfytf');
+        formData.append('destinataireId', user.id);
+
+        try {
+            setIsLoading(true);
+            setError(null);
+
+            // Configuration d'axios modifiée pour gérer correctement FormData
+            const config = {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                    // Ne pas définir le boundary - il sera automatiquement généré
+                },
+                onUploadProgress: (progressEvent: any) => {
+                    const percentCompleted = Math.round(
+                        (progressEvent.loaded * 100) / (progressEvent.total || 1)
+                    );
+                    setUploadProgress(percentCompleted);
+                },
+                timeout: 30000,
+            };
+
+            // Débogage - vérifier le contenu de FormData
             for (let pair of formData.entries()) {
                 console.log(pair[0], pair[1]);
             }
-    
-            const response = await apiService.post('/messages/upload-fichiers', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
-    
-            if (response.data) {
-                setMessages(prev => [...prev, response.data]);
+
+            const response = await apiService.post('/upload-fichiers', formData, config);
+
+            if (response.data?.data) {
+                setMessages(prev => [...prev, response.data.data]);
                 scrollToBottom();
+                
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+                setUploadProgress(0);
             }
-        } catch (error) {
-            console.error('Erreur lors de l\'upload des fichiers:', error);
-            setError('Impossible d\'envoyer les fichiers. Veuillez réessayer.');
+        } catch (error: any) {
+            console.error('Erreur de téléchargement:', error);
+            const errorMessage = 
+                error.response?.data?.message ||
+                error.message ||
+                'Erreur lors du téléchargement des fichiers';
+            setError(errorMessage);
+        } finally {
+            setIsLoading(false);
         }
     };
-
     // Si l'authentification est en cours, afficher un loader
     if (authLoading) {
         return (
@@ -399,18 +462,20 @@ const ConversationMiniWindow: React.FC<ConversationMiniWindowProps> = ({
                 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}
             `}>
                 <div className="flex items-center flex-grow">
-                    <label htmlFor="file-upload" className={`
+                <label htmlFor="file-upload" className={`
                         flex items-center justify-center w-10 h-10 rounded-full cursor-pointer
                         hover:bg-opacity-10 hover:bg-gray-500
                         ${isDarkMode ? 'text-gray-400 hover:text-gray-200' : 'text-gray-600 hover:text-gray-800'}
                     `}>
                         <Paperclip size={20} />
-                        <input 
+                        <input
                             id="file-upload"
                             type="file"
+                            multiple
                             className="hidden"
                             ref={fileInputRef}
                             onChange={handleFileUpload}
+                            accept="image/jpeg,image/png,image/gif,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,audio/mpeg,audio/wav,audio/webm,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
                         />
                     </label>
                     <textarea

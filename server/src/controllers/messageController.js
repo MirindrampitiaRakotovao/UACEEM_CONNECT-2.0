@@ -177,106 +177,119 @@ class MessageController {
   }
 
   // Méthode pour uploader des fichiers
-  async uploadFichiers(req, res) {
-    try {
-        console.log('Début de uploadFichiers');
-        console.log('Body:', req.body);
-        console.log('Files:', req.files);
-        
-        const expediteurId = req.personnel.id;
-        const destinataireId = req.body.destinataireId;
-        const fichiers = req.files;
+// Controller
+async uploadFichiers(req, res) {
+  try {
+      console.log('Début de uploadFichiers');
+      console.log()
+      // Vérification du middleware multer
+      if (!req.files || !Array.isArray(req.files)) {
+          return res.status(400).json({
+              message: 'Erreur: Fichiers non reçus correctement',
+              details: 'req.files est manquant ou mal formaté'
+          });
+      }
 
-        // Vérification plus détaillée des fichiers
-        if (!fichiers) {
-            console.log('req.files est undefined');
-            throw new Error('Aucun fichier n\'a été reçu');
-        }
+      const expediteurId = req.personnel.id;
+      const destinataireId = req.body.destinataireId;
+      const fichiers = req.files;
 
-        if (!Array.isArray(fichiers)) {
-            console.log('req.files n\'est pas un tableau');
-            throw new Error('Format de fichiers invalide');
-        }
+      // Validation des fichiers
+      if (fichiers.length === 0) {
+          return res.status(400).json({
+              message: 'Aucun fichier n\'a été uploadé'
+          });
+      }
 
-        if (fichiers.length === 0) {
-            console.log('req.files est un tableau vide');
-            throw new Error('Aucun fichier n\'a été uploadé');
-        }
+      // Vérifier que le destinataire existe
+      const destinataire = await Personnel.findByPk(destinataireId);
+      if (!destinataire) {
+          return res.status(404).json({
+              message: 'Destinataire non trouvé'
+          });
+      }
 
-        // Vérifier que le destinataire existe
-        const destinataire = await Personnel.findByPk(destinataireId);
-        if (!destinataire) {
-            throw new Error('Destinataire non trouvé');
-        }
+      // Fonction améliorée pour déterminer le type
+      const determinerType = (fichier) => {
+          const mimeType = fichier.mimetype.toLowerCase();
+          const typeMap = {
+              'image/': 'image',
+              'video/': 'multimedia',
+              'audio/': 'vocal',
+              'application/': 'document',
+              'text/': 'document'
+          };
 
-        // Déterminer le type de message en fonction de l'extension du premier fichier
-        const determinerType = (fichier) => {
-            console.log('Détermination du type pour:', fichier);
-            const mimeType = fichier.mimetype.toLowerCase();
-            if (mimeType.startsWith('image/')) return 'image';
-            if (mimeType.startsWith('video/')) return 'multimedia';
-            if (mimeType.startsWith('audio/')) return 'vocal';
-            if (mimeType.startsWith('application/') || mimeType.startsWith('text/')) return 'document';
-            return 'multimedia';
-        };
+          for (const [prefix, type] of Object.entries(typeMap)) {
+              if (mimeType.startsWith(prefix)) return type;
+          }
+          return 'multimedia';
+      };
 
-        const type = determinerType(fichiers[0]);
-        console.log('Type déterminé:', type);
+      // Préparer les données des fichiers avec validation
+      const fichiersData = fichiers.map(fichier => {
+          if (!fichier.originalname || !fichier.filename || !fichier.path) {
+              throw new Error('Données de fichier invalides');
+          }
+          
+          return {
+              nom: fichier.originalname,
+              nomFichier: fichier.filename,
+              chemin: fichier.path,
+              taille: fichier.size,
+              type: fichier.mimetype,
+              dateUpload: new Date().toISOString()
+          };
+      });
 
-        // Préparer les données des fichiers
-        const fichiersData = fichiers.map(fichier => ({
-            nom: fichier.originalname,
-            nomFichier: fichier.filename,
-            chemin: fichier.path,
-            taille: fichier.size,
-            type: fichier.mimetype,
-            dateUpload: new Date().toISOString()
-        }));
+      // Créer le message avec validation des champs obligatoires
+      const message = await Message.create({
+          id: uuidv4(),
+          contenu: '',  // Mettre une chaîne vide au lieu de null
+          type: determinerType(fichiers[0]),
+          fichiers: fichiersData.map(f => f.chemin),
+          metadonneesFichiers: fichiersData,
+          statut: 'envoye',
+          expediteurId,
+          destinataireId,
+          dateEnvoi: new Date()
+      });
 
-        console.log('Données des fichiers préparées:', fichiersData);
+      // Récupérer les détails de l'expéditeur
+      const expediteur = await Personnel.findByPk(expediteurId, {
+          attributes: ['id', 'nom', 'prenom', 'email']
+      });
 
-        // Créer le message
-        const message = await Message.create({
-            id: uuidv4(),
-            contenu: null,
-            type,
-            fichiers: fichiersData.map(f => f.chemin),
-            metadonneesFichiers: fichiersData,
-            statut: 'envoye',
-            expediteurId,
-            destinataireId,
-            dateEnvoi: new Date()
-        });
+      if (!expediteur) {
+          throw new Error('Expéditeur non trouvé');
+      }
 
-        // Récupérer les détails de l'expéditeur
-        const expediteur = await Personnel.findByPk(expediteurId, {
-            attributes: ['id', 'nom', 'prenom', 'email']
-        });
+      // Émettre le message via Socket.IO avec gestion d'erreur
+      const io = getIO();
+      if (io) {
+          io.to(destinataireId.toString()).emit('nouveauMessage', {
+              ...message.toJSON(),
+              expediteur: expediteur.toJSON()
+          });
+      } else {
+          console.warn('Socket.IO non initialisé');
+      }
 
-        console.log('Message créé avec succès:', message.id);
+      return res.status(201).json({
+          message: 'Fichiers uploadés et message créé avec succès',
+          data: {
+              ...message.toJSON(),
+              expediteur: expediteur.toJSON()
+          }
+      });
 
-        // Émettre le message via Socket.IO
-        const io = getIO();
-        io.to(destinataireId.toString()).emit('nouveauMessage', {
-            ...message.toJSON(),
-            expediteur: expediteur.toJSON()
-        });
-
-        res.status(201).json({
-            message: 'Fichiers uploadés et message créé avec succès',
-            data: {
-                ...message.toJSON(),
-                expediteur: expediteur.toJSON()
-            }
-        });
-    } catch (erreur) {
-        console.error('Erreur détaillée lors de l\'upload des fichiers:', erreur);
-        res.status(500).json({
-            message: 'Erreur lors de l\'upload des fichiers',
-            erreur: erreur.message,
-            details: erreur.stack
-        });
-    }
+  } catch (erreur) {
+      console.error('Erreur détaillée lors de l\'upload des fichiers:', erreur);
+      return res.status(500).json({
+          message: 'Erreur lors de l\'upload des fichiers',
+          erreur: erreur.message
+      });
+  }
 }
 
 
