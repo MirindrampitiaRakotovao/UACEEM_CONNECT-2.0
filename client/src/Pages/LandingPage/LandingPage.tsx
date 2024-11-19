@@ -168,7 +168,7 @@ const LandingPage = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate("/login")}
-                className="px-4 py-1 rounded-full bg-gradient-to-r from-[#39457B] to-[#EDB640] text-white flex items-center space-x-1 text-sm"
+                className="px-4 py-1 rounded-md bg-gradient-to-r from-[#39457B] to-[#EDB640] text-white flex items-center space-x-1 text-sm"
               >
                 <User  size={16} />
                 <span>Connexion</span>
@@ -203,7 +203,7 @@ const LandingPage = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate("/login")}
-                className="px-6 py-2 rounded-full bg-gradient-to-r from-[#39457B] to-[#EDB640] text-white font-semibold flex items-center space-x-1 text-sm"
+                className="px-6 py-2 rounded-md bg-gradient-to-r from-[#39457B] to-[#EDB640] text-white font-semibold flex items-center space-x-1 text-sm"
               >
                 <span>Commencer maintenant</span>
                 <ArrowRight size={18} />
@@ -212,7 +212,7 @@ const LandingPage = () => {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => window.location.href = 'https://uaceem.mg/login'}
-                className={`px-6 py-2 rounded-full border font-semibold text-sm ${
+                className={`px-6 py-2 rounded-md border font-semibold text-sm ${
                   isDarkMode ? 'border-gray-700 hover:bg-gray-800' : 'border-gray-200 hover:bg-gray-50'
                 }`}
               >
@@ -230,7 +230,7 @@ const LandingPage = () => {
             <img 
               src={illustration} 
               alt="Illustration" 
-              className="relative z-10 w-full h-auto rounded-3xl shadow-xl"
+              className="relative z-10 w-full h-auto rounded-3xl"
             />
           </motion.div>
         </div>
@@ -365,15 +365,15 @@ const LandingPage = () => {
               <div className="space-y-3">
                 <div className="flex items-center space-x-3">
                   <Mail className="text-[#39457B] w-5 h-5" />
-                  <span className="text-sm">contact@konektea.com</span>
+                  <span className="text-sm">aceemgroupe@gmail.com</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <Phone className="text-[#39457B] w-5 h-5" />
-                  <span className="text-sm">+261 34 00 000 00</span>
+                  <span className="text-sm">+261 34 49 500 71</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <MapPin className="text-[#39457B] w-5 h-5" />
-                  <span className="text-sm">Adresse ici</span>
+                  <span className="text-sm">Manakambahiny, Antananarivo 101, Madagascar</span>
                 </div>
               </div>
             </motion.div>

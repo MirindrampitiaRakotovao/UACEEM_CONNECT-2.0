@@ -581,7 +581,7 @@ class FeedbackController {
   // Lister les feedbacks d'un étudiant (accessible uniquement par l'étudiant)
   async listFeedbacksByStudent(req, res) {
     try {
-      // Vérifier si l'utilisateur est authentifié
+      
       if (!req.personnel || !req.personnel.id) {
         return res.status(403).json({
           success: false,
@@ -590,7 +590,7 @@ class FeedbackController {
       }
       const feedbacks = await Feedback.findAll({
         where: {
-          personnel_id: req.personnel.id // Récupérer les feedbacks de l'étudiant connecté
+          personnel_id: req.personnel.id 
         },
         include: [
           {

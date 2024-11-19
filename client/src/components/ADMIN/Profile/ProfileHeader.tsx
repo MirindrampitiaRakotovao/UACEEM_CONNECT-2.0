@@ -5,7 +5,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import { motion, AnimatePresence } from 'framer-motion';
 // Image de couverture fixe pour l'académie
-const ACADEMY_COVER = "https://images.unsplash.com/photo-1562774053-701939374585?q=80&w=2886&auto=format&fit=crop";
+import ACADEMY_COVER from '../../../../public/assets/img/Couverture.jpg';
 interface UserProfile {
   nom: string;
   prenom: string;
@@ -47,8 +47,8 @@ const ProfileHeader: React.FC = () => {
           setUserProfile({
             ...resProfile.data,
             location: 'Madagascar, Antananarivo', // Exemple de données additionnelles
-            joinDate: 'Janvier 2024',
-            role: 'Étudiant en développement web'
+            joinDate: 'Septembre 2024',
+            role: 'Membre de la communaute de l\'UACEEM'
           });
           const resCount = await axios.get('http://localhost:5000/api/count', {
             headers: { Authorization: `Bearer ${token}` },
@@ -68,7 +68,7 @@ const ProfileHeader: React.FC = () => {
       {/* Couverture avec effet parallaxe amélioré */}
       <div className="relative h-64 overflow-hidden">
         <div
-          className="absolute inset-0 bg-cover bg-center"
+          className="absolute inset-0 bg-cover bg-center -mt-96"
           style={{
             backgroundImage: `url(${ACADEMY_COVER})`,
             transform: `translateY(${scrollPosition * 0.5}px)`,
@@ -130,16 +130,7 @@ const ProfileHeader: React.FC = () => {
                 {userProfile.bio || "Aucune biographie pour le moment."}
               </p>
               <div className="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`px-4 py-2 text-xs rounded-full ${
-                    isDarkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'
-                  } text-white transition-colors duration-200 flex items-center`}
-                >
-                  <UserPlus className="w-3 h-3 mr-1" />
-                  Suivre
-                </motion.button>
+                
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
@@ -149,15 +140,7 @@ const ProfileHeader: React.FC = () => {
                 >
                   <Bell className="w-4 h-4" />
                 </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className={`p-2 rounded-full ${
-                    isDarkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-100 hover:bg-gray-200'
-                  } transition-colors duration-200`}
-                >
-                  <Share2 className="w-4 h-4" />
-                </motion.button>
+                
               </div>
             </div>
           </div>
@@ -166,7 +149,7 @@ const ProfileHeader: React.FC = () => {
           <div className="mt-6 border-t border-gray-200 dark:border-gray-700 pt-6">
             <div className="flex justify-between items-center mb-4">
               <div className="flex space-x-4">
-                {['posts', 'projets', 'réalisations'].map((tab) => (
+                {['posts'].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -182,8 +165,6 @@ const ProfileHeader: React.FC = () => {
               </div>
               <div className="flex space-x-4 text-sm">
                 <span><strong>{publicationsCount}</strong> publications</span>
-                <span><strong>1.2k</strong> abonnés</span>
-                <span><strong>500</strong> abonnements</span>
               </div>
             </div>
           </div>

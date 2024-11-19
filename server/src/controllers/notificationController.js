@@ -4,14 +4,14 @@ class NotificationsController {
     // Récupérer toutes les notifications d'un utilisateur
     async getNotifications(req, res) {
         try {
-            const userId = req.personnel.id; // Récupérer l'ID de l'utilisateur connecté
+            const userId = req.personnel.id; 
             const notifications = await Notification.findAll({
                 where: { userId },
                 include: [
                     {
                         model: Personnel,
-                        as: 'utilisateur', // Utilisateur qui reçoit la notification
-                        attributes: ['nomUtilisateur', 'photoProfil'], // Inclut le nom d'utilisateur et la photo de profil
+                        as: 'utilisateur',
+                        attributes: ['nomUtilisateur', 'photoProfil'], 
                     },
                     {
                         model: Personnel,
@@ -78,7 +78,7 @@ class NotificationsController {
 
             const notification = await Notification.create({
                 userId,
-                creatorId, // Inclure creatorId lors de la création de la notification
+                creatorId, 
                 type,
                 message,
                 publicationId,

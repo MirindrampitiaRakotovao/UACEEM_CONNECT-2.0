@@ -336,7 +336,7 @@ function ChatBot(): JSX.Element {
           }}
           className="
             group
-            w-16 h-16
+            w-14 h-14
             bg-gradient-to-r from-indigo-600 to-blue-600
             rounded-full
             shadow-lg
@@ -370,7 +370,7 @@ function ChatBot(): JSX.Element {
           ">
             Konekt'IA
           </div>
-          <Sparkles className="w-8 h-8 text-white" />
+          <Sparkles className="w-7 h-7 text-white" />
         </button>
       )}
     </div>

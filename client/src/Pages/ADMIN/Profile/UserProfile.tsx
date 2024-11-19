@@ -51,7 +51,7 @@ const UserProfile = () => {
           </motion.div>
           {/* Footer optionnel */}
           <footer className="mt-auto py-6 text-center text-sm text-gray-500 dark:text-gray-400">
-            <p>© 2024 Votre Plateforme. Tous droits réservés.</p>
+            <p>© 2024 KONEKTEA. Tous droits réservés.</p>
           </footer>
         </main>
       </div>

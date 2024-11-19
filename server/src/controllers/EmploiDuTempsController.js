@@ -250,7 +250,7 @@ async getDonneesFormulaire(req, res) {
           }
           // Récupérer l'ID du professeur
           const personnelId = enseignement.personnelId;
-          // Vérification des conflits d'horaires
+
           const conflit = await EmploiDuTemps.findOne({
             where: {
               [Op.or]: [
@@ -297,7 +297,7 @@ async getDonneesFormulaire(req, res) {
           // Créer l'emploi du temps
           const nouvelEmploi = await EmploiDuTemps.create({
             nomMatiere,
-            personnelId, // Utiliser l'ID du professeur de l'enseignement
+            personnelId, 
             jour,
             heureDebut,
             heureFin,
@@ -329,8 +329,9 @@ async getDonneesFormulaire(req, res) {
           });
         }
       }
+      
       // Modifier un emploi du temps (admin uniquement)
-      // Modifier un emploi du temps (admin uniquement)
+
 async modifier(req, res) {
   try {
     if (req.user.role !== 'admin') {
