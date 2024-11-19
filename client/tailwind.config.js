@@ -54,4 +54,40 @@ export default {
   plugins: [
     require('preline/plugin'),  // Ajoute ce plugin
   ],
+
+  darkMode: 'class',
+  theme: {
+    extend: {
+      animation: {
+        'wave-left': 'waveLeft 2s ease-in-out infinite',
+        'wave-right': 'waveRight 2s ease-in-out infinite',
+        'float': 'float 6s ease-in-out infinite',
+        'glow': 'glow 1.5s ease-in-out infinite',
+        'fade-in': 'fadeIn 0.5s ease-out',
+        'fade-in-delay': 'fadeIn 0.5s ease-out 0.3s forwards',
+      },
+      keyframes: {
+        waveLeft: {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '50%': { transform: 'rotate(-20deg)' }
+        },
+        waveRight: {
+          '0%, 100%': { transform: 'rotate(0deg)' },
+          '50%': { transform: 'rotate(20deg)' }
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' }
+        },
+        glow: {
+          '0%, 100%': { opacity: 1 },
+          '50%': { opacity: 0.6 }
+        },
+        fadeIn: {
+          '0%': { opacity: 0, transform: 'translateY(10px)' },
+          '100%': { opacity: 1, transform: 'translateY(0)' }
+        }
+      }
+    }
+  },
 };

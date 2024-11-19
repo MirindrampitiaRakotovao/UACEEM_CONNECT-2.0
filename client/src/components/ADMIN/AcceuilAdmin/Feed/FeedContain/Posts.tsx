@@ -15,7 +15,7 @@ import { useTheme } from '../../../../../context/ThemeContext.tsx';
 moment.locale('fr');  // Configurer moment pour utiliser le français
 import { motion, AnimatePresence } from 'framer-motion';
 
-const socket = io('http://localhost:5173');
+const socket = io('http://localhost:5000');
 
 // Définir les interfaces pour TypeScript
 interface User {
@@ -472,11 +472,11 @@ const Posts: React.FC = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
-            className="max-w-7xl mx-auto px-4 py-8"
+            className=" mx-auto px-4 py-8"
         >
             <motion.div 
                 layout
-                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8"
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 "
             >
                 <motion.div 
                     layout
@@ -602,142 +602,138 @@ const PublicationCard: React.FC<{
     }, [images]);
 
     return (
-        <motion.div
-            layout
-            variants={{
-                hidden: { y: 20, opacity: 0 },
-                show: { y: 0, opacity: 1 }
-            }}
-            className={`${
-                isDarkMode ? 'bg-gradient-to-r from-[#2d3d53] to-[#29374b] shadow-md text-white' : 'bg-white text-black'
-            } rounded-xl shadow-lg overflow-hidden transition-all duration-300 hover:shadow-xl`}
-        >
-            <div className="p-4 sm:p-6 relative z-10">
-                {/* En-tête de la publication */}
-                <div className="flex items-center justify-between mb-4">
-                    <motion.div 
-                        className="flex items-center space-x-3"
-                        whileHover={{ scale: 1.05 }}
-                    >
-                        <img
-                            src={`http://localhost:5000/${publication.auteur.photoProfil.replace(/\\/g, '/')}`}
-                            alt={publication.auteur.nomUtilisateur}
-                            className="h-8 w-8 sm:h-11 sm:w-11 rounded-full object-cover border-2 border-blue-500"
-                        />
-                        <div>
-                            <h2 className="font-bold text-xs sm:text-sm cursor-pointer hover:text-blue-500 transition-colors"
-                                onClick={() => redirectToUserProfile(publication.auteur)}>
-                                {publication.auteur.nomUtilisateur}
-                            </h2>
-                            <span className={`text-xs sm:text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                {moment(publication.datePublication).fromNow()}
-                            </span>
+<motion.div
+    layout
+    variants={{
+        hidden: { y: 20, opacity: 0 },
+        show: { y: 0, opacity: 1 }
+    }}
+    className={`${
+        isDarkMode ? 'bg-gradient-to-r from-[#2d3d53] to-[#29374b] shadow-md text-white' : 'bg-white text-black'
+    } rounded-md shadow-md overflow-hidden transition-all duration-300 hover:shadow-xl max-w-[400px] mx-auto`}
+>
+    <div className="p-3 relative z-10">
+        {/* En-tête de la publication */}
+        <div className="flex items-center justify-between mb-2">
+            <motion.div 
+                className="flex items-center space-x-2"
+                whileHover={{ scale: 1.05 }}
+            >
+                <img
+                    src={`http://localhost:5000/${publication.auteur.photoProfil.replace(/\\/g, '/')}`}
+                    alt={publication.auteur.nomUtilisateur}
+                    className="h-8 w-8 rounded-full object-cover border border-blue-500"
+                />
+                <div>
+                    <h2 className="font-semibold text-sm cursor-pointer hover:text-blue-500 transition-colors"
+                        onClick={() => redirectToUserProfile(publication.auteur)}>
+                        {publication.auteur.nomUtilisateur}
+                    </h2>
+                    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                        {moment(publication.datePublication).fromNow()}
+                    </span>
+                </div>
+            </motion.div>
+            <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className={`p-1 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+            >
+                <MoreHorizontal className="w-5 h-5" />
+            </motion.button>
+        </div>
+
+        {/* Description de la publication */}
+        <p className={`text-sm mb-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+            {publication.description}
+        </p>
+
+        {/* Carrousel d'images */}
+        {Array.isArray(images) && images.length > 0 && (
+            <div className="relative w-full aspect-square overflow-hidden rounded-md">
+                <motion.img
+                    key={currentImageIndex}
+                    src={`http://localhost:5000/${images[currentImageIndex]}`}
+                    alt={`Publication ${publication.id}`}
+                    className="w-full h-full object-cover"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.5 }}
+                />
+                {images.length > 1 && (
+                    <>
+                        <button 
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/30 text-white rounded-full p-1"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                prevImage();
+                            }}
+                        >
+                            <ChevronLeft size={16} />
+                        </button>
+                        <button 
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/30 text-white rounded-full p-1"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                nextImage();
+                            }}
+                        >
+                            <ChevronRight size={16} />
+                        </button>
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex space-x-1.5">
+                            {images.map((_, index) => (
+                                <div
+                                    key={index}
+                                    className={`h-1.5 w-1.5 rounded-full ${
+                                        index === currentImageIndex ? 'bg-white' : 'bg-gray-400/50'
+                                    }`}
+                                />
+                            ))}
                         </div>
-                    </motion.div>
-                    <motion.button 
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`p-2 rounded-full ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
-                    >
-                        <MoreHorizontal className="w-5 h-5" />
-                    </motion.button>
-                
-                </div>
-
-                {/* Description de la publication */}
-                <p className={`text-sm sm:text-sm mb-4 ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                    {publication.description}
-                </p>
-
-                {/* Carrousel d'images */}
-                {Array.isArray(images) && images.length > 0 && (
-                    <div className="relative aspect-square rounded-xl overflow-hidden">
-                        <motion.img
-                            key={currentImageIndex}
-                            src={`http://localhost:5000/${images[currentImageIndex]}`}
-                            alt={`Publication ${publication.id}`}
-                            className="w-full h-full object-cover"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.5 }}
-                        />
-                        {images.length > 1 && (
-                            <>
-                                {/* Bouton image précédente */}
-                                <button 
-                                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-2"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        prevImage();
-                                    }}
-                                >
-                                    <ChevronLeft size={24} />
-                                </button>
-                                {/* Bouton image suivante */}
-                                <button 
-                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black bg-opacity-50 text-white rounded-full p-2"
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        nextImage();
-                                    }}
-                                >       
-                                    <ChevronRight size={24} />
-                                </button>
-                                {/* Indicateurs de position */}
-                                <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 flex space-x-2">
-                                    {images.map((_, index) => (
-                                        <div 
-                                            key={index}
-                                            className={`h-2 w-2 rounded-full ${
-                                                index === currentImageIndex ? 'bg-white' : 'bg-gray-400'
-                                            }`}
-                                        />
-                                    ))}
-                                </div>
-                            </>
-                        )}
-                    </div>
+                    </>
                 )}
-
-                <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
-                    <motion.button 
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`flex items-center space-x-2 p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
-                        onClick={() => toggleReaction(publication.id)}
-                    >
-                        <Heart
-                            className={`h-4 w-4 sm:h-5 sm:w-5 ${
-                                userReactions[publication.id] 
-                                    ? 'text-red-500 fill-current' 
-                                    : isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                            }`}
-                        />
-                        <span className="text-xs sm:text-sm">{reactionsCount[publication.id] || 0}</span>
-                    </motion.button>
-
-                    <motion.button 
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`flex items-center space-x-2 p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
-                        onClick={() => toggleModal(publication.id)}
-                    >
-                        <MessageCircle className="h-4 w-4 sm:h-5 sm:w-5" />
-                        <span className="text-xs sm:text-xs">Commenter</span>
-                    </motion.button>
-
-                    <motion.button 
-                        whileHover={{ scale: 1.1 }}
-                        whileTap={{ scale: 0.95 }}
-                        className={`flex items-center space-x-2 p-2 rounded-lg ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
-                    >
-                        <Share className="h-4 w-4 sm:h-5 sm:w-5" />
-                        <span className="text-xs sm:text-xs">Partager</span>
-                    </motion.button>
-                </div>
             </div>
-        </motion.div>
+        )}
+
+        <div className="flex items-center justify-between mt-3 pt-2 border-t border-gray-200 dark:border-gray-700">
+            <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className={`flex items-center space-x-1.5 p-1.5 rounded-md ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                onClick={() => toggleReaction(publication.id)}
+            >
+                <Heart
+                    className={`h-5 w-5 ${
+                        userReactions[publication.id] 
+                            ? 'text-red-500 fill-current' 
+                            : isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                    }`}
+                />
+                <span className="text-sm">{reactionsCount[publication.id] || 0}</span>
+            </motion.button>
+
+            <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className={`flex items-center space-x-1.5 p-1.5 rounded-md ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+                onClick={() => toggleModal(publication.id)}
+            >
+                <MessageCircle className="h-5 w-5" />
+                <span className="text-sm">Commenter</span>
+            </motion.button>
+
+            <motion.button 
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                className={`flex items-center space-x-1.5 p-1.5 rounded-md ${isDarkMode ? 'hover:bg-gray-700' : 'hover:bg-gray-100'}`}
+            >
+                <Share className="h-5 w-5" />
+                <span className="text-sm">Partager</span>
+            </motion.button>
+        </div>
+    </div>
+</motion.div>
     );
 };
 
